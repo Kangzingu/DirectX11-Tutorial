@@ -19,7 +19,12 @@
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
-	if (!InitializeDirectX(hwnd, width, height))
+	this->windowWidth = width;
+	this->windowHeight = height;
+
+	this->fpsTimer.Start();
+
+	if (!InitializeDirectX(hwnd))
 		return false;
 
 	if (!InitializeShaders())
@@ -27,6 +32,15 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	if (!InitializeScene())
 		return false;
+
+	// Setup ImGui
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(this->device.Get(), this->deviceContext.Get());
+	ImGui::StyleColorsDark();
 
 	return true;
 }
@@ -50,6 +64,14 @@ void Graphics::RenderFrame()
 
 	UINT offset = 0;
 	
+	// Constant Buffer 업데이트
+	XMMATRIX world = XMMatrixIdentity();
+	constantBuffer.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	constantBuffer.data.mat = DirectX::XMMatrixTranspose(constantBuffer.data.mat);
+	if (!constantBuffer.ApplyChanges())
+		return;
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->constantBuffer.GetAddressOf());
+
 	this->deviceContext->PSSetShaderResources(0, 1, this->myTexture.GetAddressOf());
 	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
 	// 인덱스 버퍼 데이터형이 DWORD(32비트)니까 R32(R은 RGB이거니까 별 의미 없는거 같고 32비트짜리 1개를 뜻하는게 이거라 이걸로 한거가틈)로 한듯
@@ -57,11 +79,36 @@ void Graphics::RenderFrame()
 
 	this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0); // 이거 바꾸면 다르게 그려짐
 
+	// FPS 세서 띄우기
+	static int fpsCounter = 0;
+	static std::string fpsString = "FPS: 0";
+	fpsCounter += 1;
+	if (fpsTimer.GetMilisecondsElapsed() > 1000.0)
+	{
+		fpsString = "FPS: " + std::to_string(fpsCounter);
+		fpsCounter = 0;
+		fpsTimer.Restart();
+	}
+	spriteBatch->Begin();
+	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteBatch->End();
 
-	this->swapchain->Present(1, NULL);
+	// ImGui 프레임 시작
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	// ImGui 테스트 윈도우 생성
+	ImGui::Begin("Test");
+	ImGui::End();
+	// 그릴 데이터 모으기
+	ImGui::Render();
+	// 그리기
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	this->swapchain->Present(0, NULL);
 }
 
-bool Graphics::InitializeDirectX(HWND hwnd, int width, int height)
+bool Graphics::InitializeDirectX(HWND hwnd)
 {
 	// 그래픽 카드 정보 읽어옴
 
@@ -77,8 +124,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int height)
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
 	// backbuffer의 display mode에 대한 옵션
-	scd.BufferDesc.Width = width;
-	scd.BufferDesc.Height = height;
+	scd.BufferDesc.Width = windowWidth;
+	scd.BufferDesc.Height = windowHeight;
 	scd.BufferDesc.RefreshRate.Numerator = 60;
 	scd.BufferDesc.RefreshRate.Denominator = 1;
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;// 색+데이터에 할당할 바이트 수? 관련된 것인듯
@@ -138,8 +185,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int height)
 
 	// Depth/Stencil Buffer(z값 체크해서 젤 가까운것만 그려주는겅) 관련("OMSetRenderTargets" 전에 와야하는 듯? 근데 이거 뒤에도 있음..)
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width = width;
-	depthStencilDesc.Height = height;
+	depthStencilDesc.Width = windowWidth;
+	depthStencilDesc.Height = windowHeight;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -188,8 +235,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int height)
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = width;
-	viewport.Height = height;
+	viewport.Width = windowWidth;
+	viewport.Height = windowHeight;
 	viewport.MinDepth = 0.0f; // 카메라에 가깝
 	viewport.MaxDepth = 1.0f; // 카메라에 멈
 
@@ -208,6 +255,10 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int height)
 		ErrorLogger::Log(hr, "라스터라이저 상태 생성에 실패했습니다");
 		return false;
 	}
+
+	// 글자 관련 코드
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
+	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data/Fonts/comic_sans_ms_16.spritefont");
 
 	// 텍스쳐 관련 코드
 
@@ -304,6 +355,17 @@ bool Graphics::InitializeScene()
 		ErrorLogger::Log(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
 		return false;
 	}
+
+	// Constant Buffer 초기화
+	hr = this->constantBuffer.Initialize(this->device.Get(), this->deviceContext.Get());
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log(hr, "컨스탠트 버퍼 생성에 실패했습니다");
+		return false;
+	}
+
+	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	return true;
 }

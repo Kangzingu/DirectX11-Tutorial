@@ -19,7 +19,17 @@ WindowContainer::WindowContainer() {
 	}
 }
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+
+	// ImGui Proc Handler에 우리의 모든 메시지를 전달해줌, ImGui 관련 메시지를 처리할 수 있겡
+	// ImGui 관련 메시지라면 얘가 처리하고 return으로 걍 끝내버리고, 관련 메시지가 아니라면 기존에 메시지 처리하던 switch문으로 넘어가겠징
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+	{
+		return true;
+	}
+
 	//OutputDebugStringA("윈도우 컨데이너의 WindowProc 호출");
 	switch (uMsg) {
 

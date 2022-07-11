@@ -1,3 +1,9 @@
+cbuffer mycBuffer : register(b0)// b0이 첫번째 Buffer Slot을 사용한다는 얘기임
+{
+	float4x4 mat;
+	//row_major float4x4 mat;
+};
+
 struct VS_INPUT
 {
 // 여기서 "POSITION" 이건 Graphics::InitializeShaders()에서 layout에 정해둔 이름이랑만 맞으면 되는듯
@@ -15,7 +21,8 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	output.outPosition = float4(input.inPos, 1.0f);
+
+	output.outPosition = mul(float4(input.inPos, 1.0f), mat);
 	output.outTexCoord = input.inTexCoord;
 	return output;
 }
