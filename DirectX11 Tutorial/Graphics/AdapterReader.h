@@ -2,9 +2,6 @@
 // 왜 "ErrorLogger.h"를 추가한진 모르겠움, string 이랑 windows.h 일케 드가있는데..
 #include "../ErrorLogger.h"
 #include <d3d11.h>
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "DirectXTK.lib")
-#pragma comment(lib, "DXGI.lib")
 #include <wrl/client.h>
 #include <vector>
 

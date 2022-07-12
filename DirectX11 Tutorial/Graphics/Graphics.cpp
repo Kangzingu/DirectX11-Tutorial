@@ -47,7 +47,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderFrame()
 {
-	float bgcolor[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+	float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -57,27 +57,18 @@ void Graphics::RenderFrame()
 	this->deviceContext->RSSetState(this->rasterizerState.Get());
 	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 
+	this->deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "this->blendState.Get()"로
+
 	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 
 	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
-	UINT offset = 0;
-	
-	// Constant Buffer 업데이트
-	XMMATRIX world = XMMatrixIdentity();
-	constantBuffer.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-	constantBuffer.data.mat = DirectX::XMMatrixTranspose(constantBuffer.data.mat);
-	if (!constantBuffer.ApplyChanges())
-		return;
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->constantBuffer.GetAddressOf());
-
-	this->deviceContext->PSSetShaderResources(0, 1, this->myTexture.GetAddressOf());
-	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-	// 인덱스 버퍼 데이터형이 DWORD(32비트)니까 R32(R은 RGB이거니까 별 의미 없는거 같고 32비트짜리 1개를 뜻하는게 이거라 이걸로 한거가틈)로 한듯
-	this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-	this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0); // 이거 바꾸면 다르게 그려짐
+	// 그리는 순서때문에 불투명한거 다음에 그 앞에있는 투명한게 그려지면 불투명한게 안그려짐, 해결법은 불투명한거 먼저 그리고 투명한걸 소팅한담에 투명한건 뒤에서부터 앞 순서대로 그리기
+	{// Draw
+		this->model.Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
+		this->model2.Draw(DirectX::XMMatrixTranslation(2.0f, 0.0f, 0.0f) * camera.GetViewMatrix() * camera.GetProjectionMatrix());
+	}
 
 	// FPS 세서 띄우기
 	static int fpsCounter = 0;
@@ -93,12 +84,20 @@ void Graphics::RenderFrame()
 	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
+	static int counter = 0;
 	// ImGui 프레임 시작
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	// ImGui 테스트 윈도우 생성
 	ImGui::Begin("Test");
+	/*ImGui::Text("This is example text");
+	if (ImGui::Button("Click me"))
+		counter++;
+	ImGui::SameLine();
+	std::string clickCount = "Click Count: " + std::to_string(counter);
+	ImGui::Text(clickCount.c_str());
+	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);*/
 	ImGui::End();
 	// 그릴 데이터 모으기
 	ImGui::Render();
@@ -110,176 +109,138 @@ void Graphics::RenderFrame()
 
 bool Graphics::InitializeDirectX(HWND hwnd)
 {
-	// 그래픽 카드 정보 읽어옴
-
-	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
-
-	if (adapters.size() < 1)
+	try
 	{
-		ErrorLogger::Log("IDXGI Adapter를 찾지 못했습니다");
+		// 그래픽 카드 정보 읽어옴
+		std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+		if (adapters.size() < 1)
+		{
+			ErrorLogger::Log("IDXGI Adapter를 찾지 못했습니다");
+			return false;
+		}
+
+		DXGI_SWAP_CHAIN_DESC scd = { 0 };
+
+		// backbuffer의 display mode에 대한 옵션
+		scd.BufferDesc.Width = windowWidth;
+		scd.BufferDesc.Height = windowHeight;
+		scd.BufferDesc.RefreshRate.Numerator = 60;
+		scd.BufferDesc.RefreshRate.Denominator = 1;
+		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;// 색+데이터에 할당할 바이트 수? 관련된 것인듯
+		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+		// multi-sampling 파라미터
+		scd.SampleDesc.Count = 1;// 1은 멀티 샘플링을 하지 않겠다는 것
+		scd.SampleDesc.Quality = 0;// 얘도 마찬가지
+
+		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+		scd.BufferCount = 1;// 이중 버퍼링: 1, 삼중 버퍼링: 2
+
+		scd.OutputWindow = hwnd;
+
+		scd.Windowed = TRUE;
+
+		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+		HRESULT hr;
+		hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter,// IDXGI Adapter
+										   D3D_DRIVER_TYPE_UNKNOWN,
+										   NULL,// 소프트웨어 드라이버 타입
+										   NULL,// runtime layers를 위한 flags
+										   NULL,// feature levels array
+										   0,// array 내 feature level의 #(갯수인듯?)
+										   D3D11_SDK_VERSION,
+										   &scd,// 스왑체인 description
+										   this->swapchain.GetAddressOf(),// 스왑체인 주소
+										   this->device.GetAddressOf(),// 디바이스 주소
+										   NULL,// 지원되는 feature level
+										   this->deviceContext.GetAddressOf());// 디바이스 컨텍스트 주소
+		COM_ERROR_IF_FAILED(hr, "디바이스와 스왑체인 생성에 실패했습니다");
+
+		// 렌더 타겟(DirectX에서 렌더 타겟은 백버퍼를 의미하는 듯) 관련..?
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
+
+		hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "렌더타겟 뷰 생성에 실패했습니다");
+
+		// Depth/Stencil Buffer(z값 체크해서 젤 가까운것만 그려주는겅) 관련("OMSetRenderTargets" 전에 와야하는 듯? 근데 이거 뒤에도 있음..)
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, this->windowWidth, this->windowHeight);
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+
+		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, this->depthStencilBuffer.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Depth Stencil 텍스쳐 생성에 실패했습니다");
+
+		hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Depth Stencil 뷰 생성에 실패했습니다");
+
+		// 이제 렌더 타겟을 설정? 채우기? 만 하면 댐. 이게 Output Merger 단계를 위한 준비의 다인듯?
+		this->deviceContext->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
+
+		// Depth/Stencil State 생성. 위에 depthStencilDesc랑 이름이 너무 똑같다.. 이건 꼭 바꿔주자..
+		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
+		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;//D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;// 일케하면 깊이가 같은 경우에는 걍 넘어가는듯, LESS_EQUAL은 같은 경우 늦게 들어온넘을 그리고
+
+		hr = this->device->CreateDepthStencilState(&depthstencildesc, depthStencilState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Depth Stencil 상태 생성에 실패했습니다");
+
+		// 뷰포트 및 라스터라이저 상태 생성. 이게 Rasterizer 단계를 위한 준비의 다인듯
+		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(this->windowWidth), static_cast<float>(this->windowHeight));
+		this->deviceContext->RSSetViewports(1, &viewport);
+
+		// 라스터라이저 상태 생성
+		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
+		//rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;//D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
+		hr = this->device->CreateRasterizerState(&rasterizerDesc, this->rasterizerState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "라스터라이저 상태 생성에 실패했습니다");
+		// 테스트용(앞면 컬링?) 라스터라이저 상태 생성
+		CD3D11_RASTERIZER_DESC rasterizerDesc_CullFront(D3D11_DEFAULT);
+		rasterizerDesc_CullFront.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;
+		hr = this->device->CreateRasterizerState(&rasterizerDesc_CullFront, this->rasterizerState_CULLFront.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "라스터라이저 상태 생성에 실패했습니다");
+
+		// 블렌드 상태 생성
+		D3D11_BLEND_DESC blendDesc = { 0 };
+		D3D11_RENDER_TARGET_BLEND_DESC rtbd = { 0 };
+
+		rtbd.BlendEnable = true;
+		// Final = (SrcBlend * SrcBlendAlpha) + (DestBlend * DestBlendAlpha)
+		// 얜 결국 = (SrcBlend * 1) + ((1 - SrcBlend) * 0) = SrcBlend
+		rtbd.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		rtbd.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		rtbd.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtbd.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		rtbd.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+		blendDesc.RenderTarget[0] = rtbd;
+		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "블렌드 상태 생성에 실패했습니다");
+
+		// 글자 관련 코드
+		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
+		spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data/Fonts/comic_sans_ms_16.spritefont");
+
+		// 텍스쳐 관련 코드
+
+		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "샘플러 상태 생성에 실패했습니다");
+	}
+	catch (COMException& exception)
+	{
+		ErrorLogger::Log(exception);
 		return false;
 	}
-
-	DXGI_SWAP_CHAIN_DESC scd;
-	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-	// backbuffer의 display mode에 대한 옵션
-	scd.BufferDesc.Width = windowWidth;
-	scd.BufferDesc.Height = windowHeight;
-	scd.BufferDesc.RefreshRate.Numerator = 60;
-	scd.BufferDesc.RefreshRate.Denominator = 1;
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;// 색+데이터에 할당할 바이트 수? 관련된 것인듯
-	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-	// multi-sampling 파라미터
-	scd.SampleDesc.Count = 1;// 1은 멀티 샘플링을 하지 않겠다는 것
-	scd.SampleDesc.Quality = 0;// 얘도 마찬가지
-
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-
-	scd.BufferCount = 1;// 이중 버퍼링: 1, 삼중 버퍼링: 2
-
-	scd.OutputWindow = hwnd;
-
-	scd.Windowed = TRUE;
-
-	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	HRESULT hr;
-	hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter,// IDXGI Adapter
-									   D3D_DRIVER_TYPE_UNKNOWN,
-									   NULL,// 소프트웨어 드라이버 타입
-									   NULL,// runtime layers를 위한 flags
-									   NULL,// feature levels array
-									   0,// array 내 feature level의 #(갯수인듯?)
-									   D3D11_SDK_VERSION,
-									   &scd,// 스왑체인 description
-									   this->swapchain.GetAddressOf(),// 스왑체인 주소
-									   this->device.GetAddressOf(),// 디바이스 주소
-									   NULL,// 지원되는 feature level
-									   this->deviceContext.GetAddressOf());// 디바이스 컨텍스트 주소
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "디바이스와 스왑체인 생성에 실패했습니다");
-		return false;
-	}
-
-	// 렌더 타겟(DirectX에서 렌더 타겟은 백버퍼를 의미하는 듯) 관련..?
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-	hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
-		return false;
-	}
-
-	hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "렌더타겟 뷰 생성에 실패했습니다");
-		return false;
-	}
-
-	// Depth/Stencil Buffer(z값 체크해서 젤 가까운것만 그려주는겅) 관련("OMSetRenderTargets" 전에 와야하는 듯? 근데 이거 뒤에도 있음..)
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width = windowWidth;
-	depthStencilDesc.Height = windowHeight;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilDesc.SampleDesc.Count = 1;
-	depthStencilDesc.SampleDesc.Quality = 0;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D10_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
-
-	hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, this->depthStencilBuffer.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Depth Stencil 텍스쳐 생성에 실패했습니다");
-		return false;
-	}
-
-	hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Depth Stencil 뷰 생성에 실패했습니다");
-		return false;
-	}
-
-	// 이제 렌더 타겟을 설정? 채우기? 만 하면 댐. 이게 Output Merger 단계를 위한 준비의 다인듯?
-	this->deviceContext->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
-
-	// Depth/Stencil State 생성. 위에 depthStencilDesc랑 이름이 너무 똑같다.. 이건 꼭 바꿔주자..
-	D3D11_DEPTH_STENCIL_DESC depthstencildesc;
-	ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-
-	depthstencildesc.DepthEnable = true;
-	depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;//D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;// 일케하면 스텐실 꺼짐
-	depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;//D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;// 일케하면 깊이가 같은 경우에는 걍 넘어가는듯, LESS_EQUAL은 같은 경우 늦게 들어온넘을 그리고
-
-	hr = this->device->CreateDepthStencilState(&depthstencildesc, depthStencilState.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Depth Stencil 상태 생성에 실패했습니다");
-		return false;
-	}
-
-	// 뷰포트 및 라스터라이저 상태 생성. 이게 Rasterizer 단계를 위한 준비의 다인듯
-	D3D11_VIEWPORT viewport;
-	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = windowWidth;
-	viewport.Height = windowHeight;
-	viewport.MinDepth = 0.0f; // 카메라에 가깝
-	viewport.MaxDepth = 1.0f; // 카메라에 멈
-
-	this->deviceContext->RSSetViewports(1, &viewport);
-
-	D3D11_RASTERIZER_DESC rasterizerDesc;
-	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
-
-	rasterizerDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;//D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
-	rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;//D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
-	//rasterizerDesc.FrontCounterClockwise = true;
-
-	hr = this->device->CreateRasterizerState(&rasterizerDesc, this->rasterizerState.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "라스터라이저 상태 생성에 실패했습니다");
-		return false;
-	}
-
-	// 글자 관련 코드
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
-	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data/Fonts/comic_sans_ms_16.spritefont");
-
-	// 텍스쳐 관련 코드
-
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	// 일케 LoD 설정하면 최소부터 최대까지 전 범위 다 커버되는듯
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "샘플러 상태 생성에 실패했습니다");
-		return false;
-	}
-
 	return true;
 }
 
@@ -304,7 +265,7 @@ bool Graphics::InitializeShaders()
 		shaderfolder = L"../Release/";
 #endif
 #endif
-	}
+}
 
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -324,48 +285,37 @@ bool Graphics::InitializeShaders()
 
 bool Graphics::InitializeScene()
 {
-	Vertex v[] = {
-		Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f),
-		Vertex(-0.5f, 0.5f, 0.0f, 0.0f, 0.0f),
-		Vertex(0.5f, 0.5f, 0.0f, 1.0f, 0.0f),
-		Vertex(0.5f, -0.5f, 0.0f, 1.0f, 1.0f),
-	};
-
-	HRESULT hr = this->vertexBuffer.Initialize(this->device.Get(), v, ARRAYSIZE(v));
-	if (FAILED(hr))
+	try
 	{
-		ErrorLogger::Log(hr, "버텍스 버퍼 생성에 실패했습니다");
-		return false;
+		HRESULT hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data/Textures/seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
+		hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data/Textures/pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
+		hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data/Textures/seamless_Pavement.jpg", nullptr, pavementTexture.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
+
+		// Constant Buffer 초기화
+		hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
+		COM_ERROR_IF_FAILED(hr, "버텍스 쉐이더의 컨스탠트 버퍼 생성에 실패했습니다");
+		hr = this->cb_ps_pixelshader.Initialize(this->device.Get(), this->deviceContext.Get());
+		COM_ERROR_IF_FAILED(hr, "픽셀 쉐이더의 컨스탠트 버퍼 생성에 실패했습니다");
+
+		// 모델 초기화
+		if (!model.Initialize("Data/Objects/nanosuit/nanosuit.obj", this->device.Get(), this->deviceContext.Get(), this->pavementTexture.Get(), cb_vs_vertexshader))
+			return false;
+		if (!model2.Initialize("Data/Objects/nanosuit/nanosuit.obj", this->device.Get(), this->deviceContext.Get(), this->grassTexture.Get(), cb_vs_vertexshader))
+			return false;
+
+		camera.SetPosition(0.0f, 0.0f, -2.0f);
+		camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 	}
-	DWORD indices[] = {
-		0, 1, 2,
-		0, 2, 3
-	};
-
-	hr = this->indicesBuffer.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
-	if (FAILED(hr))
+	catch (COMException& exception)
 	{
-		ErrorLogger::Log(hr, "인덱스 버퍼 생성에 실패했습니다");
-		return hr;
-	}
-
-	hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data/Textures/TestTexture.png", nullptr, myTexture.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-		return false;
-	}
-
-	// Constant Buffer 초기화
-	hr = this->constantBuffer.Initialize(this->device.Get(), this->deviceContext.Get());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "컨스탠트 버퍼 생성에 실패했습니다");
+		ErrorLogger::Log(exception);
 		return false;
 	}
 
-	camera.SetPosition(0.0f, 0.0f, -2.0f);
-	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+	model.SetPosition(3.0f, 0.0f, 0.0f);
 
 	return true;
 }

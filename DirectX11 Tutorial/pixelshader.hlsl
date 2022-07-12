@@ -1,3 +1,8 @@
+cbuffer alphaBuffer : register(b0)
+{
+	float alpha;
+}
+
 struct PS_INPUT
 {
 	// "SV_POSITION"에서의 "SV"는 system value 라고 함, 다른 쉐이더로 넘길 값을 뜻하는 듯? 얘는 position값을 픽셀 쉐이더로 넘기니까 "SV_POSITION"으로 쓴듯
@@ -13,5 +18,5 @@ SamplerState objSamplerState : SAMPLER: register(s0);
 float4 main(PS_INPUT input) : SV_TARGET
 {
 	float3 pixelColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-	return float4(pixelColor, 1.0f);
+	return float4(pixelColor, alpha);
 }
