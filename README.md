@@ -5,13 +5,19 @@
 
 ### 제작 방법 : 최대한 기초부터 직접 구현(책, 유튜브, 구글링 등 모든걸 활용)
 
-렌더링: 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현
+렌더링 : 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현
   
-물리: 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현
+물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현
 
 ### 제작 과정
     
     2022.7.1.(금) ~ 2022.7.5.(화)
-     * 주제 선정
+     - 주제 선정
 
-    
+    2022.7.6.(수)
+     - 렌더링 : DirectX 라이브러리 불러와서 프로젝트 생성, 윈도우 창 띄우기 구현
+ 
+
+    2022.7.6.(수)
+     - 렌더링 : DirectX 라이브러리 불러와서 프로젝트 생성, 윈도우 창 띄우기 구현
+ 
