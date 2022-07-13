@@ -43,9 +43,14 @@ void Engine::Update() {
 		}
 	}
 
-	this->gfx.model.AdjustRotation(0.0f, 0.001f * dt, 0.0f);
+	//this->gfx.gameObject.AdjustRotation(0.0f, 0.001f * dt, 0.0f);
 
-	const float cameraSpeed = 0.008f;
+	float cameraSpeed = 0.008f;
+
+	if (keyboard.KeyIsPressed(VK_SHIFT))
+	{
+		cameraSpeed = 0.3f;
+	}
 
 	if (keyboard.KeyIsPressed('W'))
 	{

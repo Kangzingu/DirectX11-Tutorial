@@ -9,7 +9,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_impl_dx11.h"
-#include "Model.h"
+#include "RenderableGameObject.h"
 
 class Graphics
 {
@@ -18,8 +18,8 @@ public:
 	void RenderFrame();
 
 	Camera camera;
-	Model model;
-	Model model2;
+	RenderableGameObject gameObject;
+	RenderableGameObject gameObject2;
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
@@ -33,7 +33,7 @@ private:
 	VertexShader vertexshader;
 	PixelShader pixelshader;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
-	ConstantBuffer<CB_PS_pixelshader> cb_ps_pixelshader;
+	ConstantBuffer<CB_PS_light> cb_ps_light;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;

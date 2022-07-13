@@ -8,7 +8,8 @@ struct CB_VS_vertexshader
 	DirectX::XMMATRIX mat;
 };
 
-struct CB_PS_pixelshader
+struct CB_PS_light
 {
-	float alpha = 1.0f;
+	DirectX::XMFLOAT3 ambientLightColor;
+	float ambientLightStrength;
 };

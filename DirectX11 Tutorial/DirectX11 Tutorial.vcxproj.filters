@@ -42,7 +42,7 @@
     <ClCompile Include="소스.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="StringConverter.cpp">
+    <ClCompile Include="StringHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ErrorLogger.cpp">
@@ -108,9 +108,21 @@
     <ClCompile Include="Graphics\Mesh.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\GameObject.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Color.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderableGameObject.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StringConverter.h">
+    <ClInclude Include="StringHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ErrorLogger.h">
@@ -198,6 +210,18 @@
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Mesh.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GameObject.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Color.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderableGameObject.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

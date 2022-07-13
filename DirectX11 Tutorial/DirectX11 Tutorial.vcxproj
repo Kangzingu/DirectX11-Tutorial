@@ -151,6 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Color.cpp" />
+    <ClCompile Include="Graphics\GameObject.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\AdapterReader.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -168,15 +170,19 @@
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Mouse\MouseClass.cpp" />
     <ClCompile Include="Mouse\MouseEvent.cpp" />
+    <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
-    <ClCompile Include="StringConverter.cpp" />
+    <ClCompile Include="StringHelper.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="WindowContainer.cpp" />
     <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Color.h" />
     <ClInclude Include="COMException.h" />
+    <ClInclude Include="Graphics\GameObject.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\ConstantBufferTypes.h" />
@@ -199,11 +205,13 @@
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Mouse\MouseClass.h" />
     <ClInclude Include="Mouse\MouseEvent.h" />
+    <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="Graphics\Shaders.h" />
-    <ClInclude Include="StringConverter.h" />
+    <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
+    <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
