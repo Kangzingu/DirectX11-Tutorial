@@ -6,13 +6,13 @@
 다만 기초를 제대로 공부해야 겠다는 생각에 직접 이해하면서 구현해 보는데 그 의미를 두었습니다  
   
 ### 제작 방법
-최대한 기초부터 직접 구현(책, 유튜브, 구글링 등 모든걸 활용)  
+##### 최대한 기초부터 직접 구현(책, 유튜브, 구글링 등 모든걸 활용)  
 렌더링 : 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현  
 물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현, 렌더링 구현 이전까지 결과는 Unity에서 확인  
 
 ### 프로젝트 환경  
-언어 : C++  
-사용 라이브러리 : DirectX11, ASSIMP, ImGui  
+##### 언어 : C++  
+##### 사용 라이브러리 : DirectX11, ASSIMP, ImGui  
 
 ### 제작 과정  
 ```
