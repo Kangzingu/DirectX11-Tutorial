@@ -10,6 +10,5 @@
 물리: 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현
 
 ### 제작 과정
-
-  ㄴㅇㄴㅁㅇㅁㄴㅇ
-  
+    
+    2022.7.1.(금) ~ 2022.7.5.(화) 주제 
