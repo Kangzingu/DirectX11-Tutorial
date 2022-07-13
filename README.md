@@ -6,7 +6,7 @@
 
 ## 제작 방법  
  * 최대한 기초부터 직접 구현
- * 우선 공부를 위해 다음 자료들을 참고, 이 후 렌더링과 물리를 통합해 하나의 물리엔진으로 
+ * 우선 공부를 위해 다음 자료들을 참고하며 각각 구현하되, 이 후 렌더링과 물리의 필요 기능들을 통합해 하나의 물리엔진으로 구현 
    * 렌더링 : 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현
    * 물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현(렌더링 구현이전까지 결과는 Unity에서 확인)
 <br>
