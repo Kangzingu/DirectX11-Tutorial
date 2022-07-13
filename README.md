@@ -11,7 +11,7 @@
 물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현, 렌더링 구현 이전까지 결과는 Unity에서 확인  
   
 ### 언어 및 사용 라이브러리 
-##### C++ 14(DirectX11, ASSIMP, ImGui)  
+##### C++14(DirectX11, ASSIMP, ImGui)  
   
 ### 제작 과정  
 ```
