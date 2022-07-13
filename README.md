@@ -15,7 +15,7 @@
 
 언어 : C++
 
-주요 라이브러리 : DirectX11, ASSIMP
+사용 라이브러리 : DirectX11, ASSIMP, ImGui
 
 ### 제작 과정
 ```
