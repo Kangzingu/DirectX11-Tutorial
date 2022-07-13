@@ -3,7 +3,7 @@
 
 사실 너무 기초적인 수준이라 이미 구현된 코드도 많고 만들어도 저 말곤 딱히 쓸 사람도 없습니다. 다만 기초를 제대로 공부해야 겠다는 생각에 직접 이해하면서 구현해 보는데 그 의미를 두었습니다
 
-### 제작 방법: 최대한 기초부터 직접 구현(책, 유튜브, 구글링 등등 모든걸 )
+### 제작 방법: 최대한 기초부터 직접 구현(책, 유튜브, 구글링 등등 모든걸 활용ㅎ)
 
 렌더링: 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현
   
