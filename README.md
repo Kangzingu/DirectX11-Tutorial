@@ -12,11 +12,15 @@ ___
   
 물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현, 렌더링 구현 이전까지 결과는 Unity에서 확인
 
+
+
 ### 프로젝트 환경
 
 언어 : C++
 
 사용 라이브러리 : DirectX11, ASSIMP, ImGui
+
+
 
 ### 제작 과정
 ```
