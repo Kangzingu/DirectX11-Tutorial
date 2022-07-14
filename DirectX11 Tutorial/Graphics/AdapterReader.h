@@ -1,6 +1,6 @@
 #pragma once
 // 왜 "ErrorLogger.h"를 추가한진 모르겠움, string 이랑 windows.h 일케 드가있는데..
-#include "../ErrorLogger.h"
+#include "../Utils/ErrorLogger.h"
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <vector>

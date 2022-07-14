@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
-#include "Keyboard/Keyboard.h"
-#include "Mouse/Mouse.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
 class WindowManager {
 public:

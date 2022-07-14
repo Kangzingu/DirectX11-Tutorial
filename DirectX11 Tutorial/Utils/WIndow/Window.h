@@ -1,5 +1,5 @@
 #pragma once
-#include "ErrorLogger.h"
+#include "../ErrorLogger.h"
 
 class WindowManager;
 

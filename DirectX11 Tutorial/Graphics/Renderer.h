@@ -5,7 +5,7 @@
 #include <SpriteFont.h>
 #include <WICTextureLoader.h>
 #include "Camera3D.h"
-#include "../Timer.h"
+#include "../Utils/Timer.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_impl_dx11.h"
@@ -18,7 +18,7 @@ class Renderer
 {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
-	void RenderFrame();
+	void Render();
 
 	Camera3D camera3D;
 	Camera2D camera2D;

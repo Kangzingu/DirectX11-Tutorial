@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include "../ErrorLogger.h"
+#include "../Utils/ErrorLogger.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 

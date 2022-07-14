@@ -1,28 +1,42 @@
 #include "Engine.h"
+// 엔진이라는건 없어도 댈 거 같아요.
+void Engine::Run()
+{
+	while (IsAlive())
+	{
+		UpdateDeltaTime();
+		ManageInput();
 
-bool Engine::InitializeWindow(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight) {
-	if (!windowManager.Initialize(hInstance, windowTitle, windowClass, windowWidth, windowHeight))
-		return false;
-	return true;
+		// renderer.UpdatePhysics()
+		// renderer.UpdatePhysics()
+		renderer.Render();
+
+	}
 }
 
-bool Engine::InitializeRenderer()
+void Engine::InitializeWindow(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
+{
+	if (!windowManager.Initialize(hInstance, windowTitle, windowClass, windowWidth, windowHeight))
+		ErrorLogger::Log("WindowManager 초기화 실패");
+}
+
+void Engine::InitializeRenderer(void)
 {
 	sceneTimer.Start();
+
 	if (!renderer.Initialize(windowManager.window.GetHWND(), windowManager.window.GetWidth(), windowManager.window.GetHeight()))
-		return false;
-	return true;
+		ErrorLogger::Log("Renderer 초기화 실패");
 }
 
-void Engine::Run() {
-	deltaTime = sceneTimer.GetElapsedMiliseconds();
-	sceneTimer.Restart();
 
+void Engine::ManageInput()
+{
 	while (!windowManager.keyboard.IsCharBufferEmpty())
 	{
 		unsigned char ch = windowManager.keyboard.ReadChar();
 	}
-	while (!windowManager.keyboard.IsKeyBufferEmpty()) {
+	while (!windowManager.keyboard.IsKeyBufferEmpty())
+	{
 		KeyboardEvent kbe = windowManager.keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
@@ -46,18 +60,17 @@ void Engine::Run() {
 	{
 		Camera3DSpeed = 0.3f;
 	}
-
 	if (windowManager.keyboard.KeyIsPressed('W'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetForwardVector() * Camera3DSpeed * deltaTime);
 	}
-	if (windowManager.keyboard.KeyIsPressed('S'))
-	{
-		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetBackwardVector() * Camera3DSpeed * deltaTime);
-	}
 	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetLeftVector() * Camera3DSpeed * deltaTime);
+	}
+	if (windowManager.keyboard.KeyIsPressed('S'))
+	{
+		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetBackwardVector() * Camera3DSpeed * deltaTime);
 	}
 	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
@@ -78,12 +91,14 @@ void Engine::Run() {
 		this->renderer.light.SetPosition(lightPosition);
 		this->renderer.light.SetRotation(this->renderer.camera3D.GetRotationFloat3());
 	}
-
-	/* 이거 언젠가 떼줘야함 */
-	renderer.RenderFrame();
 }
-
 bool Engine::IsAlive()
 {
 	return this->windowManager.window.ProcessMessages();
+}
+
+void Engine::UpdateDeltaTime()
+{
+	deltaTime = sceneTimer.GetElapsedMiliseconds();
+	sceneTimer.Restart();
 }

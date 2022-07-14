@@ -1,22 +1,5 @@
 #include "Renderer.h"
 
-/* DirectX 11 그래픽스 파이프라인 참고(https://www.youtube.com/watch?v=4RFlOvVPuys)*/
-// 1. Input-Assembler => Not Programmable
-// 2. Vertex Shader
-// 3. Tesselation
-// 4. Geometry Shader
-// 5. Rasterizer => Not Programmable
-// 6. Pixel Shader
-// 7. Output-Merge => Not Programmable
-// 8. Render Target
-
-/* 우리가 만들 것(아마도?) 참고 */
-// 1. Input-Assembler
-// 2. Vertex Shader
-// 3. Resterizer
-// 4. Pixel Shader
-// 5. Output-Merger
-
 bool Renderer::Initialize(HWND hwnd, int windowWidth, int windowHeight)
 {
 	this->windowWidth = windowWidth;
@@ -45,7 +28,7 @@ bool Renderer::Initialize(HWND hwnd, int windowWidth, int windowHeight)
 	return true;
 }
 
-void Renderer::RenderFrame()
+void Renderer::Render()
 {
 	cb_ps_light.data.dynamicLightColor = light.lightColor;
 	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
@@ -285,7 +268,7 @@ bool Renderer::InitializeDirectX(HWND hwnd)
 
 		// 글자 관련 코드
 		spriteBatch = std::make_unique<DirectX::SpriteBatch>(deviceContext.Get());
-		spriteFont = std::make_unique<DirectX::SpriteFont>(device.Get(), L"Data/Fonts/comic_sans_ms_16.spritefont");
+		spriteFont = std::make_unique<DirectX::SpriteFont>(device.Get(), L"Assets/Fonts/comic_sans_ms_16.spritefont");
 
 		// 텍스쳐 관련 코드
 
@@ -361,11 +344,11 @@ bool Renderer::InitializeScene()
 {
 	try
 	{
-		HRESULT hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data/Textures/seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
+		HRESULT hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data/Textures/pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
+		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data/Textures/seamless_Pavement.jpg", nullptr, pavementTexture.GetAddressOf());
+		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/seamless_Pavement.jpg", nullptr, pavementTexture.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
 
 		// Constant Buffer 초기화
@@ -380,15 +363,15 @@ bool Renderer::InitializeScene()
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		// 모델 초기화
-		if (!gameObject.Initialize("Data/Objects/Samples/dodge_challenger.fbx", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		if (!gameObject.Initialize("Assets/Objects/Samples/dodge_challenger.fbx", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			return false;
-		if (!gameObject2.Initialize("Data/Objects/nanosuit/nanosuit.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		if (!gameObject2.Initialize("Assets/Objects/nanosuit/nanosuit.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			return false;
 
 		if (!light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			return false;
 
-		if (!sprite.Initialize(device.Get(), deviceContext.Get(), 256, 256, "Data/Textures/circle.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(device.Get(), deviceContext.Get(), 256, 256, "Assets/Textures/circle.png", cb_vs_vertexshader_2d))
 			return false;
 
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);

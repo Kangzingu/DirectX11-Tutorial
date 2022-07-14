@@ -1,15 +1,16 @@
 #pragma once
-#include "WindowManager.h"
+#include "Utils/WIndow/WindowManager.h"
 #include "Graphics/Renderer.h"
 
 class Engine
 {
 public:
-	bool InitializeWindow(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
-	bool InitializeRenderer();
-	bool IsAlive();
+	void InitializeWindow(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
+	void InitializeRenderer(void);
 	void Run();
-	void RenderFrame();
+	bool IsAlive();
+	void UpdateDeltaTime();
+	void ManageInput();
 private:
 	Timer sceneTimer;
 	float deltaTime;
