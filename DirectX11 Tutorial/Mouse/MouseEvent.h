@@ -6,7 +6,7 @@ struct MousePoint {
 
 class MouseEvent {
 public:
-	enum EventType {
+	enum Type {
 		LPress,
 		LRelease,
 		RPress,
@@ -20,14 +20,14 @@ public:
 		Invalid
 	};
 private:
-	EventType type;
+	Type type;
 	int x;
 	int y;
 public:
 	MouseEvent();
-	MouseEvent(const EventType type, const int x, const int y);
+	MouseEvent(const Type type, const int x, const int y);
 	bool IsValid() const;
-	EventType GetType() const;
+	Type GetType() const;
 	MousePoint GetPos() const;
 	int GetPosX() const;
 	int GetPosY() const;

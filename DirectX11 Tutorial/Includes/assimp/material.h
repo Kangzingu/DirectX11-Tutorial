@@ -286,7 +286,7 @@ enum aiTextureType {
      */
 
     aiTextureType_BASE_COLOR = 12,
-    aiTextureType_NORMAL_CAMERA = 13,
+    aiTextureType_NORMAL_Camera3D = 13,
     aiTextureType_EMISSION_COLOR = 14,
     aiTextureType_METALNESS = 15,
     aiTextureType_DIFFUSE_ROUGHNESS = 16,

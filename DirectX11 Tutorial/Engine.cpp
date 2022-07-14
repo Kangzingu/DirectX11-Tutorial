@@ -1,84 +1,95 @@
 #include "Engine.h"
 
-bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) {
-	timer.Start();
-	
-	//keyboard.EnableAutoRepeatChars();
-	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
+bool Engine::Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight) {
+	/* 타이머 켜고                 */
+	sceneTimer.Start();
+	/* 창 띄우고                   */
+	if (!window.Initialize(this, hInstance, windowTitle, windowClass, windowWidth, windowHeight))
+	{
 		return false;
-
-	if (!gfx.Initialize(this->render_window.GetHWND(), width, height))
+	}
+	/* 그래픽 관련된것 초기화 하고 */
+	if (!renderer.Initialize(window.GetHWND(), windowWidth, windowHeight))
+	{
 		return false;
+	}
 
 	return true;
 }
 
 bool Engine::ProcessMessages() {
-	return this->render_window.ProcessMessages();
+	return this->window.ProcessMessages();
 }
 
 void Engine::Update() {
+	/* Delta Time 업데이트*/
+	deltaTime = sceneTimer.GetElapsedMiliseconds();
+	sceneTimer.Restart();
 
-	float dt = timer.GetMilisecondsElapsed();
-	timer.Restart();
-
-	while (!keyboard.CharBufferIsEmpty()) {
+	
+	while (!keyboard.IsCharBufferEmpty())
+	{
 		unsigned char ch = keyboard.ReadChar();
 	}
-
-	while (!keyboard.KeyBufferIsEmpty()) {
+	while (!keyboard.IsKeyBufferEmpty()) {
 		KeyboardEvent kbe = keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
-
-	while (!mouse.EventBufferIsEmpty())
+	while (!mouse.IsEventBufferEmpty())
 	{
 		MouseEvent me = mouse.ReadEvent();
-		if (mouse.IsRightDown())
+		if (mouse.IsRightDown() == true)
 		{
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+			if (me.GetType() == MouseEvent::Type::RAW_MOVE)
 			{
-				this->gfx.camera.AdjustRotation((float)me.GetPosY() * 0.001f, (float)me.GetPosX() * 0.001f, 0);
+				this->renderer.camera3D.AdjustRotation((float)me.GetPosY() * 0.001f, (float)me.GetPosX() * 0.001f, 0);
 			}
 		}
 	}
 
-	//this->gfx.gameObject.AdjustRotation(0.0f, 0.001f * dt, 0.0f);
+	this->renderer.gameObject.AdjustRotation(0.0f, 0.001f * deltaTime, 0.0f);
 
-	float cameraSpeed = 0.008f;
+	float Camera3DSpeed = 0.008f;
 
 	if (keyboard.KeyIsPressed(VK_SHIFT))
 	{
-		cameraSpeed = 0.3f;
+		Camera3DSpeed = 0.3f;
 	}
 
 	if (keyboard.KeyIsPressed('W'))
 	{
-		this->gfx.camera.AdjustPosition(this->gfx.camera.GetForwardVector() * cameraSpeed * dt);
+		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetForwardVector() * Camera3DSpeed * deltaTime);
 	}
 	if (keyboard.KeyIsPressed('S'))
 	{
-		this->gfx.camera.AdjustPosition(this->gfx.camera.GetBackwardVector() * cameraSpeed * dt);
+		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetBackwardVector() * Camera3DSpeed * deltaTime);
 	}
 	if (keyboard.KeyIsPressed('A'))
 	{
-		this->gfx.camera.AdjustPosition(this->gfx.camera.GetLeftVector() * cameraSpeed * dt);
+		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetLeftVector() * Camera3DSpeed * deltaTime);
 	}
 	if (keyboard.KeyIsPressed('D'))
 	{
-		this->gfx.camera.AdjustPosition(this->gfx.camera.GetRightVector() * cameraSpeed * dt);
+		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetRightVector() * Camera3DSpeed * deltaTime);
 	}
 	if (keyboard.KeyIsPressed(VK_SPACE))
 	{
-		this->gfx.camera.AdjustPosition(0.0f, cameraSpeed * dt, 0.0f);
+		this->renderer.camera3D.AdjustPosition(0.0f, Camera3DSpeed * deltaTime, 0.0f);
 	}
 	if (keyboard.KeyIsPressed('Z'))
 	{
-		this->gfx.camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
+		this->renderer.camera3D.AdjustPosition(0.0f, -Camera3DSpeed * deltaTime, 0.0f);
+	}
+	if (keyboard.KeyIsPressed('C'))
+	{
+		XMVECTOR lightPosition = this->renderer.camera3D.GetPositionVector();
+		lightPosition += this->renderer.camera3D.GetForwardVector();
+		this->renderer.light.SetPosition(lightPosition);
+		this->renderer.light.SetRotation(this->renderer.camera3D.GetRotationFloat3());
 	}
 }
 
 void Engine::RenderFrame()
 {
-	gfx.RenderFrame();
+	renderer.RenderFrame();
 }

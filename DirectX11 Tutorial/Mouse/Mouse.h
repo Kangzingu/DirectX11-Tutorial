@@ -2,7 +2,7 @@
 #include "MouseEvent.h"
 #include <queue>
 
-class MouseClass {
+class Mouse {
 public:
 	void OnLeftPressed(int x, int y);
 	void OnLeftReleased(int x, int y);
@@ -23,7 +23,7 @@ public:
 	int GetPosY();
 	MousePoint GetPos();
 
-	bool EventBufferIsEmpty();
+	bool IsEventBufferEmpty();
 	MouseEvent ReadEvent();
 
 private:

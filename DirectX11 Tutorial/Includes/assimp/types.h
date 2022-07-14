@@ -492,7 +492,7 @@ struct aiMemoryInfo {
               meshes(0),
               nodes(0),
               animations(0),
-              cameras(0),
+              Camera3Ds(0),
               lights(0),
               total(0) {}
 
@@ -513,8 +513,8 @@ struct aiMemoryInfo {
     /** Storage allocated for animation data */
     unsigned int animations;
 
-    /** Storage allocated for camera data */
-    unsigned int cameras;
+    /** Storage allocated for Camera3D data */
+    unsigned int Camera3Ds;
 
     /** Storage allocated for light data */
     unsigned int lights;

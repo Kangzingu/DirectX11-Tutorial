@@ -87,7 +87,7 @@ struct ASSIMP_API aiNode {
      * Multiple nodes may have the same name, except for nodes which are referenced
      * by bones (see #aiBone and #aiMesh::mBones). Their names *must* be unique.
      *
-     * Cameras and lights reference a specific node by name - if there
+     * Camera3Ds and lights reference a specific node by name - if there
      * are multiple nodes with this name, they are assigned to each of them.
      * <br>
      * There are no limitations with regard to the characters contained in
@@ -179,7 +179,7 @@ struct ASSIMP_API aiNode {
 /**
  * Specifies that the scene data structure that was imported is not complete.
  * This flag bypasses some internal validations and allows the import
- * of animation skeletons, material libraries or camera animation paths
+ * of animation skeletons, material libraries or Camera3D animation paths
  * using Assimp. Most applications won't support such data.
  */
 #define AI_SCENE_FLAGS_INCOMPLETE   0x1
@@ -315,19 +315,19 @@ struct aiScene
     */
     C_STRUCT aiLight** mLights;
 
-    /** The number of cameras in the scene. Cameras
+    /** The number of Camera3Ds in the scene. Camera3Ds
     * are fully optional, in most cases this attribute will be 0
         */
-    unsigned int mNumCameras;
+    unsigned int mNumCamera3Ds;
 
-    /** The array of cameras.
+    /** The array of Camera3Ds.
     *
-    * All cameras imported from the given file are listed here.
-    * The array is mNumCameras in size. The first camera in the
-    * array (if existing) is the default camera view into
+    * All Camera3Ds imported from the given file are listed here.
+    * The array is mNumCamera3Ds in size. The first Camera3D in the
+    * array (if existing) is the default Camera3D view into
     * the scene.
     */
-    C_STRUCT aiCamera** mCameras;
+    C_STRUCT aiCamera3D** mCamera3Ds;
 
     /**
      *  @brief  The global metadata assigned to the scene itself.
@@ -382,9 +382,9 @@ struct aiScene
         return mTextures != nullptr && mNumTextures > 0;
     }
 
-    //! Check whether the scene contains cameras
-    inline bool HasCameras() const {
-        return mCameras != nullptr && mNumCameras > 0;
+    //! Check whether the scene contains Camera3Ds
+    inline bool HasCamera3Ds() const {
+        return mCamera3Ds != nullptr && mNumCamera3Ds > 0;
     }
 
     //! Check whether the scene contains animations

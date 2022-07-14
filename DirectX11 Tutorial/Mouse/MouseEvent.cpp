@@ -1,21 +1,21 @@
 #include "MouseEvent.h"
 
-MouseEvent::MouseEvent() :type(EventType::Invalid), x(0), y(0)
+MouseEvent::MouseEvent() :type(Type::Invalid), x(0), y(0)
 {
 
 }
 
-MouseEvent::MouseEvent(EventType type, int x, int y) : type(type), x(x), y(y)
+MouseEvent::MouseEvent(Type type, int x, int y) : type(type), x(x), y(y)
 {
 
 }
 
 bool MouseEvent::IsValid() const
 {
-	return this->type != EventType::Invalid;
+	return this->type != Type::Invalid;
 }
 
-MouseEvent::EventType MouseEvent::GetType() const
+MouseEvent::Type MouseEvent::GetType() const
 {
 	return this->type;
 }

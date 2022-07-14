@@ -25,17 +25,17 @@
     <Filter Include="헤더 파일\Mouse">
       <UniqueIdentifier>{9166282f-bd37-4742-aa38-88106f213ce4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Graphics">
-      <UniqueIdentifier>{b854b36f-87c0-47f3-a7ad-f66e93d42bee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\Graphics">
       <UniqueIdentifier>{fcb35106-49d4-4b0d-849b-c44a48db432b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Graphics\ImGui">
-      <UniqueIdentifier>{31e43b80-6036-4eb5-abbf-31c7f00d8f9e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\Graphics\ImGui">
       <UniqueIdentifier>{ac2ac5cb-f07a-4067-a268-5ea2b9c02149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Graphics">
+      <UniqueIdentifier>{b854b36f-87c0-47f3-a7ad-f66e93d42bee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Graphics\ImGui">
+      <UniqueIdentifier>{31e43b80-6036-4eb5-abbf-31c7f00d8f9e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +48,7 @@
     <ClCompile Include="ErrorLogger.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="RenderWindow.cpp">
+    <ClCompile Include="Window.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
@@ -60,16 +60,16 @@
     <ClCompile Include="Keyboard\KeyboardEvent.cpp">
       <Filter>소스 파일\Keyboard</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard\KeyboardClass.cpp">
+    <ClCompile Include="Keyboard\Keyboard.cpp">
       <Filter>소스 파일\Keyboard</Filter>
     </ClCompile>
-    <ClCompile Include="Mouse\MouseClass.cpp">
+    <ClCompile Include="Mouse\Mouse.cpp">
       <Filter>소스 파일\Mouse</Filter>
     </ClCompile>
     <ClCompile Include="Mouse\MouseEvent.cpp">
       <Filter>소스 파일\Mouse</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp">
+    <ClCompile Include="Graphics\Renderer.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\AdapterReader.cpp">
@@ -78,7 +78,7 @@
     <ClCompile Include="Graphics\Shaders.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Camera.cpp">
+    <ClCompile Include="Graphics\Camera3D.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
@@ -120,6 +120,21 @@
     <ClCompile Include="Graphics\RenderableGameObject.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Light.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GameObject2D.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GameObject3D.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Camera2D.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sprite.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StringHelper.h">
@@ -128,7 +143,7 @@
     <ClInclude Include="ErrorLogger.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RenderWindow.h">
+    <ClInclude Include="Window.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
@@ -140,16 +155,16 @@
     <ClInclude Include="Keyboard\KeyboardEvent.h">
       <Filter>헤더 파일\Keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="Keyboard\KeyboardClass.h">
+    <ClInclude Include="Keyboard\Keyboard.h">
       <Filter>헤더 파일\Keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="Mouse\MouseClass.h">
+    <ClInclude Include="Mouse\Mouse.h">
       <Filter>헤더 파일\Mouse</Filter>
     </ClInclude>
     <ClInclude Include="Mouse\MouseEvent.h">
       <Filter>헤더 파일\Mouse</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Graphics.h">
+    <ClInclude Include="Graphics\Renderer.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\AdapterReader.h">
@@ -173,7 +188,7 @@
     <ClInclude Include="Graphics\ConstantBuffer.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Camera.h">
+    <ClInclude Include="Graphics\Camera3D.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
@@ -224,12 +239,39 @@
     <ClInclude Include="Graphics\RenderableGameObject.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GameObject2D.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GameObject3D.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Camera2D.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sprite.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="vertexshader.hlsl">
       <Filter>리소스 파일</Filter>
     </FxCompile>
     <FxCompile Include="pixelshader.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_nolight.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_2d.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="vertexshader_2d.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_2d_discard.hlsl">
       <Filter>리소스 파일</Filter>
     </FxCompile>
   </ItemGroup>

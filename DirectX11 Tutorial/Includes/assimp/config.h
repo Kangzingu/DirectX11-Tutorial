@@ -433,10 +433,10 @@ enum aiComponent
      * use the #aiProcess_OptimizeGraph step to do this */
     aiComponent_LIGHTS = 0x100,
 
-    /** Removes all cameras (aiScene::mCameras).
+    /** Removes all Camera3Ds (aiScene::mCamera3Ds).
      * The corresponding scenegraph nodes are NOT removed.
      * use the #aiProcess_OptimizeGraph step to do this */
-    aiComponent_CAMERAS = 0x200,
+    aiComponent_Camera3DS = 0x200,
 
     /** Removes all meshes (aiScene::mMeshes). */
     aiComponent_MESHES = 0x400,
@@ -598,13 +598,13 @@ enum aiComponent
     "IMPORT_FBX_READ_TEXTURES"
 
 // ---------------------------------------------------------------------------
-/** @brief Set whether the fbx importer will read cameras.
+/** @brief Set whether the fbx importer will read Camera3Ds.
  *
  * The default value is true (1)
  * Property type: bool
  */
-#define AI_CONFIG_IMPORT_FBX_READ_CAMERAS \
-    "IMPORT_FBX_READ_CAMERAS"
+#define AI_CONFIG_IMPORT_FBX_READ_Camera3DS \
+    "IMPORT_FBX_READ_Camera3DS"
 
 // ---------------------------------------------------------------------------
 /** @brief Set whether the fbx importer will read light sources.

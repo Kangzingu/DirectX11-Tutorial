@@ -2,19 +2,19 @@
 
 class KeyboardEvent {
 public:
-	enum EventType {
+	enum Type {
 		Press,
 		Release,
 		Invalid
 	};
 	KeyboardEvent();
-	KeyboardEvent(const EventType type, const unsigned char key);
+	KeyboardEvent(const Type type, const unsigned char key);
 	bool IsPress() const;
 	bool IsRelease() const;
 	bool IsValid() const;
 	unsigned char GetKeyCode() const;
 
 private:
-	EventType type;
+	Type type;
 	unsigned char key;
 };

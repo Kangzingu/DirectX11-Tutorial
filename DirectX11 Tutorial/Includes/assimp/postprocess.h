@@ -131,7 +131,7 @@ enum aiPostProcessSteps
 
     // -------------------------------------------------------------------------
     /** <hr>Removes some parts of the data structure (animations, materials,
-     *  light sources, cameras, textures, vertex components).
+     *  light sources, Camera3Ds, textures, vertex components).
      *
      * The  components to be removed are specified in a separate
      * importer property, <tt>#AI_CONFIG_PP_RVC_FLAGS</tt>. This is quite useful
@@ -210,7 +210,7 @@ enum aiPostProcessSteps
     * the local transformation matrices of their nodes.
     *
     * If the resulting scene can be reduced to a single mesh, with a single
-    * material, no lights, and no cameras, then the output scene will contain
+    * material, no lights, and no Camera3Ds, then the output scene will contain
     * only a root node (with no children) that references the single mesh.
     * Otherwise, the output scene will be reduced to a root node with a single
     * level of child nodes, each one referencing one mesh, and each mesh
@@ -474,7 +474,7 @@ enum aiPostProcessSteps
     // -------------------------------------------------------------------------
     /** <hr>A post-processing step to optimize the scene hierarchy.
      *
-     *  Nodes without animations, bones, lights or cameras assigned are
+     *  Nodes without animations, bones, lights or Camera3Ds assigned are
      *  collapsed and joined.
      *
      *  Node names can be lost during this step. If you use special 'tag nodes'

@@ -112,51 +112,12 @@ void GameObject::AdjustRotation(float x, float y, float z)
 	this->UpdateMatrix();
 }
 
-void GameObject::SetLookAtPos(XMFLOAT3 lookAtPos)
+void GameObject::SetScale(float xScale, float yScale, float zScale)
 {
-	if (lookAtPos.x == this->pos.x && lookAtPos.y == this->pos.y && lookAtPos.z == this->pos.z)
-		return;
-
-	lookAtPos.x = this->pos.x - lookAtPos.x;
-	lookAtPos.y = this->pos.y - lookAtPos.y;
-	lookAtPos.z = this->pos.z - lookAtPos.z;
-
-	float pitch = 0.0f;
-	if (lookAtPos.y != 0.0f)
-	{
-		const float distance = sqrt(lookAtPos.x * lookAtPos.x + lookAtPos.z * lookAtPos.z);
-		pitch = atan(lookAtPos.y / distance);
-	}
-
-	float yaw = 0.0f;
-	if (lookAtPos.x != 0.0f)
-	{
-		yaw = atan(lookAtPos.x / lookAtPos.z);
-	}
-	if (lookAtPos.z > 0)
-		yaw += XM_PI;
-
-	this->SetRotation(pitch, yaw, 0.0f);
-}
-
-const XMVECTOR& GameObject::GetForwardVector()
-{
-	return this->vec_forward;
-}
-
-const XMVECTOR& GameObject::GetRightVector()
-{
-	return this->vec_right;
-}
-
-const XMVECTOR& GameObject::GetBackwardVector()
-{
-	return this->vec_backward;
-}
-
-const XMVECTOR& GameObject::GetLeftVector()
-{
-	return this->vec_left;
+	this->scale.x = xScale;
+	this->scale.y = yScale;
+	this->scale.z = zScale;
+	this->UpdateMatrix();
 }
 
 void GameObject::UpdateMatrix()

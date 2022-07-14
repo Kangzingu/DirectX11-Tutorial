@@ -1,32 +1,32 @@
 #include "WindowContainer.h"
 
-bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
+bool Window::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
 {
 	this->hInstance = hInstance;// 윈도우 운영체제에서 실행되는 프로그램들을 구별하기 위한 ID 값
-	this->width = width;
-	this->height = height;
-	this->window_title = window_title;
-	this->window_title_wide = StringHelper::StringToWide(window_title);
-	this->window_class = window_class;
-	this->window_class_wide = StringHelper::StringToWide(window_class);
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
+	this->windowTitle = windowTitle;
+	this->windowTitleWString = StringHelper::StringToWide(windowTitle);
+	this->windowClass = windowClass;
+	this->windowClassWString =StringHelper::StringToWide(windowClass);
 
 	this->RegisterWindowClass();
 
-	RECT wr;
-	wr.left = 100;
-	wr.top = 100;
-	wr.right = wr.left + this->width;
-	wr.bottom = wr.top + this->height;
-	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+	RECT windowRect;
+	windowRect.left = 100;
+	windowRect.top = 100;
+	windowRect.right = windowRect.left + this->windowWidth;
+	windowRect.bottom = windowRect.top + this->windowHeight;
+	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
 
 	this->handle = CreateWindowEx(0,
-								  this->window_class_wide.c_str(),
-								  this->window_title_wide.c_str(),
+								  windowClassWString.c_str(),
+								  windowTitleWString.c_str(),
 								  WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
-								  wr.left,
-								  wr.top,
-								  wr.right-wr.left,
-								  wr.bottom- wr.top,
+								  windowRect.left,
+								  windowRect.top,
+								  windowRect.right - windowRect.left,
+								  windowRect.bottom - windowRect.top,
 								  NULL,
 								  NULL,
 								  this->hInstance,
@@ -34,11 +34,10 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInst
 
 	if (this->handle == NULL)
 	{
-		ErrorLogger::Log(GetLastError(), "윈도우 생성에 실패했습니다. 윈도우명: " + this->window_title);
+		ErrorLogger::Log(GetLastError(), "윈도우 생성에 실패했습니다. 윈도우명: " + this->windowTitle);
 		return false;
 	}
 
-	// 윈도우를 젤 앞으로 + 포커스 시킴
 	ShowWindow(this->handle, SW_SHOW);
 	SetForegroundWindow(this->handle);
 	SetFocus(this->handle);
@@ -46,7 +45,7 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInst
 	return true;
 }
 
-bool RenderWindow::ProcessMessages()
+bool Window::ProcessMessages()
 {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -62,7 +61,7 @@ bool RenderWindow::ProcessMessages()
 		if (!IsWindow(this->handle))
 		{
 			this->handle = NULL;
-			UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
+			UnregisterClass(windowClassWString.c_str(), this->hInstance);
 			return false;
 		}
 	}
@@ -70,16 +69,16 @@ bool RenderWindow::ProcessMessages()
 	return true;
 }
 
-HWND RenderWindow::GetHWND() const
+HWND Window::GetHWND() const
 {
 	return this->handle;
 }
 
-RenderWindow::~RenderWindow()
+Window::~Window()
 {
 	if (this->handle != NULL)
 	{
-		UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
+		UnregisterClass(windowClassWString.c_str(), this->hInstance);
 		DestroyWindow(handle);
 	}
 }
@@ -89,8 +88,8 @@ LRESULT HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 		case WM_CLOSE:
-		DestroyWindow(hwnd);
-		return 0;
+			DestroyWindow(hwnd);
+			return 0;
 		default:
 		{
 			WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -117,11 +116,11 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 			return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 		}
 		default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 }
 
-void RenderWindow::RegisterWindowClass()
+void Window::RegisterWindowClass()
 {
 	WNDCLASSEX wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -134,7 +133,7 @@ void RenderWindow::RegisterWindowClass()
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = this->window_class_wide.c_str();
+	wc.lpszClassName = this->windowClassWString.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 }

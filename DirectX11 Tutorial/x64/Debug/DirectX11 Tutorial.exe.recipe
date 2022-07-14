@@ -10,7 +10,19 @@
       <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\pixelshader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\pixelshader_2d.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\pixelshader_2d_discard.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\pixelshader_nolight.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\vertexshader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\DirectX11 Tutorial\x64\Debug\vertexshader_2d.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

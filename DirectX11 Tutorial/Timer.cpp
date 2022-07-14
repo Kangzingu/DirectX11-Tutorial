@@ -2,20 +2,20 @@
 
 Timer::Timer()
 {
-	start = std::chrono::high_resolution_clock::now();
-	stop = std::chrono::high_resolution_clock::now();
+	curStartTime = std::chrono::high_resolution_clock::now();
+	curStoppedTime = std::chrono::high_resolution_clock::now();
 }
 
-double Timer::GetMilisecondsElapsed()
+double Timer::GetElapsedMiliseconds()
 {
 	if (isrunning)
 	{
-		auto elapsed = std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - start);
+		auto elapsed = std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - curStartTime);
 		return elapsed.count();
 	}
 	else
 	{
-		auto elapsed = std::chrono::duration<double, std::milli>(stop - start);
+		auto elapsed = std::chrono::duration<double, std::milli>(curStoppedTime - curStartTime);
 		return elapsed.count();
 	}
 }
@@ -23,7 +23,7 @@ double Timer::GetMilisecondsElapsed()
 void Timer::Restart()
 {
 	isrunning = true;
-	start = std::chrono::high_resolution_clock::now();
+	curStartTime = std::chrono::high_resolution_clock::now();
 }
 
 bool Timer::Stop()
@@ -34,7 +34,7 @@ bool Timer::Stop()
 	}
 	else
 	{
-		stop = std::chrono::high_resolution_clock::now();
+		curStoppedTime = std::chrono::high_resolution_clock::now();
 		isrunning = false;
 		return true;
 	}
@@ -48,7 +48,7 @@ bool Timer::Start()
 	}
 	else
 	{
-		start = std::chrono::high_resolution_clock::now();
+		curStartTime = std::chrono::high_resolution_clock::now();
 		isrunning = true;
 		return true;
 	}
