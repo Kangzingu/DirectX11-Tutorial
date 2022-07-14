@@ -1,14 +1,16 @@
 #pragma once
 #include "ErrorLogger.h"
 
-class WindowContainer;
+class WindowManager;
 
 class Window {
 public:
-	bool Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
+	bool Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
 	bool ProcessMessages();
 	HWND GetHWND() const;
 	~Window();
+	int GetWidth();
+	int GetHeight();
 private:
 	void RegisterWindowClass();
 	HWND handle = NULL;

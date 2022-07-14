@@ -54,7 +54,7 @@
     <ClCompile Include="Engine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="WindowContainer.cpp">
+    <ClCompile Include="WindowManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Keyboard\KeyboardEvent.cpp">
@@ -149,7 +149,7 @@
     <ClInclude Include="Engine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="WindowContainer.h">
+    <ClInclude Include="WindowManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Keyboard\KeyboardEvent.h">

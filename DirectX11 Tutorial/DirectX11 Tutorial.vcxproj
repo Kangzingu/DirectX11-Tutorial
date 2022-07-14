@@ -185,7 +185,7 @@
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="WindowContainer.cpp" />
+    <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,7 +227,7 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="WindowContainer.h" />
+    <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="pixelshader.hlsl">

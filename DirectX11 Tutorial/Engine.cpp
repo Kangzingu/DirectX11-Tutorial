@@ -1,44 +1,35 @@
 #include "Engine.h"
 
-bool Engine::Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight) {
-	/* 타이머 켜고                 */
-	sceneTimer.Start();
-	/* 창 띄우고                   */
-	if (!window.Initialize(this, hInstance, windowTitle, windowClass, windowWidth, windowHeight))
-	{
+bool Engine::InitializeWindow(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight) {
+	if (!windowManager.Initialize(hInstance, windowTitle, windowClass, windowWidth, windowHeight))
 		return false;
-	}
-	/* 그래픽 관련된것 초기화 하고 */
-	if (!renderer.Initialize(window.GetHWND(), windowWidth, windowHeight))
-	{
-		return false;
-	}
-
 	return true;
 }
 
-bool Engine::ProcessMessages() {
-	return this->window.ProcessMessages();
+bool Engine::InitializeRenderer()
+{
+	sceneTimer.Start();
+	if (!renderer.Initialize(windowManager.window.GetHWND(), windowManager.window.GetWidth(), windowManager.window.GetHeight()))
+		return false;
+	return true;
 }
 
-void Engine::Update() {
-	/* Delta Time 업데이트*/
+void Engine::Run() {
 	deltaTime = sceneTimer.GetElapsedMiliseconds();
 	sceneTimer.Restart();
 
-	
-	while (!keyboard.IsCharBufferEmpty())
+	while (!windowManager.keyboard.IsCharBufferEmpty())
 	{
-		unsigned char ch = keyboard.ReadChar();
+		unsigned char ch = windowManager.keyboard.ReadChar();
 	}
-	while (!keyboard.IsKeyBufferEmpty()) {
-		KeyboardEvent kbe = keyboard.ReadKey();
+	while (!windowManager.keyboard.IsKeyBufferEmpty()) {
+		KeyboardEvent kbe = windowManager.keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
-	while (!mouse.IsEventBufferEmpty())
+	while (!windowManager.mouse.IsEventBufferEmpty())
 	{
-		MouseEvent me = mouse.ReadEvent();
-		if (mouse.IsRightDown() == true)
+		MouseEvent me = windowManager.mouse.ReadEvent();
+		if (windowManager.mouse.IsRightDown() == true)
 		{
 			if (me.GetType() == MouseEvent::Type::RAW_MOVE)
 			{
@@ -51,45 +42,48 @@ void Engine::Update() {
 
 	float Camera3DSpeed = 0.008f;
 
-	if (keyboard.KeyIsPressed(VK_SHIFT))
+	if (windowManager.keyboard.KeyIsPressed(VK_SHIFT))
 	{
 		Camera3DSpeed = 0.3f;
 	}
 
-	if (keyboard.KeyIsPressed('W'))
+	if (windowManager.keyboard.KeyIsPressed('W'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetForwardVector() * Camera3DSpeed * deltaTime);
 	}
-	if (keyboard.KeyIsPressed('S'))
+	if (windowManager.keyboard.KeyIsPressed('S'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetBackwardVector() * Camera3DSpeed * deltaTime);
 	}
-	if (keyboard.KeyIsPressed('A'))
+	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetLeftVector() * Camera3DSpeed * deltaTime);
 	}
-	if (keyboard.KeyIsPressed('D'))
+	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
 		this->renderer.camera3D.AdjustPosition(this->renderer.camera3D.GetRightVector() * Camera3DSpeed * deltaTime);
 	}
-	if (keyboard.KeyIsPressed(VK_SPACE))
+	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
 		this->renderer.camera3D.AdjustPosition(0.0f, Camera3DSpeed * deltaTime, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('Z'))
+	if (windowManager.keyboard.KeyIsPressed('Z'))
 	{
 		this->renderer.camera3D.AdjustPosition(0.0f, -Camera3DSpeed * deltaTime, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('C'))
+	if (windowManager.keyboard.KeyIsPressed('C'))
 	{
 		XMVECTOR lightPosition = this->renderer.camera3D.GetPositionVector();
 		lightPosition += this->renderer.camera3D.GetForwardVector();
 		this->renderer.light.SetPosition(lightPosition);
 		this->renderer.light.SetRotation(this->renderer.camera3D.GetRotationFloat3());
 	}
+
+	/* 이거 언젠가 떼줘야함 */
+	renderer.RenderFrame();
 }
 
-void Engine::RenderFrame()
+bool Engine::IsAlive()
 {
-	renderer.RenderFrame();
+	return this->windowManager.window.ProcessMessages();
 }

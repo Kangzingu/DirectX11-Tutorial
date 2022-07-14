@@ -1,6 +1,6 @@
-#include "WindowContainer.h"
+#include "WindowManager.h"
 
-bool Window::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
+bool Window::Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
 {
 	this->hInstance = hInstance;// 윈도우 운영체제에서 실행되는 프로그램들을 구별하기 위한 ID 값
 	this->windowWidth = windowWidth;
@@ -50,6 +50,7 @@ bool Window::ProcessMessages()
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
+	// PeekMessage는 메시지가 있다면 true, 없으면 false를 리턴
 	while (PeekMessage(&msg, this->handle, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
@@ -83,6 +84,16 @@ Window::~Window()
 	}
 }
 
+int Window::GetWidth()
+{
+	return windowWidth;
+}
+
+int Window::GetHeight()
+{
+	return windowHeight;
+}
+
 LRESULT HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -92,7 +103,7 @@ LRESULT HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		default:
 		{
-			WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+			WindowManager* const pWindow = reinterpret_cast<WindowManager*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 			return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 		}
 	}
@@ -105,7 +116,7 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		case WM_NCCREATE:
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-			WindowContainer* pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
+			WindowManager* pWindow = reinterpret_cast<WindowManager*>(pCreate->lpCreateParams);
 			if (pWindow == nullptr)
 			{
 				ErrorLogger::Log("윈도우 컨테이너에 대한 포인터가 NULL임(WM_NCCREATE 생성 간 발생)");

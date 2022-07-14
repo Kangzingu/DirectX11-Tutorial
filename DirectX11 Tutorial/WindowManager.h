@@ -1,0 +1,14 @@
+#pragma once
+#include "Window.h"
+#include "Keyboard/Keyboard.h"
+#include "Mouse/Mouse.h"
+
+class WindowManager {
+public:
+	bool Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
+	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+public:
+	Window window;
+	Keyboard keyboard;
+	Mouse mouse;
+};
