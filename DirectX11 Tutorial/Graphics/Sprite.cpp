@@ -24,10 +24,10 @@ bool Sprite::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	};
 
 	HRESULT hr = vertices.Initialize(device, vertexData.data(), vertexData.size());
-	COM_ERROR_IF_FAILED(hr, "스프라이트를 위한 버텍스 버퍼 생성에 실패했습니다");
+	ERROR_IF_FAILED(hr, "스프라이트를 위한 버텍스 버퍼 생성에 실패했습니다");
 
 	hr = indices.Initialize(device, indexData.data(), indexData.size());
-	COM_ERROR_IF_FAILED(hr, "스프라이트를 위한 버텍스 버퍼 생성에 실패했습니다");
+	ERROR_IF_FAILED(hr, "스프라이트를 위한 버텍스 버퍼 생성에 실패했습니다");
 
 	SetPosition(0.0f, 0.0f, 0.0f);
 	SetRotation(0.0f, 0.0f, 0.0f);

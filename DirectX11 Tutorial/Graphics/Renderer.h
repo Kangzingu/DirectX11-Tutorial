@@ -21,16 +21,14 @@ public:
 	void Render();
 
 	Camera3D camera3D;
-	Camera2D camera2D;
-	Sprite sprite;
 
 	RenderableGameObject gameObject;
 	RenderableGameObject gameObject2;
 	Light light;
 
 private:
-	bool InitializeDirectX(HWND hwnd);
-	bool InitializeShaders();
+	void InitializeDirectX(HWND hwnd);
+	void InitializeShaders();
 	bool InitializeScene();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
@@ -40,19 +38,13 @@ private:
 
 	VertexShader vertexshader;
 	PixelShader pixelshader;
-	VertexShader vertexshader_2d;
-	PixelShader pixelshader_2d;
-	PixelShader pixelshader_2d_discard;
 	PixelShader pixelshader_nolight;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
-	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState_drawMask;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState_applyMask;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState_CULLFront;

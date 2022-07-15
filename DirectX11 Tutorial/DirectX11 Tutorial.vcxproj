@@ -193,7 +193,8 @@
     <ClInclude Include="Graphics\GameObject3D.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
     <ClInclude Include="Graphics\Color.h" />
-    <ClInclude Include="Utils\COMException.h" />
+    <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="Utils\Exception.h" />
     <ClInclude Include="Graphics\GameObject.h" />
     <ClInclude Include="Graphics\Camera3D.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />

@@ -40,7 +40,7 @@ Texture::Texture(ID3D11Device* device, const uint8_t* pData, size_t size, aiText
 {
 	this->type = type;
 	HRESULT hr = DirectX::CreateWICTextureFromMemory(device, pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "메모리로 부터 텍스쳐를 생성하는데 실패했습니다");
+	ERROR_IF_FAILED(hr, "메모리로 부터 텍스쳐를 생성하는데 실패했습니다");
 }
 
 aiTextureType Texture::GetType()
@@ -71,10 +71,10 @@ void Texture::InitializeColorTexture(ID3D11Device* device, const Color* colorDat
 	initialData.pSysMem = colorData;
 	initialData.SysMemPitch = width * sizeof(Color);
 	HRESULT hr = device->CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
-	COM_ERROR_IF_FAILED(hr, "컬러 데이터로 부터 텍스쳐를 생성하는데 실패했습니다");
+	ERROR_IF_FAILED(hr, "컬러 데이터로 부터 텍스쳐를 생성하는데 실패했습니다");
 	texture = static_cast<ID3D11Texture2D*>(p2DTexture);
 	CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format);
 	hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, textureView.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "텍스쳐에 대한 쉐이더 리소스 뷰 생성에 실패했습니다");
+	ERROR_IF_FAILED(hr, "텍스쳐에 대한 쉐이더 리소스 뷰 생성에 실패했습니다");
 
 }

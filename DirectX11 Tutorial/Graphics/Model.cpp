@@ -1,55 +1,43 @@
 #include "Model.h"
 
-bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	/*Vertex v[] = {
+		Vertex(-0.5f,	-0.5f,	-0.5f,	0.0f,	1.0f),
+		Vertex(-0.5f,	0.5f,	-0.5f,	0.0f,	0.0f),
+		Vertex(0.5f,	0.5f,	-0.5f,	1.0f,	0.0f),
+		Vertex(0.5f,	-0.5f,	-0.5f,	1.0f,	1.0f),
 
-	try
-	{
-		/*Vertex v[] = {
-			Vertex(-0.5f,	-0.5f,	-0.5f,	0.0f,	1.0f),
-			Vertex(-0.5f,	0.5f,	-0.5f,	0.0f,	0.0f),
-			Vertex(0.5f,	0.5f,	-0.5f,	1.0f,	0.0f),
-			Vertex(0.5f,	-0.5f,	-0.5f,	1.0f,	1.0f),
+		Vertex(-0.5f,	-0.5f,	0.5f,	0.0f,	1.0f),
+		Vertex(-0.5f,	0.5f,	0.5f,	0.0f,	0.0f),
+		Vertex(0.5f,	0.5f,	0.5f,	1.0f,	0.0f),
+		Vertex(0.5f,	-0.5f,	0.5f,	1.0f,	1.0f),
+	};
 
-			Vertex(-0.5f,	-0.5f,	0.5f,	0.0f,	1.0f),
-			Vertex(-0.5f,	0.5f,	0.5f,	0.0f,	0.0f),
-			Vertex(0.5f,	0.5f,	0.5f,	1.0f,	0.0f),
-			Vertex(0.5f,	-0.5f,	0.5f,	1.0f,	1.0f),
-		};
+	HRESULT hr = this->vertexBuffer.Initialize(this->device, v, ARRAYSIZE(v));
+	COM_ERROR_IF_FAILED(hr, "버텍스 버퍼 초기화에 실패했습니다");
 
-		HRESULT hr = this->vertexBuffer.Initialize(this->device, v, ARRAYSIZE(v));
-		COM_ERROR_IF_FAILED(hr, "버텍스 버퍼 초기화에 실패했습니다");
+	DWORD indices[] = {
+		0, 1, 2,
+		0, 2, 3,
+		4, 7, 6,
+		4, 6, 5,
+		3, 2, 6,
+		3, 6, 7,
+		4, 5, 1,
+		4, 1, 0,
+		1, 5, 6,
+		1, 6, 2,
+		0, 3, 7,
+		0, 7, 4
+	};
 
-		DWORD indices[] = {
-			0, 1, 2,
-			0, 2, 3,
-			4, 7, 6,
-			4, 6, 5,
-			3, 2, 6,
-			3, 6, 7,
-			4, 5, 1,
-			4, 1, 0,
-			1, 5, 6,
-			1, 6, 2,
-			0, 3, 7,
-			0, 7, 4
-		};
-
-		hr = this->indexBuffer.Initialize(this->device, indices, ARRAYSIZE(indices));
-		COM_ERROR_IF_FAILED(hr, "인덱스 버퍼 초기화에 실패했습니다");*/
-		if (!this->LoadModel(filePath))
-			return false;
-	}
-	catch (COMException& exception)
-	{
-		ErrorLogger::Log(exception);
-		return false;
-	}
-
-	return true;
+	hr = this->indexBuffer.Initialize(this->device, indices, ARRAYSIZE(indices));
+	COM_ERROR_IF_FAILED(hr, "인덱스 버퍼 초기화에 실패했습니다");*/
+	LoadModel(filePath);
 }
 
 void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
@@ -65,18 +53,14 @@ void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatr
 	}
 }
 
-bool Model::LoadModel(const std::string& filePath)
+void Model::LoadModel(const std::string& filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
-	
 	Assimp::Importer importer;
 	const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
-
-	if (pScene == nullptr)
-		return false;
+	ERROR_IF(pScene == nullptr, filePath + " 경로의 모델을 불러오지 못했습니다");
 	// 일단 인자를 넘겨야 하긴 하니까 Identity Matrix를 넘긴듯 이거 필요한거 맞는지 확인 해보고 없앨 수 있음 없애자
 	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
-	return true;
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene, const XMMATRIX& parentTransformMatrix)

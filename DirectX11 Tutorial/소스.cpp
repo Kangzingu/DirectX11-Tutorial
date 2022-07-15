@@ -2,7 +2,7 @@
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	COM_ERROR_IF_FAILED(CoInitialize(NULL), "CoInitialize 호출에 실패했습니다");
+	ERROR_IF_FAILED(CoInitialize(NULL), "CoInitialize 호출에 실패했습니다");
 
 	static std::string windowTitle = "Simple Physics Engine";
 	std::string windowClass = "Default";

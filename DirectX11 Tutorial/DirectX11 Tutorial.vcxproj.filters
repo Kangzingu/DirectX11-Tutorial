@@ -218,7 +218,7 @@
     <ClInclude Include="Graphics\Sprite.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\COMException.h">
+    <ClInclude Include="Utils\Exception.h">
       <Filter>헤더 파일\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\ErrorLogger.h">
@@ -246,6 +246,9 @@
       <Filter>헤더 파일\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\WIndow\WindowManager.h">
+      <Filter>헤더 파일\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleMath.h">
       <Filter>헤더 파일\Utils</Filter>
     </ClInclude>
   </ItemGroup>
