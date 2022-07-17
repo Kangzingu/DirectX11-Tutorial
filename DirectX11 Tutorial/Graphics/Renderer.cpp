@@ -51,16 +51,26 @@ void Renderer::Render()
 	
 	deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	{
+		UpdatePhysics();
+	}
 
 	{// Draw
-		gameObject.Draw(XMMatrixScaling(0.1f, 0.1f, 0.1f) * camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
-		gameObject2.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+		for (int i = 0; i < gameObjects.size(); i++)
+		{
+			gameObjects[i].Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+		}
+		//gameObject.Draw(XMMatrixScaling(0.1f, 0.1f, 0.1f) * camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+		//gameObject2.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
 	}
 	{
 		// ±×¸®±â Àü¿¡ ½¦ÀÌ´õ ¹Ù²Ù±ë
 		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
 		light.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
 	}
+
+	deltaTime = sceneTimer.GetElapsedMiliseconds() / 1000.0f;
+	sceneTimer.Restart();
 
 	// FPS ¼¼¼­ ¶ç¿ì±â
 	static int fpsCounter = 0;
@@ -74,6 +84,8 @@ void Renderer::Render()
 	}
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	std::string firstGameobjectVelocity = std::to_string(XMVectorGetX(gameObjects[0].rigidbody.velocity)) + ", " + std::to_string(XMVectorGetY(gameObjects[0].rigidbody.velocity)) + ", " + std::to_string(XMVectorGetZ(gameObjects[0].rigidbody.velocity));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstGameobjectVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
 	static int counter = 0;
@@ -106,6 +118,21 @@ void Renderer::Render()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	swapchain->Present(0, NULL);
+}
+
+void Renderer::UpdatePhysics()
+{
+	for (int i = 0; i < gameObjects.size(); i++)
+	{
+		if (gameObjects[i].rigidbody.isKinematic)
+			continue;
+
+		gameObjects[i].rigidbody.AddForce(XMVectorSet(0.0f, -9.8f, 0.0f, 0.0f) * gameObjects[i].rigidbody.mass);
+		gameObjects[i].rigidbody.velocity += (gameObjects[i].rigidbody.accumulatedForce / gameObjects[i].rigidbody.mass) * deltaTime;
+		gameObjects[i].rigidbody.velocity *= pow(gameObjects[i].rigidbody.damping, deltaTime);
+		gameObjects[i].AdjustPosition(gameObjects[i].rigidbody.velocity * deltaTime);
+		gameObjects[i].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	}
 }
 
 void Renderer::InitializeDirectX(HWND hwnd)
@@ -240,15 +267,23 @@ bool Renderer::InitializeScene()
 	cb_ps_light.data.ambientLightStrength = 1.0f;
 
 	// ¸ðµ¨ ÃÊ±âÈ­
-	gameObject.Initialize("Assets/Objects/Samples/dodge_challenger.fbx", device.Get(), deviceContext.Get(), cb_vs_vertexshader);
+	gameObject.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader);
 	gameObject2.Initialize("Assets/Objects/nanosuit/nanosuit.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader);
+	gameObjects.push_back(gameObject);
+	gameObjects.push_back(gameObject);
+	gameObjects.push_back(gameObject);
+	gameObjects.push_back(gameObject);
+	gameObjects.push_back(gameObject2);
+
 	light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader);
 
 	camera3D.SetPosition(0.0f, 0.0f, -2.0f);
 	camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
 
-	gameObject.SetPosition(5.0f, 0.0f, 0.0f);
-	gameObject2.SetPosition(-5.0f, 0.0f, 0.0f);
+	for (int i = 0; i < gameObjects.size(); i++)
+	{
+		gameObjects[i].SetPosition(i * 3.0f, i*3.0f, 0.0f);
+	}
 
 	return true;
 }

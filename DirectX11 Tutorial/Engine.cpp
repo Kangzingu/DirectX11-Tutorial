@@ -80,7 +80,7 @@ void Engine::ManageInput()
 	{
 		this->renderer.camera3D.AdjustPosition(0.0f, Camera3DSpeed * deltaTime, 0.0f);
 	}
-	if (windowManager.keyboard.KeyIsPressed('Z'))
+	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
 		this->renderer.camera3D.AdjustPosition(0.0f, -Camera3DSpeed * deltaTime, 0.0f);
 	}

@@ -24,6 +24,10 @@ public:
 
 	RenderableGameObject gameObject;
 	RenderableGameObject gameObject2;
+	
+	std::vector<RenderableGameObject> gameObjects;
+	void UpdatePhysics();
+
 	Light light;
 
 private:
@@ -61,5 +65,8 @@ private:
 	int windowWidth = 0;
 	int windowHeight = 0;
 
+	float deltaTime = 0;
+
 	Timer timer;
+	Timer sceneTimer;
 };

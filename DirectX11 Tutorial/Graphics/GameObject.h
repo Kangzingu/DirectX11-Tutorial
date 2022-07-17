@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "Rigidbody.h"
 
 class GameObject
 {
@@ -8,6 +9,8 @@ public:
 	const XMFLOAT3& GetPositionFloat3() const;
 	const XMVECTOR& GetRotationVector() const;
 	const XMFLOAT3& GetRotationFloat3() const;
+	const XMVECTOR& GetScaleVector() const;
+	const XMFLOAT3& GetScaleFloat3() const;
 
 	void SetPosition(const XMVECTOR& pos);
 	void SetPosition(const XMFLOAT3& pos);
@@ -21,16 +24,17 @@ public:
 	void AdjustRotation(const XMVECTOR& rot);
 	void AdjustRotation(const XMFLOAT3& rot);
 	void AdjustRotation(float x, float y, float z);
-	void SetScale(float xScale, float yScale, float zScale = 1.0f);
+	void SetScale(const XMVECTOR& scale);
+	void SetScale(const XMFLOAT3& scale);
+	void SetScale(float x, float y, float z = 1.0f);
 
 protected:
 	virtual void UpdateMatrix();
 
 	XMVECTOR posVector;
 	XMVECTOR rotVector;
+	XMVECTOR scaleVector;
 	XMFLOAT3 pos;
 	XMFLOAT3 rot;
-
 	XMFLOAT3 scale;
-
 };

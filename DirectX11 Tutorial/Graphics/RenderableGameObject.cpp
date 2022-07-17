@@ -4,8 +4,10 @@
 bool RenderableGameObject::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
 	model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader);
+	rigidbody.Initialize(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.9f, 1.0f, false);
 	this->SetPosition(0.0f, 0.0f, 0.0f);
 	this->SetRotation(0.0f, 0.0f, 0.0f);
+	this->SetScale(1.0f, 1.0f, 1.0f);
 	this->UpdateMatrix();
 	return true;
 }
@@ -17,6 +19,6 @@ void RenderableGameObject::Draw(const XMMATRIX& viewProjectionMatrix)
 
 void RenderableGameObject::UpdateMatrix()
 {
-	this->worldMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	this->worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) * XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
 	this->UpdateDirectionVectors();
 }

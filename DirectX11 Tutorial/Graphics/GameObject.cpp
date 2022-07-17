@@ -112,6 +112,19 @@ void GameObject::AdjustRotation(float x, float y, float z)
 	this->UpdateMatrix();
 }
 
+void GameObject::SetScale(const XMVECTOR& scale)
+{
+	XMStoreFloat3(&this->scale, scale);
+	this->scaleVector = scale;
+	this->UpdateMatrix();
+}
+void GameObject::SetScale(const XMFLOAT3& scale)
+{
+	this->scale = scale;
+	this->scaleVector= XMLoadFloat3(&this->scale);
+	this->UpdateMatrix();
+}
+
 void GameObject::SetScale(float xScale, float yScale, float zScale)
 {
 	this->scale.x = xScale;
