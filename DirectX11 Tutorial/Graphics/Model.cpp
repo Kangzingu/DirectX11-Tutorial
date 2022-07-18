@@ -1,10 +1,11 @@
 #include "Model.h"
 
-void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, aiColor3D defaultColor)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->defaultColor = defaultColor;
 	/*Vertex v[] = {
 		Vertex(-0.5f,	-0.5f,	-0.5f,	0.0f,	1.0f),
 		Vertex(-0.5f,	0.5f,	-0.5f,	0.0f,	0.0f),
@@ -172,11 +173,11 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 	if (textureCount == 0)
 	{
 		storetype = TextureStorageType::None;
-		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
+		aiColor3D aiColor=this->defaultColor;
 		switch (textureType)
 		{
 			case aiTextureType_DIFFUSE:
-				pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+				//pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 				if (aiColor.IsBlack())
 				{
 					materialTextures.push_back(Texture(this->device, Colors::UnloadedTextureColor, textureType));

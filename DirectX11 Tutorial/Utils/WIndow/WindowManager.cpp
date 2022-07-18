@@ -2,7 +2,7 @@
 #include <memory>
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-bool WindowManager::Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
+void WindowManager::Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
 {
 	/* 윈도우 초기화 */
 	this->window.Initialize(this, hInstance, windowTitle, windowClass, windowWidth, windowHeight);

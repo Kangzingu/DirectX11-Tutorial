@@ -17,9 +17,9 @@ public:
 	{
 		this->accumulatedForce += force;
 	}
-	XMVECTOR velocity;
+	XMVECTOR velocity;// m/s 단위
 	XMVECTOR accumulatedForce;
 	float damping;
-	float mass;
+	float mass;// kg단위
 	bool isKinematic;
 };

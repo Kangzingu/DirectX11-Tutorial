@@ -2,6 +2,7 @@
 
 bool Window::Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight)
 {
+	this->isEnable = true;
 	this->hInstance = hInstance;// 윈도우 운영체제에서 실행되는 프로그램들을 구별하기 위한 ID 값
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
@@ -45,7 +46,7 @@ bool Window::Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, st
 	return true;
 }
 
-bool Window::ProcessMessages()
+void Window::ProcessMessages()
 {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -63,11 +64,11 @@ bool Window::ProcessMessages()
 		{
 			this->handle = NULL;
 			UnregisterClass(windowClassWString.c_str(), this->hInstance);
-			return false;
+			isEnable = false;
 		}
 	}
-
-	return true;
+	// 일케 예외처리 해버리니까 끌때마다 이게 뜸
+	//ERROR_IF(this->handle == NULL, "윈도우 핸들러가 없습니다");
 }
 
 HWND Window::GetHWND() const
@@ -92,6 +93,11 @@ int Window::GetWidth()
 int Window::GetHeight()
 {
 	return windowHeight;
+}
+
+bool Window::IsEnable()
+{
+	return isEnable;
 }
 
 LRESULT HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

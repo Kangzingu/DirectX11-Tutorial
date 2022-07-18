@@ -6,12 +6,14 @@ class WindowManager;
 class Window {
 public:
 	bool Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
-	bool ProcessMessages();
+	void ProcessMessages();
 	HWND GetHWND() const;
 	~Window();
 	int GetWidth();
 	int GetHeight();
+	bool IsEnable();
 private:
+	bool isEnable;
 	void RegisterWindowClass();
 	HWND handle = NULL;
 	HINSTANCE hInstance = NULL;
