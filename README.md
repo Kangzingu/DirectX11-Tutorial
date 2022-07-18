@@ -62,3 +62,4 @@
   * 힘, 속도, 시간 등등 식마다 단위를 통일시켜서 조정해 줘야하는데 책에 쓰여있는 대로 일단 적당히 이해하고 구현하다 보니 결과가 좀 이상하다 느낄 때 값들을 제대로 조절할 수가 없음 시간이 좀 걸리더라도 최소한 단위들은 제대로 이해하고 통일하는게 필요할 듯
 ```
 ![bouyancy](https://user-images.githubusercontent.com/34128052/179559765-c32a298d-3b91-4848-943f-b6740a9cdec6.gif)
+![Spring](https://user-images.githubusercontent.com/34128052/179560080-97e50322-2708-4488-a20b-326b394ad5c5.gif)
