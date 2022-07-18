@@ -1,10 +1,10 @@
 #include "Model.h"
 
-void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, aiColor3D defaultColor)
+void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->vsConstantBuffer = &vsConstantBuffer;
 	this->defaultColor = defaultColor;
 	/*Vertex v[] = {
 		Vertex(-0.5f,	-0.5f,	-0.5f,	0.0f,	1.0f),
@@ -43,13 +43,13 @@ void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 
 void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->vsConstantBuffer->GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix;
-		this->cb_vs_vertexshader->ApplyChanges();
+		this->vsConstantBuffer->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
+		this->vsConstantBuffer->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix;
+		this->vsConstantBuffer->ApplyChanges();
 		meshes[i].Draw();
 	}
 }

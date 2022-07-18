@@ -6,7 +6,7 @@ class WindowManager;
 class Window {
 public:
 	bool Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
-	void ProcessMessages();
+	void HandleMessage();
 	HWND GetHWND() const;
 	~Window();
 	int GetWidth();

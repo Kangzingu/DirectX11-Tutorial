@@ -46,7 +46,7 @@ bool Window::Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, st
 	return true;
 }
 
-void Window::ProcessMessages()
+void Window::HandleMessage()
 {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));

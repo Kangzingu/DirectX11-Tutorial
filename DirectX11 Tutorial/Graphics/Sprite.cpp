@@ -1,7 +1,7 @@
 #include "Sprite.h"
 #include <WICTextureLoader.h>
 
-bool Sprite::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float width, float height, std::string spritePath, ConstantBuffer<CB_VS_vertexshader_2d>& cb_vs_vertexshader_2d)
+bool Sprite::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float width, float height, std::string spritePath, ConstantBuffer<VSConstantBuffer2D>& cb_vs_vertexshader_2d)
 {
 	this->deviceContext = deviceContext;
 	if (deviceContext == nullptr)

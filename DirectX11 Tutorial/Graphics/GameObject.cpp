@@ -20,6 +20,16 @@ const XMFLOAT3& GameObject::GetRotationFloat3() const
 	return this->rot;
 }
 
+const XMVECTOR& GameObject::GetScaleVector() const
+{
+	return this->scaleVector;
+}
+
+const XMFLOAT3& GameObject::GetScaleFloat3() const
+{
+	return this->scale;
+}
+
 void GameObject::SetPosition(const XMVECTOR& pos)
 {
 	XMStoreFloat3(&this->pos, pos);

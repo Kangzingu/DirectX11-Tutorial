@@ -1,10 +1,10 @@
 #include "RenderableGameObject.h"
 
 
-bool RenderableGameObject::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, aiColor3D defaultColor)
+bool RenderableGameObject::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor)
 {
-	model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader, defaultColor);
-	rigidbody.Initialize(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.95f, 1.0f, false);
+	model.Initialize(filePath, device, deviceContext, vsConstantBuffer, defaultColor);
+	rigidbody.Initialize(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), 0.95f, 70.0f, false);
 	this->SetPosition(0.0f, 0.0f, 0.0f);
 	this->SetRotation(0.0f, 0.0f, 0.0f);
 	this->SetScale(1.0f, 1.0f, 1.0f);
