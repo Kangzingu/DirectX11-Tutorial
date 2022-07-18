@@ -61,4 +61,7 @@
  - 물리 : 스프링, 부력 구현
   * 힘, 속도, 시간 등등 식마다 단위를 통일시켜서 조정해 줘야하는데 책에 쓰여있는 대로 일단 적당히 이해하고 구현하다 보니 결과가 좀 이상하다 느낄 때 값들을 제대로 조절할 수가 없음 시간이 좀 걸리더라도 최소한 단위들은 제대로 이해하고 통일하는게 필요할 듯
 ```
-<iframe id="video" width="648" height="364.5" src="/DirectX11 Tutorial/Assets/Videos/Spring.mp4" frameborder="0">ㅇ</iframe>
+
+<video width="100%" height="100%" controls="controls">
+  <source src="/DirectX11 Tutorial/Assets/Videos/Spring.mp4" type="video/mp4">
+</video>
