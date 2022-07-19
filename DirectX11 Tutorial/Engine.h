@@ -1,14 +1,12 @@
 #pragma once
 #include "Graphics/AdapterReader.h"
-#include "Graphics/Camera2D.h"
-#include "Graphics/Camera3D.h"
+#include "Graphics/Camera.h"
 #include "Graphics/ImGui/imgui.h"
 #include "Graphics/ImGui/imgui_impl_win32.h"
 #include "Graphics/ImGui/imgui_impl_dx11.h"
 #include "Graphics/Light.h"
 #include "Graphics/RenderableGameObject.h"
 #include "Graphics/Shaders.h"
-#include "Graphics/Sprite.h"
 #include "Utils/Timer.h"
 #include "Utils/WIndow/WindowManager.h"
 #include <SpriteBatch.h>
@@ -35,9 +33,12 @@ public:
 	void UpdateUI();
 	bool IsRenderWindowExist();
 
+	// test for physics
+	float CalculateSeparateVelocity(vector<RenderableGameObject> gameObject);
+	void ResolveVelocity();
 private:
 	Light light;
-	Camera3D camera;
+	Camera camera;
 	vector<RenderableGameObject> gameObjects;
 
 	Timer fpsTimer;

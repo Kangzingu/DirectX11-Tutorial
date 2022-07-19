@@ -1,7 +1,7 @@
 #pragma once
-#include "GameObject3D.h"
+#include "Object.h"
 
-class RenderableGameObject : public GameObject3D
+class RenderableGameObject : public Object
 {
 public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor);
@@ -11,8 +11,4 @@ public:
 
 protected:
 	Model model;
-	void UpdateMatrix() override;
-
-	XMMATRIX worldMatrix = XMMatrixIdentity();
-
 };

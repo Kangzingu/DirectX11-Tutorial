@@ -159,15 +159,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics\Camera2D.cpp" />
-    <ClCompile Include="Graphics\GameObject3D.cpp" />
-    <ClCompile Include="Graphics\GameObject2D.cpp" />
     <ClCompile Include="Graphics\Color.cpp" />
-    <ClCompile Include="Graphics\GameObject.cpp" />
-    <ClCompile Include="Graphics\Camera3D.cpp" />
+    <ClCompile Include="Graphics\Object.cpp" />
+    <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\AdapterReader.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Graphics\Transform.cpp" />
     <ClCompile Include="Utils\ErrorLogger.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_draw.cpp" />
@@ -185,22 +183,19 @@
     <ClCompile Include="Utils\WIndow\MouseEvent.cpp" />
     <ClCompile Include="Utils\WIndow\Window.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
-    <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Utils\StringHelper.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Utils\Timer.cpp" />
     <ClCompile Include="Utils\WIndow\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graphics\Camera2D.h" />
-    <ClInclude Include="Graphics\GameObject3D.h" />
-    <ClInclude Include="Graphics\GameObject2D.h" />
     <ClInclude Include="Graphics\Color.h" />
     <ClInclude Include="Graphics\Rigidbody.h" />
+    <ClInclude Include="Graphics\Transform.h" />
     <ClInclude Include="Utils\SimpleMath.h" />
     <ClInclude Include="Utils\Exception.h" />
-    <ClInclude Include="Graphics\GameObject.h" />
-    <ClInclude Include="Graphics\Camera3D.h" />
+    <ClInclude Include="Graphics\Object.h" />
+    <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\ConstantBufferTypes.h" />
     <ClInclude Include="Graphics\AdapterReader.h" />
@@ -225,7 +220,6 @@
     <ClInclude Include="Utils\WIndow\MouseEvent.h" />
     <ClInclude Include="Utils\WIndow\Window.h" />
     <ClInclude Include="Graphics\Shaders.h" />
-    <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Utils\StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />

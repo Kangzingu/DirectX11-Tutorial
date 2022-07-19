@@ -1,2 +1,7 @@
-﻿  RenderableGameObject.cpp
-  DirectX11 Tutorial.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
+﻿  Engine.cpp
+  Camera.cpp
+  main.cpp
+C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
+C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
+C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(343,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DirectX11 Tutorial.vcxproj -> C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe

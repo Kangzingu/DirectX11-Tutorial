@@ -17,6 +17,10 @@ public:
 	{
 		this->accumulatedForce += force;
 	}
+	void AddImpulse()
+	{
+
+	}
 	XMVECTOR velocity;// m/s ¥‹¿ß
 	XMVECTOR accumulatedForce;
 	float damping;

@@ -42,7 +42,7 @@
     <ClCompile Include="Graphics\Shaders.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Camera3D.cpp">
+    <ClCompile Include="Graphics\Camera.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ImGui\imgui.cpp">
@@ -69,7 +69,7 @@
     <ClCompile Include="Graphics\Mesh.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GameObject.cpp">
+    <ClCompile Include="Graphics\Object.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Color.cpp">
@@ -82,18 +82,6 @@
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Light.cpp">
-      <Filter>소스 파일\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\GameObject2D.cpp">
-      <Filter>소스 파일\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\GameObject3D.cpp">
-      <Filter>소스 파일\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Camera2D.cpp">
-      <Filter>소스 파일\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Sprite.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Utils\ErrorLogger.cpp">
@@ -126,6 +114,9 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Transform.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -152,7 +143,7 @@
     <ClInclude Include="Graphics\ConstantBuffer.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Camera3D.h">
+    <ClInclude Include="Graphics\Camera.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ImGui\imconfig.h">
@@ -185,7 +176,7 @@
     <ClInclude Include="Graphics\Mesh.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\GameObject.h">
+    <ClInclude Include="Graphics\Object.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Color.h">
@@ -198,18 +189,6 @@
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Light.h">
-      <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GameObject2D.h">
-      <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GameObject3D.h">
-      <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Camera2D.h">
-      <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Sprite.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Exception.h">
@@ -246,6 +225,9 @@
       <Filter>헤더 파일\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Rigidbody.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Transform.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
