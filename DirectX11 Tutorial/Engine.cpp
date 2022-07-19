@@ -454,25 +454,55 @@ bool Engine::IsRenderWindowExist()
 	return windowManager.window.IsEnable();
 }
 
-float Engine::CalculateSeparateVelocity(vector<RenderableGameObject> gameObject)
+class ParticleContact
 {
-	// Contact Normal을 어디선가 구해와야함..
-	XMVECTOR contactNormal = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	// if (gameObject[0].rigidbody.isKinematic) return 1;// 일케 넣어줘야 댈거같은데..
-	XMVECTOR relativeVelocity = gameObject[0].rigidbody.velocity;
-	if (gameObject[1].rigidbody.isKinematic)
-	{// 사실 gameObject[1]이 존재 하냐 안하냐에 따른건데 일단 넣었져..
-		relativeVelocity -= gameObject[1].rigidbody.velocity;
-	}
-	return XMVectorGetX(XMVector3Dot(relativeVelocity, contactNormal));
-}
-
-void Engine::ResolveVelocity()
-{
-	float separateVelocity = CalculateSeparateVelocity(gameObjects);
-	if (separateVelocity > 0)
+	// 113pg 까지 읽음
+public:
+	RenderableGameObject* gameObjects[2];
+	float restitution;// 반발계수(충돌 깊이의 역할)
+	XMVECTOR contactNormal;// gameObject[0]이 gameObject[1]로 다가가는
+	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
+protected:
+	void Resolve(float duration)
 	{
-		// 음수여야 충돌한거임
-		return;
+		ResolveVelocity(duration);
 	}
-}
+	float CalculateSeparatingVelocity() const
+	{
+		XMVECTOR relativeVelocity = gameObjects[0]->rigidbody.velocity;
+		if (gameObjects[1] != nullptr)
+			relativeVelocity -= gameObjects[1]->rigidbody.velocity;
+		return XMVectorGetX(XMVector3Dot(relativeVelocity, contactNormal));
+	}
+
+private:
+	void ResolveVelocity(float duration)
+	{
+		// 두 물체의 상대속력(접촉속력)을 구함
+		float separatingVelocity = CalculateSeparatingVelocity();
+
+		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
+			return;
+
+		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
+		float newSepVelocity = -separatingVelocity * restitution;
+		float deltaVelocity = newSepVelocity - separatingVelocity;
+
+		float totalInverseMass = 1.0f /gameObjects[0]->rigidbody.mass;
+		if (gameObjects[1] != nullptr) totalInverseMass += 1.0f / gameObjects[1]->rigidbody.mass;
+
+		if (totalInverseMass <= 0) return;
+
+		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
+		float impulse = deltaVelocity / totalInverseMass;
+
+		XMVECTOR impulsePerIMess = contactNormal * impulse;
+
+		gameObjects[0]->rigidbody.velocity = gameObjects[0]->rigidbody.velocity + impulsePerIMess / gameObjects[0]->rigidbody.mass;
+
+		if (gameObjects[1] != nullptr)
+		{
+			gameObjects[1]->rigidbody.velocity=gameObjects[1]->rigidbody.velocity + impulsePerIMess / -gameObjects[1]->rigidbody.mass;
+		}
+	}
+};
