@@ -9,6 +9,83 @@
 #include <d3d11.h>
 #include <wrl.h>
 #include <memory>
+
+class ParticleContact
+{
+	// 121pg 읽어야함
+public:
+	Actor* actors[2];
+	float restitution;// 반발계수(충돌 깊이의 역할)
+	XMVECTOR contactNormal;// actor[0]이 actor[1]로 다가가는
+	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
+	float separatingVelocity;
+	void Resolve(float duration)
+	{
+		ResolveVelocity(duration);
+		ResolveInterpenetration(duration);
+	}
+	float CalculateSeparatingVelocity() const
+	{
+		XMVECTOR relativeVelocity = actors[0]->rigidbody.velocity;
+		if (actors[1] != nullptr)
+			relativeVelocity -= actors[1]->rigidbody.velocity;
+		return XMVectorGetX(XMVector3Dot(relativeVelocity, contactNormal));
+	}
+
+private:
+	void ResolveVelocity(float duration)
+	{
+		// 두 물체의 상대속력(접촉속력)을 구함
+		separatingVelocity = CalculateSeparatingVelocity();
+
+		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
+			return;
+
+		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
+		float newSepVelocity = -separatingVelocity * restitution;
+
+		XMVECTOR accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
+		if (actors[1] != nullptr) accCausedVelocity -= actors[1]->rigidbody.accumulatedForce / actors[1]->rigidbody.mass;
+		float accCausedSepVelocity = XMVectorGetX(XMVector3Dot(accCausedVelocity, contactNormal)) * duration;
+		if (accCausedSepVelocity < 0)
+		{
+			newSepVelocity += restitution * accCausedSepVelocity;
+			if (newSepVelocity < 0) newSepVelocity = 0;
+		}
+
+		float deltaVelocity = newSepVelocity - separatingVelocity;
+
+		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
+		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
+
+		if (totalInverseMass <= 0) return;
+
+		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
+		float impulse = deltaVelocity / totalInverseMass;
+
+		XMVECTOR impulsePerIMess = contactNormal * impulse;
+
+		actors[0]->rigidbody.velocity = actors[0]->rigidbody.velocity + impulsePerIMess / actors[0]->rigidbody.mass;
+
+		if (actors[1] != nullptr)
+		{
+			actors[1]->rigidbody.velocity = actors[1]->rigidbody.velocity + impulsePerIMess / -actors[1]->rigidbody.mass;
+		}
+	}
+	void ResolveInterpenetration(float duration)
+	{
+		// 113pg 참고
+		if (penetration <= 0) return;
+		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
+		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
+		if (totalInverseMass <= 0) return;
+		XMVECTOR movePerIMass = contactNormal * (penetration / totalInverseMass);
+		actors[0]->transform.SetPosition(actors[0]->transform.GetPositionVector() + movePerIMass / actors[0]->rigidbody.mass);
+		if (actors[1] != nullptr) actors[1]->transform.SetPosition(actors[1]->transform.GetPositionVector() + movePerIMass / -actors[1]->rigidbody.mass);
+	}
+};
+ParticleContact contact;
+
 void Engine::Initialize(HINSTANCE hInstance)
 {
 	InitializeWindow(hInstance);
@@ -20,9 +97,9 @@ void Engine::Run()
 {
 	while (IsRenderWindowExist())
 	{
+		UpdateTimer();
 		HandleEvent();
 		UpdatePhysics();
-		UpdateTimer();
 		UpdateScene();
 	}
 }
@@ -52,8 +129,8 @@ void Engine::InitializeDirectX()
 	swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescription.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	ERROR_IF_FAILED(D3D11CreateDeviceAndSwapChain(graphicsAdapter[0].pAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, NULL, 0, D3D11_SDK_VERSION, &swapChainDescription, swapchain.GetAddressOf(), device.GetAddressOf(), NULL, deviceContext.GetAddressOf()), "디바이스와 스왑체인 생성에 실패했습니다");
-	ERROR_IF_FAILED(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(swapChainBuffer.GetAddressOf())),"스왑체인의 GetBuffer 함수 호출에 실패했습니다");
-	ERROR_IF_FAILED(device->CreateRenderTargetView(swapChainBuffer.Get(), NULL, renderTargetView.GetAddressOf()),"렌더타겟 뷰 생성에 실패했습니다");
+	ERROR_IF_FAILED(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(swapChainBuffer.GetAddressOf())), "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
+	ERROR_IF_FAILED(device->CreateRenderTargetView(swapChainBuffer.Get(), NULL, renderTargetView.GetAddressOf()), "렌더타겟 뷰 생성에 실패했습니다");
 
 	// 뷰포트
 	CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(this->windowManager.window.GetWidth()), static_cast<float>(this->windowManager.window.GetHeight()));
@@ -62,7 +139,7 @@ void Engine::InitializeDirectX()
 	// 라스터라이저
 	CD3D11_RASTERIZER_DESC rasterizerDescription(D3D11_DEFAULT);
 	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;// D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
-	ERROR_IF_FAILED(device->CreateRasterizerState(&rasterizerDescription, rasterizerState.GetAddressOf()),"라스터라이저 상태 생성에 실패했습니다");
+	ERROR_IF_FAILED(device->CreateRasterizerState(&rasterizerDescription, rasterizerState.GetAddressOf()), "라스터라이저 상태 생성에 실패했습니다");
 
 	// 깊이 테스트
 	CD3D11_TEXTURE2D_DESC depthStencilTextureDescription(DXGI_FORMAT_D24_UNORM_S8_UINT, this->windowManager.window.GetWidth(), this->windowManager.window.GetHeight());
@@ -73,7 +150,7 @@ void Engine::InitializeDirectX()
 	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	CD3D11_DEPTH_STENCIL_DESC depthStencilDescription(D3D11_DEFAULT);
 	depthStencilDescription.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;//D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;// 일케하면 깊이가 같은 경우에는 걍 넘어가는듯, LESS_EQUAL은 같은 경우 늦게 들어온넘을 그리고
-	ERROR_IF_FAILED(device->CreateDepthStencilState(&depthStencilDescription, depthStencilState.GetAddressOf()),"Depth Stencil 상태 생성에 실패했습니다");
+	ERROR_IF_FAILED(device->CreateDepthStencilState(&depthStencilDescription, depthStencilState.GetAddressOf()), "Depth Stencil 상태 생성에 실패했습니다");
 
 	// 블렌드
 	D3D11_RENDER_TARGET_BLEND_DESC renderTargetBlendDescription = { 0 };
@@ -130,51 +207,46 @@ void Engine::InitializeShaders()
 #endif
 #endif
 	}
-	D3D11_INPUT_ELEMENT_DESC inputElementDescription3D[] = {
+	D3D11_INPUT_ELEMENT_DESC inputElementDescription[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	UINT numofElements3D = ARRAYSIZE(inputElementDescription3D);
-	vertexShader.Initialize(device, shaderPath + L"vertexshader.cso", inputElementDescription3D, numofElements3D);
+	UINT numofElements = ARRAYSIZE(inputElementDescription);
+	vertexShader.Initialize(device, shaderPath + L"vertexshader.cso", inputElementDescription, numofElements);
 	pixelShader.Initialize(device, shaderPath + L"pixelshader.cso");
 	pixelShaderNoLight.Initialize(device, shaderPath + L"pixelshader_nolight.cso");
-	}
+	vsConstantBuffer.Initialize(device.Get(), deviceContext.Get());
+	psConstantBuffer.Initialize(device.Get(), deviceContext.Get());
+}
 void Engine::InitializeScene()
-{
-	// 이미지 파일 로드
-	ERROR_IF_FAILED(DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/seamless_grass.jpg", nullptr, grassTexture.GetAddressOf()),
-					"이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-	ERROR_IF_FAILED(DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/pinksquare.jpg", nullptr, pinkTexture.GetAddressOf()),
-					"이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-	ERROR_IF_FAILED(DirectX::CreateWICTextureFromFile(device.Get(), L"Assets/Textures/seamless_Pavement.jpg", nullptr, pavementTexture.GetAddressOf()),
-					"이미지 파일로부터 WIC 텍스쳐 생성에 실패했습니다");
-
-	// Constant Buffer 초기화
-	ERROR_IF_FAILED(vsConstantBuffer.Initialize(device.Get(), deviceContext.Get()),
-					"버텍스 쉐이더의 컨스탠트 버퍼 생성에 실패했습니다");
-	ERROR_IF_FAILED(psConstantBuffer.Initialize(device.Get(), deviceContext.Get()),
-					"픽셀 쉐이더의 컨스탠트 버퍼 생성에 실패했습니다");
+{	
+	/* TODO: 이거 두줄 Light에 psConstantBuffer 넘겨서 없애기 */
 	psConstantBuffer.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	psConstantBuffer.data.ambientLightStrength = 0.5f;
 
-	// 게임 오브젝트 생성
-	RenderableGameObject gameObject;
-	gameObject.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(0.0f, 0.0f, 1.0f));
-	gameObjects.push_back(gameObject);
-	gameObject.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	gameObjects.push_back(gameObject);
-	gameObjects.push_back(gameObject);
-	gameObjects.push_back(gameObject);
-	gameObjects[0].transform.SetScale(100.0f, 0.1f, 100.1f);
-	for (int i = 0; i < gameObjects.size(); i++)
-		gameObjects[i].transform.SetPosition(i * 2.0f, i * 0.3f, 0.0f);
+	// 액터
+	Actor actor;
+	actor.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(0.0f, 0.0f, 1.0f));
+	actors.push_back(actor);
+	actor.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	actors.push_back(actor);
+	actors.push_back(actor);
+	actors.push_back(actor);
+	actors[0].transform.SetScale(1.0f, 0.1f, 1.0f);
+	for (int i = 0; i < actors.size(); i++)
+		actors[i].transform.SetPosition(i * 0.00f, i * 200.0f, 0.0f);
 
-	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(0.5f, 0.5f, 0.5f));
+	// 조명
+	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	light.transform.SetPosition(3.0f, 5.0f, 0.0f);
 
+	// 카메라
+	camera.Initialize();
 	camera.transform.SetPosition(2.0f, 3.0f, -10.0f);
 	camera.SetProjectionValues(90.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
 
+	// 타이머
 	sceneTimer.Start();
 	fpsTimer.Start();
 }
@@ -183,19 +255,20 @@ void Engine::HandleEvent()
 	// 윈도우 메시지 처리
 	windowManager.window.HandleMessage();
 
-	// 마우스 입력
+	// 마우스 이벤트
 	while (!windowManager.mouse.IsEventBufferEmpty())
 	{
-		MouseEvent me = windowManager.mouse.ReadEvent();
+		MouseEvent mouseEvent = windowManager.mouse.ReadEvent();
 		//if (windowManager.mouse.IsRightDown() == true)
-		if (me.GetType() == MouseEvent::Type::RAW_MOVE)
+		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera.transform.AdjustRotation((float)me.GetPosY() * 0.001f, (float)me.GetPosX() * 0.001f, 0);
+			this->camera.transform.AdjustRotation((float)mouseEvent.GetPosY() * 0.001f, (float)mouseEvent.GetPosX() * 0.001f, 0);
+			camera.UpdateMatrix();
 		}
 	}
 
+	// 키보드 이벤트
 	float cameraSpeed = 10.0f;
-	// 키보드 입력
 	while (!windowManager.keyboard.IsCharBufferEmpty())
 	{
 		unsigned char ch = windowManager.keyboard.ReadChar();
@@ -208,29 +281,33 @@ void Engine::HandleEvent()
 	if (windowManager.keyboard.KeyIsPressed('W'))
 	{
 		this->camera.transform.AdjustPosition(this->camera.transform.GetForwardVector() * cameraSpeed * deltaTime);
+		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
 		this->camera.transform.AdjustPosition(this->camera.transform.GetLeftVector() * cameraSpeed * deltaTime);
+		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('S'))
 	{
 		this->camera.transform.AdjustPosition(this->camera.transform.GetBackwardVector() * cameraSpeed * deltaTime);
+		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
 		this->camera.transform.AdjustPosition(this->camera.transform.GetRightVector() * cameraSpeed * deltaTime);
+		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
 		this->camera.transform.AdjustPosition(0.0f, deltaTime, 0.0f);
+		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
 		this->camera.transform.AdjustPosition(0.0f, -deltaTime, 0.0f);
+		camera.UpdateMatrix();
 	}
-	// 이거 지워야행..
-	camera.UpdateMatrix();
 }
 void Engine::UpdatePhysics()
 {
@@ -238,98 +315,114 @@ void Engine::UpdatePhysics()
 	// a의 질량 * a의 속도 + b의 질량 * b의 속도 = a의 충돌 이후 질량 * a의 충돌 이후 속도 + b의 충돌 이후 질량 * b의 충돌 이후 속도
 	// 충돌 이후 분리 속도 = -반발계수 * 분리 속도
 
-	// 부력
-	for (int i = 0; i < gameObjects.size(); i++)
-	{
-		if (i == 0) continue;
-		float d = gameObjects[i].transform.GetPositionFloat3().y;
-		float waterHeight = gameObjects[0].transform.GetPositionFloat3().y;
-		float maxDepth = 0.5f;
-		float volumn = 1.0f;// 블럭의 부피.. m^3 단위임
-		float density = 1000.0f;// 물의 밀도.. kg/m^3 단위임
-		XMVECTOR bouyancy;
-		// y=0.5	d=0
-		// y=0		d=0.5
-		// y=-0.5	d=1
-		if (d >= waterHeight + maxDepth)
-		{
-			bouyancy = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		else if (d <= waterHeight - maxDepth)
-		{
-			bouyancy = XMVectorSet(0.0f, volumn * density, 0.0f, 0.0f);
-		}
-		else
-		{
-			bouyancy = XMVectorSet(0.0f, volumn * density * (d - maxDepth - waterHeight) / (2 * maxDepth), 0.0f, 0.0f);
-		}
-		gameObjects[i].rigidbody.AddForce(bouyancy);
-	}
-
-	//// 스프링 힘(번지)
-	//for (int i = 1; i < gameObjects.size(); i++)
-	//{
-	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//	float k = 30.0f;
-	//	float distAtFirst = sqrt(25.0f);
-	//	if (XMVectorGetX(XMVector3Length(gameObjects[i].GetPositionVector() - gameObjects[0].GetPositionVector())) < distAtFirst) continue;
-	//	spring += -k * XMVector3Normalize(gameObjects[i].GetPositionVector() - gameObjects[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(gameObjects[i].GetPositionVector() - gameObjects[0].GetPositionVector())) - distAtFirst);
-	//	gameObjects[i].rigidbody.AddForce(spring);
-	//}
-
-	//// 스프링 힘
-	//for (int i = 1; i < gameObjects.size(); i++)
-	//{
-	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//	float k = 30.0f;
-	//	float distAtFirst = sqrt(25.0f);
-	//		spring += -k * XMVector3Normalize(gameObjects[i].GetPositionVector() - gameObjects[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(gameObjects[i].GetPositionVector() - gameObjects[0].GetPositionVector())) - distAtFirst);
-	//	gameObjects[i].rigidbody.AddForce(spring);
-	//}
-
-	// 항력
-	for (int i = 0; i < gameObjects.size(); i++)
-	{
-		XMVECTOR drag;
-		float k1 = 10.0f, k2 = 10.0f;
-		// 식이 다르긴 한데 물체의 생김새에 따른 공기저항계수는 다음과 같음
-		// 구: 0.47
-		// 큐브: 1.05
-		// 실린더: 0.82
-		float velocityMagnitude = XMVectorGetX(XMVector3Length(gameObjects[i].rigidbody.velocity));
-		drag = -XMVector3Normalize(gameObjects[i].rigidbody.velocity) * (k1 * velocityMagnitude + k2 * velocityMagnitude * velocityMagnitude);
-		gameObjects[i].rigidbody.AddForce(drag);
-	}
 
 	// 중력
-	for (int i = 0; i < gameObjects.size(); i++)
+	for (int i = 0; i < actors.size(); i++)
 	{
+		if (i == 0) continue;
 		XMVECTOR gravity = XMVectorSet(0.0f, -9.8f, 0.0f, 0.0f);
-		gameObjects[i].rigidbody.AddForce(gravity * gameObjects[i].rigidbody.mass);
+		actors[i].rigidbody.AddForce(gravity * actors[i].rigidbody.mass);
 		// 중력은 서로 끌어댕기는거라 질량 관계없이 일정한듯..? 그래서 질량을 역으로 반영해줘서 결국엔 질량에 영향을 안받게 해줌
 	}
 
-	static bool isDirUp = false;
-	gameObjects[0].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	if (gameObjects[0].transform.GetPositionFloat3().y > 1.0f)
+	// 충돌
+	float contactDepth = XMVectorGetX(XMVector3Length(actors[0].transform.GetPositionVector() - actors[1].transform.GetPositionVector())) - 30.0f;
+	if (contactDepth < 0.0f)
+	{
+		actors[0].rigidbody.mass = 100000.0f;
+
+		contact.restitution = 0.4f;
+		contact.contactNormal = XMVector3Normalize(actors[1].transform.GetPositionVector() - actors[0].transform.GetPositionVector());
+		contact.penetration = -contactDepth;
+		contact.actors[0] = &actors[1];
+		contact.actors[1] = &actors[0];
+		contact.Resolve(deltaTime);
+	}
+
+	//// 부력
+	//for (int i = 0; i < actors.size(); i++)
+	//{
+	//	if (i == 0) continue;
+	//	float d = actors[i].transform.GetPositionFloat3().y;
+	//	float waterHeight = actors[0].transform.GetPositionFloat3().y;
+	//	float maxDepth = 0.5f;
+	//	float volumn = 1.0f;// 블럭의 부피.. m^3 단위임
+	//	float density = 1000.0f;// 물의 밀도.. kg/m^3 단위임
+	//	XMVECTOR bouyancy;
+	//	// y=0.5	d=0
+	//	// y=0		d=0.5
+	//	// y=-0.5	d=1
+	//	if (d >= waterHeight + maxDepth)
+	//	{
+	//		bouyancy = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	//	}
+	//	else if (d <= waterHeight - maxDepth)
+	//	{
+	//		bouyancy = XMVectorSet(0.0f, volumn * density, 0.0f, 0.0f);
+	//	}
+	//	else
+	//	{
+	//		bouyancy = XMVectorSet(0.0f, volumn * density * (d - maxDepth - waterHeight) / (2 * maxDepth), 0.0f, 0.0f);
+	//	}
+	//	actors[i].rigidbody.AddForce(bouyancy);
+	//}
+
+	//// 스프링 힘(번지)
+	//for (int i = 1; i < actors.size(); i++)
+	//{
+	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	//	float k = 30.0f;
+	//	float distAtFirst = sqrt(25.0f);
+	//	if (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) < distAtFirst) continue;
+	//	spring += -k * XMVector3Normalize(actors[i].GetPositionVector() - actors[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) - distAtFirst);
+	//	actors[i].rigidbody.AddForce(spring);
+	//}
+
+	//// 스프링 힘
+	//for (int i = 1; i < actors.size(); i++)
+	//{
+	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	//	float k = 30.0f;
+	//	float distAtFirst = sqrt(25.0f);
+	//		spring += -k * XMVector3Normalize(actors[i].GetPositionVector() - actors[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) - distAtFirst);
+	//	actors[i].rigidbody.AddForce(spring);
+	//}
+
+	//// 항력
+	//for (int i = 0; i < actors.size(); i++)
+	//{
+	//	XMVECTOR drag;
+	//	float k1 = 10.0f, k2 = 10.0f;
+	//	// 식이 다르긴 한데 물체의 생김새에 따른 공기저항계수는 다음과 같음
+	//	// 구: 0.47
+	//	// 큐브: 1.05
+	//	// 실린더: 0.82
+	//	float velocityMagnitude = XMVectorGetX(XMVector3Length(actors[i].rigidbody.velocity));
+	//	drag = -XMVector3Normalize(actors[i].rigidbody.velocity) * (k1 * velocityMagnitude + k2 * velocityMagnitude * velocityMagnitude);
+	//	actors[i].rigidbody.AddForce(drag);
+	//}
+
+	/*static bool isDirUp = false;
+	actors[0].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	if (actors[0].transform.GetPositionFloat3().y > 1.0f)
 		isDirUp = false;
-	else if (gameObjects[0].transform.GetPositionFloat3().y < -1.0f)
+	else if (actors[0].transform.GetPositionFloat3().y < -1.0f)
 		isDirUp = true;
 	if (isDirUp == true)
-		gameObjects[0].transform.AdjustPosition(0, 0.0002f, 0);
+		actors[0].transform.AdjustPosition(0, 0.0002f, 0);
 	else
-		gameObjects[0].transform.AdjustPosition(0, -0.0002f, 0);
+		actors[0].transform.AdjustPosition(0, -0.0002f, 0);*/
 
-	// 감쇠 및 위치값 업데이트
-	for (int i = 0; i < gameObjects.size(); i++)
+		// 감쇠 및 위치값 업데이트
+	for (int i = 0; i < actors.size(); i++)
 	{
-		if (gameObjects[i].rigidbody.isKinematic)
+		if (actors[i].rigidbody.isKinematic)
 			continue;
 		/* pow계산을 안하기 위해 그냥 damping값을 1에 가까이 두고 pow(damping, deltaTime) 대신 damping을 그대로 곱해주기도 함 */
-		gameObjects[i].rigidbody.velocity += (gameObjects[i].rigidbody.accumulatedForce / gameObjects[i].rigidbody.mass) * deltaTime;
-		gameObjects[i].rigidbody.velocity *= pow(gameObjects[i].rigidbody.damping, deltaTime);
-		gameObjects[i].transform.AdjustPosition(gameObjects[i].rigidbody.velocity * deltaTime);
-		gameObjects[i].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		actors[i].rigidbody.velocity += (actors[i].rigidbody.accumulatedForce / actors[i].rigidbody.mass) * deltaTime;
+		actors[i].rigidbody.velocity *= pow(actors[i].rigidbody.damping, deltaTime);
+		actors[i].transform.AdjustPosition(actors[i].rigidbody.velocity * deltaTime);
+		actors[i].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 }
 void Engine::UpdateTimer()
@@ -367,50 +460,92 @@ void Engine::UpdateScene()
 	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
 	{// 오브젝트 그리기
-		for (int i = 0; i < gameObjects.size(); i++)
+		for (int i = 0; i < actors.size(); i++)
 		{
-			gameObjects[i].Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
-		}
-		//gameObject.Draw(XMMatrixScaling(0.1f, 0.1f, 0.1f) * camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
-		//gameObject2.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());	
+			actors[i].Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
+		};	
 		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
 		light.Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
 	}
+
 	{// 선 그리기
 		//std::unique_ptr<DirectX::CommonStates> m_states;
 		//m_states = std::make_unique<CommonStates>(device.Get());
-		//deviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
+		unique_ptr<CommonStates> commonState;
 		unique_ptr<BasicEffect> basicEffect;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> primitiveBatchInputLayout;
+		commonState = make_unique<CommonStates>(device.Get());
 		basicEffect = make_unique<BasicEffect>(device.Get());
 		basicEffect->SetVertexColorEnabled(true);
 		basicEffect->SetMatrices(SimpleMath::Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 		basicEffect->Apply(deviceContext.Get());
-
 		CreateInputLayoutFromEffect<VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
 		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
+		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
 		unique_ptr<PrimitiveBatch<VertexPositionColor>> primitiveBatch;
 		primitiveBatch = make_unique<PrimitiveBatch<VertexPositionColor>>(deviceContext.Get());
 		primitiveBatch->Begin();
 
 		XMVECTORF32 lineColor;
-		XMFLOAT3 waterSurface = gameObjects[0].transform.GetPositionFloat3();
+		XMFLOAT3 waterSurface = actors[0].transform.GetPositionFloat3();
 		XMVECTOR waterSurfaceVector;
 		XMVECTOR halfHeight;
-		for (int i = 1; i < gameObjects.size(); i++)
+		VertexPositionColor v1(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
+		VertexPositionColor v2(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
+		for (int i = 1; i < actors.size(); i++)
 		{
-			waterSurface.x = gameObjects[i].transform.GetPositionFloat3().x;
-			waterSurface.z = gameObjects[i].transform.GetPositionFloat3().z;
+			waterSurface.x = actors[i].transform.GetPositionFloat3().x;
+			waterSurface.z = actors[i].transform.GetPositionFloat3().z;
 			waterSurfaceVector = XMLoadFloat3(&waterSurface);
-			VertexPositionColor v1(waterSurfaceVector, DirectX::Colors::White);
-			float lineLength = XMVectorGetX(XMVector3Length(waterSurfaceVector - gameObjects[i].transform.GetPositionVector()));
+			v1 = VertexPositionColor(waterSurfaceVector, DirectX::Colors::White);
+			float lineLength = XMVectorGetX(XMVector3Length(waterSurfaceVector - actors[i].transform.GetPositionVector()));
 			lineColor = { 1.0f / lineLength, 1.0f / lineLength, 1.0f, 1.0f };
-			halfHeight = XMVectorSet(0.0f, gameObjects[i].transform.GetScaleFloat3().y, 0.0f, 0.0f);
-			VertexPositionColor v2(gameObjects[i].transform.GetPositionVector(), lineColor);
+			halfHeight = XMVectorSet(0.0f, actors[i].transform.GetScaleFloat3().y, 0.0f, 0.0f);
+			v2 = VertexPositionColor(actors[i].transform.GetPositionVector(), lineColor);
 			primitiveBatch->DrawLine(v1, v2);
 		}
-		primitiveBatch->End();
+		{
+			XMVECTORF32 mainLineColor, subLineColor;
+			VertexPositionColor startVertex, endVertex;
+			float cameraDistanceFromXZPlane = abs(camera.transform.GetPositionFloat3().y);
+			float distanceLevel = 10;
+			while (cameraDistanceFromXZPlane >= 10)
+			{
+				cameraDistanceFromXZPlane = cameraDistanceFromXZPlane / 10;
+				distanceLevel *= 10;
+			}
+			mainLineColor = { 1.0f, 1.0f, 1.0f,  cameraDistanceFromXZPlane / 10.0f / 3.0f };
+			subLineColor = { 1.0f, 1.0f, 1.0f, (10.0f - cameraDistanceFromXZPlane) / 10.0f / 3.0f };
+			// x축 평행선
+			for (int offset = -50; offset <= 50; offset++)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor);
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor);
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor);
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor);
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+
+			// z축 평행선
+			for (int offset = -50; offset <= 50; offset++)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor);
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor);
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor);
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor);
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			primitiveBatch->End();
+		}
 	}
 
 	UpdateUI();
@@ -419,10 +554,18 @@ void Engine::UpdateScene()
 }
 void Engine::UpdateUI()
 {
-	//string firstGameobjectVelocity = to_string(XMVectorGetX(gameObjects[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(gameObjects[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(gameObjects[0].rigidbody.velocity));
-	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstGameobjectVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
+	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	/*string movingObjectVelocity = "Moving Object Velocity: " + to_string(XMVectorGetX(actors[1].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[1].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[1].rigidbody.velocity));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string groundObjectVelocity = "Ground Object Velocity: " + to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
 	spriteBatch->End();
 
 	/*
@@ -454,55 +597,3 @@ bool Engine::IsRenderWindowExist()
 	return windowManager.window.IsEnable();
 }
 
-class ParticleContact
-{
-	// 113pg 까지 읽음
-public:
-	RenderableGameObject* gameObjects[2];
-	float restitution;// 반발계수(충돌 깊이의 역할)
-	XMVECTOR contactNormal;// gameObject[0]이 gameObject[1]로 다가가는
-	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
-protected:
-	void Resolve(float duration)
-	{
-		ResolveVelocity(duration);
-	}
-	float CalculateSeparatingVelocity() const
-	{
-		XMVECTOR relativeVelocity = gameObjects[0]->rigidbody.velocity;
-		if (gameObjects[1] != nullptr)
-			relativeVelocity -= gameObjects[1]->rigidbody.velocity;
-		return XMVectorGetX(XMVector3Dot(relativeVelocity, contactNormal));
-	}
-
-private:
-	void ResolveVelocity(float duration)
-	{
-		// 두 물체의 상대속력(접촉속력)을 구함
-		float separatingVelocity = CalculateSeparatingVelocity();
-
-		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
-			return;
-
-		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
-		float newSepVelocity = -separatingVelocity * restitution;
-		float deltaVelocity = newSepVelocity - separatingVelocity;
-
-		float totalInverseMass = 1.0f /gameObjects[0]->rigidbody.mass;
-		if (gameObjects[1] != nullptr) totalInverseMass += 1.0f / gameObjects[1]->rigidbody.mass;
-
-		if (totalInverseMass <= 0) return;
-
-		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
-		float impulse = deltaVelocity / totalInverseMass;
-
-		XMVECTOR impulsePerIMess = contactNormal * impulse;
-
-		gameObjects[0]->rigidbody.velocity = gameObjects[0]->rigidbody.velocity + impulsePerIMess / gameObjects[0]->rigidbody.mass;
-
-		if (gameObjects[1] != nullptr)
-		{
-			gameObjects[1]->rigidbody.velocity=gameObjects[1]->rigidbody.velocity + impulsePerIMess / -gameObjects[1]->rigidbody.mass;
-		}
-	}
-};

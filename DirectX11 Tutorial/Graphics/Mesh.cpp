@@ -3,44 +3,35 @@
 Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture> textures, const DirectX::XMMATRIX& transformMatrix)
 {
 	this->deviceContext = deviceContext;
+	this->vertexbuffer.Initialize(device, vertices.data(), vertices.size());
+	this->indexbuffer.Initialize(device, indices.data(), indices.size());
 	this->textures = textures;
-	this->transformMatrix = transformMatrix;
-
-	HRESULT hr = this->vertexbuffer.Initialize(device, vertices.data(), vertices.size());
-	ERROR_IF_FAILED(hr, "메시를 위한 버텍스 버퍼 생성에 실패했습니다");
-
-	hr = this->indexbuffer.Initialize(device, indices.data(), indices.size());
-	ERROR_IF_FAILED(hr, "메시를 위한 인덱스 버퍼 생성에 실패했습니다");
+	this->worldMatrix = transformMatrix;
 }
-
 Mesh::Mesh(const Mesh& mesh)
 {
 	this->deviceContext = mesh.deviceContext;
-	this->indexbuffer = mesh.indexbuffer;
 	this->vertexbuffer = mesh.vertexbuffer;
+	this->indexbuffer = mesh.indexbuffer;
 	this->textures = mesh.textures;
-	this->transformMatrix = mesh.transformMatrix;
+	this->worldMatrix = mesh.worldMatrix;
 }
-
-void Mesh::Draw()
+const void Mesh::Draw()
 {
 	UINT offset = 0;
-
-	for (int i = 0; i < textures.size(); i++)
+	for (int i = 0; i < this->textures.size(); i++)
 	{
-		if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
+		if (this->textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
 		{
 			this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress());
 			break;
 		}
 	}
-
 	this->deviceContext->IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
 }
-
-const DirectX::XMMATRIX& Mesh::GetTransformMatrix()
+const DirectX::XMMATRIX& Mesh::GetWorldMatrix()
 {
-	return this->transformMatrix;
+	return this->worldMatrix;
 }

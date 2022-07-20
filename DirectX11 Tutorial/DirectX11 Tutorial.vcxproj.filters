@@ -78,7 +78,7 @@
     <ClCompile Include="Graphics\Texture.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\RenderableGameObject.cpp">
+    <ClCompile Include="Graphics\Actor.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Light.cpp">
@@ -185,7 +185,7 @@
     <ClInclude Include="Graphics\Texture.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\RenderableGameObject.h">
+    <ClInclude Include="Graphics\Actor.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Light.h">

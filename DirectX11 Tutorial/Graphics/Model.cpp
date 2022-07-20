@@ -6,55 +6,20 @@ void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 	this->deviceContext = deviceContext;
 	this->vsConstantBuffer = &vsConstantBuffer;
 	this->defaultColor = defaultColor;
-	/*Vertex v[] = {
-		Vertex(-0.5f,	-0.5f,	-0.5f,	0.0f,	1.0f),
-		Vertex(-0.5f,	0.5f,	-0.5f,	0.0f,	0.0f),
-		Vertex(0.5f,	0.5f,	-0.5f,	1.0f,	0.0f),
-		Vertex(0.5f,	-0.5f,	-0.5f,	1.0f,	1.0f),
-
-		Vertex(-0.5f,	-0.5f,	0.5f,	0.0f,	1.0f),
-		Vertex(-0.5f,	0.5f,	0.5f,	0.0f,	0.0f),
-		Vertex(0.5f,	0.5f,	0.5f,	1.0f,	0.0f),
-		Vertex(0.5f,	-0.5f,	0.5f,	1.0f,	1.0f),
-	};
-
-	HRESULT hr = this->vertexBuffer.Initialize(this->device, v, ARRAYSIZE(v));
-	COM_ERROR_IF_FAILED(hr, "버텍스 버퍼 초기화에 실패했습니다");
-
-	DWORD indices[] = {
-		0, 1, 2,
-		0, 2, 3,
-		4, 7, 6,
-		4, 6, 5,
-		3, 2, 6,
-		3, 6, 7,
-		4, 5, 1,
-		4, 1, 0,
-		1, 5, 6,
-		1, 6, 2,
-		0, 3, 7,
-		0, 7, 4
-	};
-
-	hr = this->indexBuffer.Initialize(this->device, indices, ARRAYSIZE(indices));
-	COM_ERROR_IF_FAILED(hr, "인덱스 버퍼 초기화에 실패했습니다");*/
-	LoadModel(filePath);
+	Load(filePath);
 }
-
 void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
 {
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->vsConstantBuffer->GetAddressOf());
-
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		this->vsConstantBuffer->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
-		this->vsConstantBuffer->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix;
+		this->vsConstantBuffer->data.wvpMatrix = meshes[i].GetWorldMatrix() * worldMatrix * viewProjectionMatrix;
+		this->vsConstantBuffer->data.worldMatrix = meshes[i].GetWorldMatrix() * worldMatrix;
 		this->vsConstantBuffer->ApplyChanges();
 		meshes[i].Draw();
 	}
 }
-
-void Model::LoadModel(const std::string& filePath)
+void Model::Load(const std::string& filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
 	Assimp::Importer importer;

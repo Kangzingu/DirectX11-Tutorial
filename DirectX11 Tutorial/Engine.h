@@ -5,7 +5,7 @@
 #include "Graphics/ImGui/imgui_impl_win32.h"
 #include "Graphics/ImGui/imgui_impl_dx11.h"
 #include "Graphics/Light.h"
-#include "Graphics/RenderableGameObject.h"
+#include "Graphics/Actor.h"
 #include "Graphics/Shaders.h"
 #include "Utils/Timer.h"
 #include "Utils/WIndow/WindowManager.h"
@@ -34,12 +34,12 @@ public:
 	bool IsRenderWindowExist();
 
 	// test for physics
-	float CalculateSeparateVelocity(vector<RenderableGameObject> gameObject);
+	float CalculateSeparateVelocity(vector<Actor> gameObject);
 	void ResolveVelocity();
 private:
 	Light light;
 	Camera camera;
-	vector<RenderableGameObject> gameObjects;
+	vector<Actor> actors;
 
 	Timer fpsTimer;
 	Timer sceneTimer;
@@ -69,9 +69,6 @@ private:
 	ComPtr<ID3D11BlendState> blendState;
 
 	ComPtr<ID3D11SamplerState> samplerState;
-	ComPtr<ID3D11ShaderResourceView> pinkTexture;
-	ComPtr<ID3D11ShaderResourceView> grassTexture;
-	ComPtr<ID3D11ShaderResourceView> pavementTexture;
 
 	unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	unique_ptr<DirectX::SpriteFont> spriteFont;

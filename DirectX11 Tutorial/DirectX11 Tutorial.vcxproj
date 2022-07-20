@@ -176,7 +176,7 @@
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
-    <ClCompile Include="Graphics\RenderableGameObject.cpp" />
+    <ClCompile Include="Graphics\Actor.cpp" />
     <ClCompile Include="Utils\WIndow\Keyboard.cpp" />
     <ClCompile Include="Utils\WIndow\KeyboardEvent.cpp" />
     <ClCompile Include="Utils\WIndow\Mouse.cpp" />
@@ -213,7 +213,7 @@
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Light.h" />
-    <ClInclude Include="Graphics\RenderableGameObject.h" />
+    <ClInclude Include="Graphics\Actor.h" />
     <ClInclude Include="Utils\WIndow\Keyboard.h" />
     <ClInclude Include="Utils\WIndow\KeyboardEvent.h" />
     <ClInclude Include="Utils\WIndow\Mouse.h" />

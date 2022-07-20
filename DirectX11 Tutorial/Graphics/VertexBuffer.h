@@ -1,3 +1,4 @@
+/* 끝 */
 #ifndef VertexBuffer_h__
 #define VertexBuffer_h__
 #include <d3d11.h>
@@ -10,21 +11,38 @@ class VertexBuffer
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 	UINT stride = sizeof(T);
-	UINT vertexCount = 0;
+	UINT numofVertex = 0;
 
 public:
-	VertexBuffer() {}
-	VertexBuffer(const VertexBuffer<T>& rhs)
+	void Initialize(ID3D11Device* device, T* data, UINT vertexCount)
 	{
-		this->buffer = rhs.buffer;
-		this->vertexCount = rhs.vertexCount;
-		this->stride = rhs.stride;
+		if (buffer.Get() != nullptr)
+			buffer.Reset();
+		this->numofVertex = vertexCount;
+		D3D11_BUFFER_DESC vertexBufferDescription;
+		ZeroMemory(&vertexBufferDescription, sizeof(vertexBufferDescription));
+		vertexBufferDescription.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDescription.ByteWidth = stride * vertexCount;
+		vertexBufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDescription.CPUAccessFlags = 0;
+		vertexBufferDescription.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA vertexBufferData;
+		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+		vertexBufferData.pSysMem = data;
+		ERROR_IF_FAILED(device->CreateBuffer(&vertexBufferDescription, &vertexBufferData, this->buffer.GetAddressOf()), "버텍스 버퍼 생성에 실패했습니다");
 	}
-	VertexBuffer<T>& operator=(const VertexBuffer<T>& a)
+	VertexBuffer() {}
+	VertexBuffer(const VertexBuffer<T>& input)
 	{
-		this->buffer = a.buffer;
-		this->vertexCount = a.vertexCount;
-		this->stride = a.stride;
+		this->buffer = input.buffer;
+		this->numofVertex = input.numofVertex;
+		this->stride = input.stride;
+	}
+	VertexBuffer<T>& operator=(const VertexBuffer<T>& input)
+	{
+		this->buffer = input.buffer;
+		this->numofVertex = input.numofVertex;
+		this->stride = input.stride;
 		return *this;
 	}
 	ID3D11Buffer* Get() const
@@ -37,7 +55,7 @@ public:
 	}
 	UINT VertexCount() const
 	{
-		return this->vertexCount;
+		return this->numofVertex;
 	}
 	const UINT Stride() const
 	{
@@ -47,30 +65,5 @@ public:
 	{
 		return &this->stride;
 	}
-	HRESULT Initialize(ID3D11Device* device, T* data, UINT vertexCount)
-	{
-		// 메모리 누수 방지를 위한 코드, 만약 Initialize가 여러번 불린다면 기존 buffer가 비어있는지 확인안하고 계속 추가로 데이터를 쑤셔넣는 느낌..?이 대서 메모리가 계속 증가해벌임
-		if (buffer.Get() != nullptr)
-			buffer.Reset();
-
-		this->vertexCount = vertexCount;
-
-		D3D11_BUFFER_DESC vertexBufferDesc;
-		ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = stride * vertexCount;
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA vertexBufferData;
-		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-		vertexBufferData.pSysMem = data;
-
-		HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->buffer.GetAddressOf());
-		return hr;
-	}
 };
-
 #endif

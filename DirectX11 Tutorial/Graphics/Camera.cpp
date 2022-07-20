@@ -1,12 +1,13 @@
 #include "Camera.h"
 
-Camera::Camera()
+bool Camera::Initialize()
 {
 	this->transform.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	this->transform.posVector = XMLoadFloat3(&this->transform.pos);
 	this->transform.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	this->transform.rotVector = XMLoadFloat3(&this->transform.rot);
 	this->transform.UpdateMatrix();
+	return true;
 }
 
 void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)

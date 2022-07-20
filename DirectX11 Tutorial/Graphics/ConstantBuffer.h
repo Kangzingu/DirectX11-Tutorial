@@ -26,7 +26,7 @@ public:
 	{
 		return buffer.GetAddressOf();
 	}
-	HRESULT Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
 		if (buffer.Get() != nullptr)
 			buffer.Reset();
@@ -41,8 +41,7 @@ public:
 		desc.ByteWidth = static_cast<UINT>(sizeof(T) + (16 - (sizeof(T) % 16)));
 		desc.StructureByteStride = 0;
 
-		HRESULT hr = device->CreateBuffer(&desc, 0, buffer.GetAddressOf());
-		return hr;
+		ERROR_IF_FAILED(device->CreateBuffer(&desc, 0, buffer.GetAddressOf()), "컨스탠트 버퍼 생성에 실패했습니다");
 	}
 	bool ApplyChanges()
 	{
