@@ -63,3 +63,14 @@
 ```
 ![Spring](https://user-images.githubusercontent.com/34128052/179560080-97e50322-2708-4488-a20b-326b394ad5c5.gif)
 ![bouyancy](https://user-images.githubusercontent.com/34128052/179559765-c32a298d-3b91-4848-943f-b6740a9cdec6.gif)
+
+```
+2022.7.19.(화)
+ - 렌더링 : 불필요 코드 일부 정리, 전반적인 클래스 간 구조 변경 중
+ - 물리 : 충격(Impulse) 구현
+```
+```
+2022.7.20.(수)
+ - 렌더링 : 불필요 코드 일부 정리, 전반적인 클래스 간 구조 변경 중
+ - 물리 : 접촉 해결 구현 중
+```
