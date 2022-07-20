@@ -1,3 +1,66 @@
-﻿  Engine.cpp
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(437,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  DirectX11 Tutorial.vcxproj -> C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
+﻿D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\pixelshader.hlsl(30,9-74): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader.cso
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_2d.cso
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_2d_discard.cso
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\pixelshader_nolight.hlsl(19,9-74): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\vertexshader.hlsl(34,2-77): warning X3206: implicit truncation of vector type
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\vertexshader.hlsl(35,2-65): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\vertexshader.cso
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\vertexshader_2d.cso
+  Color.cpp
+  Object.cpp
+  Camera.cpp
+  AdapterReader.cpp
+  Engine.cpp
+  main.cpp
+  Transform.cpp
+  ErrorLogger.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Model.cpp
+  Mesh.cpp
+  Light.cpp
+  Actor.cpp
+  Keyboard.cpp
+  KeyboardEvent.cpp
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\AdapterReader.cpp(22,2): warning C4804: '>': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+  Mouse.cpp
+  MouseEvent.cpp
+  Window.cpp
+  Shaders.cpp
+  StringHelper.cpp
+  Texture.cpp
+  Timer.cpp
+  WindowManager.cpp
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,104): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,87): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,70): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(437,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Mesh.cpp(6,72): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Mesh.cpp(7,69): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  LINK : D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
+DirectXTK.lib(BasicEffect.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BasicEffect.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(BufferHelpers.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BufferHelpers.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(CommonStates.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(DDSTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(DDSTextureLoader.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(DirectXHelpers.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(DirectXHelpers.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(BinaryReader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BinaryReader.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(EffectCommon.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(EffectCommon.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(pch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(pch.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SimpleMath.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SimpleMath.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteBatch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteBatch.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(PrimitiveBatch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(PrimitiveBatch.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteFont.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteFont.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(VertexTypes.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(VertexTypes.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(WICTextureLoader.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+  DirectX11 Tutorial.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe

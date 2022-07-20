@@ -33,9 +33,6 @@ public:
 	void UpdateUI();
 	bool IsRenderWindowExist();
 
-	// test for physics
-	float CalculateSeparateVelocity(vector<Actor> gameObject);
-	void ResolveVelocity();
 private:
 	Light light;
 	Camera camera;
