@@ -3,279 +3,54 @@
   Camera.cpp
   ForceGenerator.cpp
   Light.cpp
+  Mesh.cpp
+  Model.cpp
   Object.cpp
   Rigidbody.cpp
   Transform.cpp
   main.cpp
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(7,18): error C2039: 'pos': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(8,18): error C2039: 'posVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(8,60): error C2039: 'pos': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(9,18): error C2039: 'rot': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(10,18): error C2039: 'rotVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(10,60): error C2039: 'rot': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(35,76): error C2039: 'rot': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(35,99): error C2039: 'rot': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(35,122): error C2039: 'rot': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(35,127): error C2660: 'DirectX::XMMatrixRotationRollPitchYaw': 함수는 1개의 인수를 사용하지 않습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathMatrix.inl(1530,29): message : 'DirectX::XMMatrixRotationRollPitchYaw' 선언을 참조하십시오. (소스 파일 컴파일 중 Graphics\Camera.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(36,63): error C2039: 'DEFAULT_FORWARD_VECTOR': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(37,31): error C2039: 'posVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(38,59): error C2039: 'DEFAULT_UP_VECTOR': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(39,54): error C2039: 'posVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Camera.cpp(41,18): error C2039: 'UpdateDirectionVectors': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Actor.cpp(7,18): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Actor.cpp(8,18): error C2039: 'SetRotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Actor.cpp(9,18): error C2039: 'SetScale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Actor.cpp(16,29): error C2039: 'worldMatrix': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(128,1): error C2511: 'void Transform::SetLookAtPos(Vector3)': 오버로드된 멤버 함수가 'Transform'에 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(129,18): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(129,44): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(129,70): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(132,13): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(133,13): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(134,13): error C2065: 'position': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(151,2): error C2065: 'rotation': 선언되지 않은 식별자입니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,8): error C2039: 'worldMatrix': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(31,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(30,32): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,44): error C2039: 'scale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(29,50): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,59): error C2039: 'scale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(35,1): error C2511: 'void Rigidbody::Update(Transform &,float)': 오버로드된 멤버 함수가 'Rigidbody'에 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.h(7): message : 'Rigidbody' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,74): error C2039: 'scale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(36,6): error C2597: 비정적 멤버 'Rigidbody::isKinematic'에 대한 참조가 잘못되었습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.h(25): message : 'Rigidbody::isKinematic' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,81): error C2660: 'DirectX::XMMatrixScaling': 함수는 1개의 인수를 사용하지 않습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathMatrix.inl(1203,29): message : 'DirectX::XMMatrixScaling' 선언을 참조하십시오. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,49): error C2597: 비정적 멤버 'Rigidbody::accumulatedForce'에 대한 참조가 잘못되었습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,49): error C3867: 'Rigidbody::accumulatedForce': 비표준 구문입니다. '&'를 사용하여 멤버 포인터를 만드세요.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,120): error C2039: 'rotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,49): error C2597: 비정적 멤버 'Rigidbody::mass'에 대한 참조가 잘못되었습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,49): error C3867: 'Rigidbody::mass': 비표준 구문입니다. '&'를 사용하여 멤버 포인터를 만드세요.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,138): error C2039: 'rotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,49): error C2568: '/': 함수 오버로드를 확인할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,156): error C2039: 'rotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(37,70): error C2597: 비정적 멤버 'Rigidbody::damping'에 대한 참조가 잘못되었습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.h(22): message : 'Rigidbody::damping' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,166): error C2660: 'DirectX::XMMatrixRotationRollPitchYaw': 함수는 1개의 인수를 사용하지 않습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathMatrix.inl(1530,29): message : 'DirectX::XMMatrixRotationRollPitchYaw' 선언을 참조하십시오. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(38,12): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(38,47): error C2597: 비정적 멤버 'Rigidbody::velocity'에 대한 참조가 잘못되었습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,196): error C2039: 'position': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(38,47): error C3867: 'Rigidbody::velocity': 비표준 구문입니다. '&'를 사용하여 멤버 포인터를 만드세요.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,214): error C2039: 'position': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(39,2): error C2352: 'Rigidbody::ClearAccumulatedForce': 비정적 멤버 함수를 잘못 호출했습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.h(16): message : 'Rigidbody::ClearAccumulatedForce' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,232): error C2039: 'position': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.cpp(161,242): error C2660: 'DirectX::XMMatrixTranslation': 함수는 1개의 인수를 사용하지 않습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathMatrix.inl(1118,29): message : 'DirectX::XMMatrixTranslation' 선언을 참조하십시오. (소스 파일 컴파일 중 Graphics\Transform.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,12): error C3646: 'worldMatrix': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(42,23): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(55,20): error C2061: 구문 오류: 식별자 'Vector3' (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,10): error C3646: 'position': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(56,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,10): error C3646: 'rotation': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(57,18): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,10): error C3646: 'scale': 알 수 없는 재정의 지정자입니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(58,15): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Light.cpp(6,18): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Light.cpp(7,18): error C2039: 'SetRotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Light.cpp(8,18): error C2039: 'SetScale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Light.cpp(14,29): error C2039: 'worldMatrix': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(105,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(36,1): error C2440: '초기화 중': 'Vector3'에서 'DirectX::XMVECTOR'(으)로 변환할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(36,29): message : 이 변환을 수행할 수 있는 사용 가능한 사용자 정의 변환 연산자가 없거나 연산자를 호출할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(38,1): error C2679: 이항 '-=': 오른쪽 피연산자로 'Vector3' 형식을 사용하는 연산자가 없거나 허용되는 변환이 없습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathVector.inl(14495,30): message : 'DirectX::XMVECTOR &DirectX::operator -=(DirectX::XMVECTOR &,DirectX::FXMVECTOR)'일 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(38,1): message : 인수 목록 '(DirectX::XMVECTOR, Vector3)'을(를) 일치시키는 동안
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(54,1): error C2440: '초기화 중': 'Vector3'에서 'DirectX::XMVECTOR'(으)로 변환할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(54,30): message : 이 변환을 수행할 수 있는 사용 가능한 사용자 정의 변환 연산자가 없거나 연산자를 호출할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(55,1): error C2679: 이항 '-=': 오른쪽 피연산자로 'Vector3' 형식을 사용하는 연산자가 없거나 허용되는 변환이 없습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathVector.inl(14495,30): message : 'DirectX::XMVECTOR &DirectX::operator -=(DirectX::XMVECTOR &,DirectX::FXMVECTOR)'일 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(55,1): message : 인수 목록 '(DirectX::XMVECTOR, Vector3)'을(를) 일치시키는 동안
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(90,24): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(90,57): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(91,50): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(91,83): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(148,59): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(148,101): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(159,67): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(159,109): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(316,22): error C2039: 'SetScale': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(319,23): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(323,18): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(327,19): error C2039: 'SetPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(347,27): error C2039: 'AdjustRotation': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(365,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(365,64): error C2039: 'GetForwardVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(370,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(370,64): error C2039: 'GetRightVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(375,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(375,64): error C2039: 'GetBackwardVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(380,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(380,64): error C2039: 'GetLeftVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(385,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(390,26): error C2039: 'AdjustPosition': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(399,60): error C2664: 'void Rigidbody::Update(Vector3 &,float)': 인수 1을(를) 'Transform'에서 'Vector3 &'(으)로 변환할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.h(11,7): message : 'Rigidbody::Update' 선언을 참조하십시오. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(411,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(426,63): error C2039: 'GetPositionFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(465,47): error C2039: 'GetPositionFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(472,41): error C2039: 'GetPositionFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(473,41): error C2039: 'GetPositionFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(476,93): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(478,55): error C2039: 'GetScaleFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(478,85): error C2660: 'DirectX::XMVectorSet': 함수는 3개의 인수를 사용하지 않습니다.
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\DirectXMathVector.inl(60,29): message : 'DirectX::XMVectorSet' 선언을 참조하십시오. (소스 파일 컴파일 중 Engine.cpp)
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(479,49): error C2039: 'GetPositionVector': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(479,79): error C2440: '<function-style-cast>': 'DirectX::XMVECTORF32'에서 'DirectX::VertexPositionColor'(으)로 변환할 수 없습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(479,79): message : 소스 형식을 가져올 수 있는 생성자가 없거나 생성자 오버로드 확인이 모호합니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(485,59): error C2039: 'GetPositionFloat3': 'Transform'의 멤버가 아닙니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Transform.h(4): message : 'Transform' 선언을 참조하십시오.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Rigidbody.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\ForceGenerator.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Transform.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Light.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Actor.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 main.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Mesh.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Mesh.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Mesh.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Object.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Model.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Model.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Model.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Mesh.cpp(6,72): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(31,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(30,32): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Rigidbody.cpp(29,50): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Mesh.cpp(7,69): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,104): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,87): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Graphics\Model.cpp(151,70): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,584): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,324): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Utils\SimpleMath.h(116,64): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Graphics\Camera.cpp)
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(414,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DirectX11 Tutorial.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe

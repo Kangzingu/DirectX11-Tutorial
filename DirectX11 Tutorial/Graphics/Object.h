@@ -7,5 +7,5 @@ class Object
 public:
 	Object() {}
 	Transform transform;
-	virtual void Draw(const XMMATRIX& viewProjectionMatrix) {};
+	virtual void Draw(Matrix4x4 viewProjectionMatrix) {};
 };

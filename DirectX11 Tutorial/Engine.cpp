@@ -16,7 +16,7 @@ class ParticleContact
 public:
 	Actor* actors[2];
 	float restitution;// 반발계수(충돌 깊이의 역할)
-	XMVECTOR contactNormal;// actor[0]이 actor[1]로 다가가는
+	Vector3 contactNormal;// actor[0]이 actor[1]로 다가가는
 	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
 	float separatingVelocity;
 
@@ -33,10 +33,10 @@ public:
 	}
 	float CalculateSeparatingVelocity() const
 	{
-		XMVECTOR relativeVelocity = actors[0]->rigidbody.velocity;
+		Vector3 relativeVelocity = actors[0]->rigidbody.velocity;
 		if (actors[1] != nullptr)
 			relativeVelocity -= actors[1]->rigidbody.velocity;
-		return XMVectorGetX(XMVector3Dot(relativeVelocity, contactNormal));
+		return Vector3::Dot(relativeVelocity, contactNormal);
 	}
 
 private:
@@ -51,9 +51,9 @@ private:
 		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
 		float newSepVelocity = -separatingVelocity * restitution;
 
-		XMVECTOR accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
+		Vector3 accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
 		if (actors[1] != nullptr) accCausedVelocity -= actors[1]->rigidbody.accumulatedForce / actors[1]->rigidbody.mass;
-		float accCausedSepVelocity = XMVectorGetX(XMVector3Dot(accCausedVelocity, contactNormal)) * duration;
+		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contactNormal) * duration;
 		if (accCausedSepVelocity < 0)
 		{
 			newSepVelocity += restitution * accCausedSepVelocity;
@@ -70,7 +70,7 @@ private:
 		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
 		float impulse = deltaVelocity / totalInverseMass;
 
-		XMVECTOR impulsePerIMess = contactNormal * impulse;
+		Vector3 impulsePerIMess = contactNormal * impulse;
 
 		actors[0]->rigidbody.velocity = actors[0]->rigidbody.velocity + impulsePerIMess / actors[0]->rigidbody.mass;
 
@@ -86,9 +86,9 @@ private:
 		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
 		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
 		if (totalInverseMass <= 0) return;
-		XMVECTOR movePerIMass = contactNormal * (penetration / totalInverseMass);
-		actors[0]->transform.SetPosition(actors[0]->transform.GetPositionVector() + movePerIMass / actors[0]->rigidbody.mass);
-		if (actors[1] != nullptr) actors[1]->transform.SetPosition(actors[1]->transform.GetPositionVector() + movePerIMass / -actors[1]->rigidbody.mass);
+		Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);
+		actors[0]->transform.position += movePerIMass / actors[0]->rigidbody.mass;
+		if (actors[1] != nullptr) actors[1]->transform.position+=movePerIMass / -actors[1]->rigidbody.mass;
 	}
 };
 class ParticleContactResolver
@@ -145,7 +145,7 @@ public:
 public:
 	float CurrentLength() const
 	{
-		return XMVectorGetX(XMVector3Length(actor[0]->transform.GetPositionVector() - actor[1]->transform.GetPositionVector()));
+		return Vector3::Magnitude(actor[0]->transform.position - actor[1]->transform.position);
 	}
 	unsigned int fillContact(ParticleContact* contact, unsigned int limit) const
 	{
@@ -156,7 +156,7 @@ public:
 		contact->actors[0] = actor[0];
 		contact->actors[1] = actor[1];
 
-		contact->contactNormal = XMVector3Normalize(actor[1]->transform.GetPositionVector() - actor[0]->transform.GetPositionVector());
+		contact->contactNormal = Vector3::Normalize(actor[1]->transform.position - actor[0]->transform.position);
 		
 		contact->penetration = length - maxLength;
 		contact->restitution = restitution;
@@ -185,7 +185,7 @@ void Engine::Run()
 }
 void Engine::InitializeWindow(HINSTANCE hInstance)
 {
-	this->windowManager.Initialize(hInstance, "Simple Physics Engine", "Default", 800, 600);
+	this->windowManager.Initialize(hInstance, "Simple Physics Engine", "Default", 1920, 1080);
 }
 void Engine::InitializeDirectX()
 {
@@ -313,20 +313,20 @@ void Engine::InitializeScene()
 	actors.push_back(actor);
 	actors.push_back(actor);
 	actors.push_back(actor);
-	actors[0].transform.SetScale(1.0f, 0.1f, 1.0f);
+	actors[0].transform.scale = Vector3(1.0f, 0.1f, 1.0f);
 	actors[0].rigidbody.isKinematic=true;
 	for (int i = 0; i < actors.size(); i++)
-		actors[i].transform.SetPosition(i * 0.00f, i * 10.0f, 0.0f);
+		actors[i].transform.position = Vector3(i * 0.0f, i * 30.0f, 0.0f);
 
 	// 조명
 	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	light.transform.SetPosition(3.0f, 5.0f, 0.0f);
+	light.transform.position = Vector3(3.0f, 5.0f, 0.0f );
 
 	// 카메라
 	camera.Initialize();
-	camera.transform.SetPosition(2.0f, 3.0f, -10.0f);
-	//camera.SetProjectionValues(90.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
-	camera.SetProjectionValues(90.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
+	camera.transform.position = Vector3(2.0f, 3.0f, -10.0f);
+	camera.transform.rotation = Vector3(0.0f, 180.0f, 0.0f);
+	camera.SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
 
 	// 타이머
 	sceneTimer.Start();
@@ -344,7 +344,7 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera.transform.AdjustRotation(-(float)mouseEvent.GetPosY() * 0.001f, -(float)mouseEvent.GetPosX() * 0.001f, 0);
+			this->camera.transform.rotation+= Vector3((float)mouseEvent.GetPosY() * 0.001f, (float)mouseEvent.GetPosX() * 0.001f, 0);
 			camera.UpdateMatrix();
 		}
 	}
@@ -362,32 +362,32 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('W'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetForwardVector() * cameraSpeed * deltaTime);
+		this->camera.transform.position+= Vector3(this->camera.transform.forward * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetRightVector() * cameraSpeed * deltaTime);
+		this->camera.transform.position += Vector3(this->camera.transform.right * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('S'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetBackwardVector() * cameraSpeed * deltaTime);
+		this->camera.transform.position += Vector3( - this->camera.transform.forward * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetLeftVector() * cameraSpeed * deltaTime);
+		this->camera.transform.position += Vector3( - this->camera.transform.right * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		this->camera.transform.AdjustPosition(0.0f, deltaTime, 0.0f);
+		this->camera.transform.position += Vector3(0.0f, deltaTime, 0.0f);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
-		this->camera.transform.AdjustPosition(0.0f, -deltaTime, 0.0f);
+		this->camera.transform.position +=Vector3(0.0f, -deltaTime, 0.0f);
 		camera.UpdateMatrix();
 	}
 }
@@ -395,9 +395,12 @@ void Engine::UpdatePhysics()
 {
 	for (int i = 0; i < actors.size(); i++)
 	{
-		forceGenerator.GenerateGravity(actors[i].rigidbody);
+		//forceGenerator.GenerateGravity(actors[i].rigidbody);
 		actors[i].rigidbody.Update(actors[i].transform, deltaTime);
 	}
+	actors[1].transform.rotation += Vector3(0.5f, 0, 0) * deltaTime;
+	actors[2].transform.rotation += Vector3(0, 0.5f, 0) * deltaTime;
+	actors[3].transform.rotation += Vector3(0, 0, 0.5f) * deltaTime;
 }
 void Engine::UpdateTimer()
 {
@@ -423,7 +426,7 @@ void Engine::UpdateScene()
 	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 	psConstantBuffer.data.dynamicLightColor = light.lightColor;
 	psConstantBuffer.data.dynamicLightStrength = light.lightStrength;
-	psConstantBuffer.data.dynamicLightPosition = light.transform.GetPositionFloat3();
+	psConstantBuffer.data.dynamicLightPosition = light.transform.position.ToXMFLOAT3();
 	psConstantBuffer.data.dynamicLightAttenuation_a = light.attenuation_a;
 	psConstantBuffer.data.dynamicLightAttenuation_b = light.attenuation_b;
 	psConstantBuffer.data.dynamicLightAttenuation_c = light.attenuation_c;
@@ -434,12 +437,15 @@ void Engine::UpdateScene()
 	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
 	{// 오브젝트 그리기
+		Matrix4x4 viewProjectionMatrix;
 		for (int i = 0; i < actors.size(); i++)
 		{
-			actors[i].Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
+			viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+			actors[i].transform.UpdateMatrix();
+			actors[i].Draw(viewProjectionMatrix);
 		};	
 		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
-		light.Draw(camera.GetViewMatrix() * camera.GetProjectionMatrix());
+		light.Draw(viewProjectionMatrix);
 	}
 
 	{// 선 그리기
@@ -451,7 +457,7 @@ void Engine::UpdateScene()
 		commonState = make_unique<CommonStates>(device.Get());
 		basicEffect = make_unique<BasicEffect>(device.Get());
 		basicEffect->SetVertexColorEnabled(true);
-		basicEffect->SetMatrices(SimpleMath::Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		basicEffect->SetMatrices(SimpleMath::Matrix::Identity, camera.viewMatrix.ToXMMATRIX(), camera.projectionMatrix.ToXMMATRIX());
 		basicEffect->Apply(deviceContext.Get());
 		CreateInputLayoutFromEffect<VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
 		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
@@ -461,28 +467,24 @@ void Engine::UpdateScene()
 		primitiveBatch = make_unique<PrimitiveBatch<VertexPositionColor>>(deviceContext.Get());
 		primitiveBatch->Begin();
 
-		XMVECTORF32 lineColor;
-		XMFLOAT3 waterSurface = actors[0].transform.GetPositionFloat3();
-		XMVECTOR waterSurfaceVector;
-		XMVECTOR halfHeight;
+		Vector4 lineColor;
+		Vector3 waterSurface = actors[0].transform.position;
 		VertexPositionColor v1(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
 		VertexPositionColor v2(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
 		for (int i = 1; i < actors.size(); i++)
 		{
-			waterSurface.x = actors[i].transform.GetPositionFloat3().x;
-			waterSurface.z = actors[i].transform.GetPositionFloat3().z;
-			waterSurfaceVector = XMLoadFloat3(&waterSurface);
-			v1 = VertexPositionColor(waterSurfaceVector, DirectX::Colors::White);
-			float lineLength = XMVectorGetX(XMVector3Length(waterSurfaceVector - actors[i].transform.GetPositionVector()));
+			waterSurface.x = actors[i].transform.position.x;
+			waterSurface.z = actors[i].transform.position.z;
+			v1 = VertexPositionColor(waterSurface.ToXMVECTOR(), DirectX::Colors::White);
+			float lineLength = Vector3::Magnitude(waterSurface - actors[i].transform.position);
 			lineColor = { 1.0f / lineLength, 1.0f / lineLength, 1.0f, 1.0f };
-			halfHeight = XMVectorSet(0.0f, actors[i].transform.GetScaleFloat3().y, 0.0f, 0.0f);
-			v2 = VertexPositionColor(actors[i].transform.GetPositionVector(), lineColor);
+			v2 = VertexPositionColor(actors[i].transform.position.ToXMVECTOR(), lineColor.ToXMVECTOR());
 			primitiveBatch->DrawLine(v1, v2);
 		}
 		{
-			XMVECTORF32 mainLineColor, subLineColor;
+			Vector4 mainLineColor, subLineColor;
 			VertexPositionColor startVertex, endVertex;
-			float cameraDistanceFromXZPlane = abs(camera.transform.GetPositionFloat3().y);
+			float cameraDistanceFromXZPlane = abs(camera.transform.position.y);
 			float distanceLevel = 10;
 			while (cameraDistanceFromXZPlane >= 10)
 			{
@@ -494,28 +496,28 @@ void Engine::UpdateScene()
 			// x축 평행선
 			for (int offset = -50; offset <= 50; offset++)
 			{
-				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor);
-				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor);
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
 				primitiveBatch->DrawLine(startVertex, endVertex);
 			}
 			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
 			{
-				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor);
-				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor);
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
 				primitiveBatch->DrawLine(startVertex, endVertex);
 			}
 
 			// z축 평행선
 			for (int offset = -50; offset <= 50; offset++)
 			{
-				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor);
-				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
 				primitiveBatch->DrawLine(startVertex, endVertex);
 			}
 			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
 			{
-				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor);
-				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
 				primitiveBatch->DrawLine(startVertex, endVertex);
 			}
 			primitiveBatch->End();
@@ -532,17 +534,19 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	/*string movingObjectVelocity = "Moving Object Velocity: " + to_string(XMVectorGetX(actors[1].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[1].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[1].rigidbody.velocity));
+	string movingObjectVelocity = "Moving Object Velocity: " + to_string(actors[1].rigidbody.velocity.x) + ", " + to_string(actors[1].rigidbody.velocity.y) + ", " + to_string(actors[1].rigidbody.velocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string groundObjectVelocity = "Ground Object Velocity: " + to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
+	string groundObjectVelocity = "Ground Object Velocity: " + to_string(actors[0].rigidbody.velocity.x) + ", " + to_string(actors[0].rigidbody.velocity.y) + ", " + to_string(actors[0].rigidbody.velocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
+	string cameraPosition = "Camera Position: " + to_string(camera.transform.position.x) + ", " + to_string(camera.transform.position.y) + ", " + to_string(camera.transform.position.z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	/*string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
 	spriteBatch->End();
 
-	/*
+	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -564,7 +568,7 @@ void Engine::UpdateUI()
 	//ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
 	ImGui::End();
 	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());*/
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 bool Engine::IsRenderWindowExist()
 {

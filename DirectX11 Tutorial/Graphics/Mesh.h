@@ -9,19 +9,19 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <vector>
+#include "../Utils/SimpleMath.h"
 
 class Mesh
 {
 public:
-	Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture> textures, const DirectX::XMMATRIX& transformMatrix);
+	Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture> textures, Matrix4x4 transformMatrix);
 	Mesh(const Mesh& mesh);
 	const void Draw();
-	const DirectX::XMMATRIX& GetWorldMatrix();
+	Matrix4x4 worldMatrix;
 
 private:
 	ID3D11DeviceContext* deviceContext;
 	VertexBuffer<Vertex3D> vertexbuffer;
 	IndexBuffer indexbuffer;
 	std::vector<Texture> textures;
-	DirectX::XMMATRIX worldMatrix;
 };

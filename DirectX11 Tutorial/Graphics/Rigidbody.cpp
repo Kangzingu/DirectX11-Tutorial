@@ -35,7 +35,7 @@ void Rigidbody::Update(Transform& transform, float deltaTime)
 {
 	if (isKinematic) return;
 	velocity = (velocity + (accumulatedForce / mass) * deltaTime) * pow(damping, deltaTime);
-	transform.AdjustPosition(velocity * deltaTime);
+	transform.position += velocity * deltaTime;
 	ClearAccumulatedForce();
 }
 void Rigidbody::ClearAccumulatedForce()

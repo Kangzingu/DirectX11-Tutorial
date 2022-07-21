@@ -8,13 +8,13 @@ void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 	this->defaultColor = defaultColor;
 	Load(filePath);
 }
-void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
+void Model::Draw(Matrix4x4& worldMatrix, Matrix4x4& viewProjectionMatrix)
 {
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->vsConstantBuffer->GetAddressOf());
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		this->vsConstantBuffer->data.wvpMatrix = meshes[i].GetWorldMatrix() * worldMatrix * viewProjectionMatrix;
-		this->vsConstantBuffer->data.worldMatrix = meshes[i].GetWorldMatrix() * worldMatrix;
+		this->vsConstantBuffer->data.wvpMatrix =  (viewProjectionMatrix * (worldMatrix * meshes[i].worldMatrix)).ToXMMATRIX();
+		this->vsConstantBuffer->data.worldMatrix = (worldMatrix * meshes[i].worldMatrix).ToXMMATRIX();
 		this->vsConstantBuffer->ApplyChanges();
 		meshes[i].Draw();
 	}
@@ -26,13 +26,13 @@ void Model::Load(const std::string& filePath)
 	const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 	ERROR_IF(pScene == nullptr, filePath + " 경로의 모델을 불러오지 못했습니다");
 	// 일단 인자를 넘겨야 하긴 하니까 Identity Matrix를 넘긴듯 이거 필요한거 맞는지 확인 해보고 없앨 수 있음 없애자
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
+	this->ProcessNode(pScene->mRootNode, pScene, Matrix4x4::Identity());
 }
 
-void Model::ProcessNode(aiNode* node, const aiScene* scene, const XMMATRIX& parentTransformMatrix)
+void Model::ProcessNode(aiNode* node, const aiScene* scene, Matrix4x4 parentTransformMatrix)
 {
 	// ai 행렬을 directx 행렬로 바꿔주는 과정. a1은 행렬의 첫 원소(주소를 넘기는 느낌인듯)이고 DirectX는 row-major이기 때문에 transpose 해줘야 한다고 함
-	XMMATRIX nodeTransformMatrix =XMMatrixTranspose(XMMATRIX(&node->mTransformation.a1)) * parentTransformMatrix;
+	Matrix4x4 nodeTransformMatrix = parentTransformMatrix * Matrix4x4(XMMATRIX(&node->mTransformation.a1));
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -45,7 +45,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, const XMMATRIX& pare
 	}
 }
 
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, const XMMATRIX& transformMatrix)
+Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, Matrix4x4 transformMatrix)
 {
 	std::vector<Vertex3D> vertices;
 	std::vector<DWORD> indices;

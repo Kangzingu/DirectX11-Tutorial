@@ -8,7 +8,7 @@ class Rigidbody
 {
 public:
 	void Initialize(Vector3 velocity, Vector3 accumulatedForce, float damping, float mass, bool isKinematic);
-	void Update(Vector3& transform, float deltaTime);
+	void Update(Transform& transform, float deltaTime);
 	void AddForce(Vector3 force);
 	void AddForceAt(Vector3 force, Vector3 localPoint, Matrix4x4 worldMatrix);
 	void AddForceAt(Vector3 force, Vector3 worldPoint);
