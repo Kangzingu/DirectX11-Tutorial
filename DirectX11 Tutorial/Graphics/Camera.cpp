@@ -1,11 +1,11 @@
 #include "Camera.h"
 
+#include "../Utils/SimpleMath.h"
+
 bool Camera::Initialize()
 {
-	this->transform.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->transform.posVector = XMLoadFloat3(&this->transform.pos);
-	this->transform.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->transform.rotVector = XMLoadFloat3(&this->transform.rot);
+	this->transform.position = { 0, 0, 0 };
+	this->transform.rotation = { 0, 0, 0 };
 	this->transform.UpdateMatrix();
 	return true;
 }
@@ -13,24 +13,15 @@ bool Camera::Initialize()
 void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
-	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
-}
-
-const XMMATRIX& Camera::GetViewMatrix() const
-{
-	return this->viewMatrix;
-}
-
-const XMMATRIX& Camera::GetProjectionMatrix() const
-{
-	return this->projectionMatrix;
+	//this->projectionMatrix = Matrix4x4(XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ)).ToXMMATRIX();
+	this->projectionMatrix = (Matrix4x4::Projection(Radian2Degree(fovRadians), aspectRatio, nearZ, farZ)).ToXMMATRIX();
 }
 
 void Camera::UpdateMatrix()
 {
 	this->transform.UpdateMatrix();
-	XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(this->transform.rot.x, this->transform.rot.y, this->transform.rot.z);
-	XMVECTOR camTarget = XMVector3TransformCoord(this->transform.DEFAULT_FORWARD_VECTOR, camRotationMatrix);
+	XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(this->transform.rotation.x, this->transform.rotation.y, this->transform.rotation.z);
+	XMVECTOR camTarget = XMVector3TransformCoord((this->transform.worldMatrix * Vector3::Forward()).ToXMVECTOR(), camRotationMatrix);
 	camTarget += this->transform.posVector;
 	XMVECTOR upDir = XMVector3TransformCoord(this->transform.DEFAULT_UP_VECTOR, camRotationMatrix);
 	this->viewMatrix = XMMatrixLookAtLH(this->transform.posVector, camTarget, upDir);

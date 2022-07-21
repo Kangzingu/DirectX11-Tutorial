@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics/AdapterReader.h"
 #include "Graphics/Camera.h"
+#include "Graphics/ForceGenerator.h"
 #include "Graphics/ImGui/imgui.h"
 #include "Graphics/ImGui/imgui_impl_win32.h"
 #include "Graphics/ImGui/imgui_impl_dx11.h"
@@ -45,6 +46,7 @@ private:
 	float deltaTime = 0;
 
 	WindowManager windowManager;
+	ForceGenerator forceGenerator;
 
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> deviceContext;// 그리기를 전담하는 넘인듯

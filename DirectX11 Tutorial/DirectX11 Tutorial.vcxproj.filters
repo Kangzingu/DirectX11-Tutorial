@@ -117,6 +117,12 @@
     <ClCompile Include="Graphics\Transform.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Rigidbody.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ForceGenerator.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -228,6 +234,9 @@
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Transform.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ForceGenerator.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

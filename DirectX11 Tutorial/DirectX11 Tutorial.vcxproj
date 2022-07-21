@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\ForceGenerator.cpp" />
     <ClCompile Include="Graphics\Color.cpp" />
     <ClCompile Include="Graphics\Object.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Transform.cpp" />
+    <ClCompile Include="Graphics\Rigidbody.cpp" />
     <ClCompile Include="Utils\ErrorLogger.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_draw.cpp" />
@@ -189,6 +191,7 @@
     <ClCompile Include="Utils\WIndow\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\ForceGenerator.h" />
     <ClInclude Include="Graphics\Color.h" />
     <ClInclude Include="Graphics\Rigidbody.h" />
     <ClInclude Include="Graphics\Transform.h" />

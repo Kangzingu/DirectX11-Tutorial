@@ -218,7 +218,7 @@ void Engine::InitializeDirectX()
 
 	// 라스터라이저
 	CD3D11_RASTERIZER_DESC rasterizerDescription(D3D11_DEFAULT);
-	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;// D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
+	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;// D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
 	ERROR_IF_FAILED(device->CreateRasterizerState(&rasterizerDescription, rasterizerState.GetAddressOf()), "라스터라이저 상태 생성에 실패했습니다");
 
 	// 깊이 테스트
@@ -314,8 +314,9 @@ void Engine::InitializeScene()
 	actors.push_back(actor);
 	actors.push_back(actor);
 	actors[0].transform.SetScale(1.0f, 0.1f, 1.0f);
+	actors[0].rigidbody.isKinematic=true;
 	for (int i = 0; i < actors.size(); i++)
-		actors[i].transform.SetPosition(i * 0.00f, i * 200.0f, 0.0f);
+		actors[i].transform.SetPosition(i * 0.00f, i * 10.0f, 0.0f);
 
 	// 조명
 	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
@@ -324,6 +325,7 @@ void Engine::InitializeScene()
 	// 카메라
 	camera.Initialize();
 	camera.transform.SetPosition(2.0f, 3.0f, -10.0f);
+	//camera.SetProjectionValues(90.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
 	camera.SetProjectionValues(90.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
 
 	// 타이머
@@ -342,13 +344,13 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera.transform.AdjustRotation((float)mouseEvent.GetPosY() * 0.001f, (float)mouseEvent.GetPosX() * 0.001f, 0);
+			this->camera.transform.AdjustRotation(-(float)mouseEvent.GetPosY() * 0.001f, -(float)mouseEvent.GetPosX() * 0.001f, 0);
 			camera.UpdateMatrix();
 		}
 	}
 
 	// 키보드 이벤트
-	float cameraSpeed = 10.0f;
+	float cameraSpeed = -10.0f;
 	while (!windowManager.keyboard.IsCharBufferEmpty())
 	{
 		unsigned char ch = windowManager.keyboard.ReadChar();
@@ -365,7 +367,7 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetLeftVector() * cameraSpeed * deltaTime);
+		this->camera.transform.AdjustPosition(this->camera.transform.GetRightVector() * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('S'))
@@ -375,7 +377,7 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
-		this->camera.transform.AdjustPosition(this->camera.transform.GetRightVector() * cameraSpeed * deltaTime);
+		this->camera.transform.AdjustPosition(this->camera.transform.GetLeftVector() * cameraSpeed * deltaTime);
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
@@ -391,118 +393,10 @@ void Engine::HandleEvent()
 }
 void Engine::UpdatePhysics()
 {
-	// 분리 속도 = (a의 속도 - b의 속도) * (b에서 a를 향하는 방향)
-	// a의 질량 * a의 속도 + b의 질량 * b의 속도 = a의 충돌 이후 질량 * a의 충돌 이후 속도 + b의 충돌 이후 질량 * b의 충돌 이후 속도
-	// 충돌 이후 분리 속도 = -반발계수 * 분리 속도
-
-
-	// 중력
 	for (int i = 0; i < actors.size(); i++)
 	{
-		if (i == 0) continue;
-		XMVECTOR gravity = XMVectorSet(0.0f, -9.8f, 0.0f, 0.0f);
-		actors[i].rigidbody.AddForce(gravity * actors[i].rigidbody.mass);
-		// 중력은 서로 끌어댕기는거라 질량 관계없이 일정한듯..? 그래서 질량을 역으로 반영해줘서 결국엔 질량에 영향을 안받게 해줌
-	}
-
-	// 충돌
-	float contactDepth = XMVectorGetX(XMVector3Length(actors[0].transform.GetPositionVector() - actors[1].transform.GetPositionVector())) - 30.0f;
-	if (contactDepth < 0.0f)
-	{
-		actors[0].rigidbody.mass = 100000.0f;
-
-		contact.restitution = 0.4f;
-		contact.contactNormal = XMVector3Normalize(actors[1].transform.GetPositionVector() - actors[0].transform.GetPositionVector());
-		contact.penetration = -contactDepth;
-		contact.actors[0] = &actors[1];
-		contact.actors[1] = &actors[0];
-		contact.Resolve(deltaTime);
-	}
-
-	//// 부력
-	//for (int i = 0; i < actors.size(); i++)
-	//{
-	//	if (i == 0) continue;
-	//	float d = actors[i].transform.GetPositionFloat3().y;
-	//	float waterHeight = actors[0].transform.GetPositionFloat3().y;
-	//	float maxDepth = 0.5f;
-	//	float volumn = 1.0f;// 블럭의 부피.. m^3 단위임
-	//	float density = 1000.0f;// 물의 밀도.. kg/m^3 단위임
-	//	XMVECTOR bouyancy;
-	//	// y=0.5	d=0
-	//	// y=0		d=0.5
-	//	// y=-0.5	d=1
-	//	if (d >= waterHeight + maxDepth)
-	//	{
-	//		bouyancy = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//	}
-	//	else if (d <= waterHeight - maxDepth)
-	//	{
-	//		bouyancy = XMVectorSet(0.0f, volumn * density, 0.0f, 0.0f);
-	//	}
-	//	else
-	//	{
-	//		bouyancy = XMVectorSet(0.0f, volumn * density * (d - maxDepth - waterHeight) / (2 * maxDepth), 0.0f, 0.0f);
-	//	}
-	//	actors[i].rigidbody.AddForce(bouyancy);
-	//}
-
-	//// 스프링 힘(번지)
-	//for (int i = 1; i < actors.size(); i++)
-	//{
-	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//	float k = 30.0f;
-	//	float distAtFirst = sqrt(25.0f);
-	//	if (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) < distAtFirst) continue;
-	//	spring += -k * XMVector3Normalize(actors[i].GetPositionVector() - actors[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) - distAtFirst);
-	//	actors[i].rigidbody.AddForce(spring);
-	//}
-
-	//// 스프링 힘
-	//for (int i = 1; i < actors.size(); i++)
-	//{
-	//	XMVECTOR spring = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//	float k = 30.0f;
-	//	float distAtFirst = sqrt(25.0f);
-	//		spring += -k * XMVector3Normalize(actors[i].GetPositionVector() - actors[0].GetPositionVector()) * (XMVectorGetX(XMVector3Length(actors[i].GetPositionVector() - actors[0].GetPositionVector())) - distAtFirst);
-	//	actors[i].rigidbody.AddForce(spring);
-	//}
-
-	//// 항력
-	//for (int i = 0; i < actors.size(); i++)
-	//{
-	//	XMVECTOR drag;
-	//	float k1 = 10.0f, k2 = 10.0f;
-	//	// 식이 다르긴 한데 물체의 생김새에 따른 공기저항계수는 다음과 같음
-	//	// 구: 0.47
-	//	// 큐브: 1.05
-	//	// 실린더: 0.82
-	//	float velocityMagnitude = XMVectorGetX(XMVector3Length(actors[i].rigidbody.velocity));
-	//	drag = -XMVector3Normalize(actors[i].rigidbody.velocity) * (k1 * velocityMagnitude + k2 * velocityMagnitude * velocityMagnitude);
-	//	actors[i].rigidbody.AddForce(drag);
-	//}
-
-	/*static bool isDirUp = false;
-	actors[0].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	if (actors[0].transform.GetPositionFloat3().y > 1.0f)
-		isDirUp = false;
-	else if (actors[0].transform.GetPositionFloat3().y < -1.0f)
-		isDirUp = true;
-	if (isDirUp == true)
-		actors[0].transform.AdjustPosition(0, 0.0002f, 0);
-	else
-		actors[0].transform.AdjustPosition(0, -0.0002f, 0);*/
-
-		// 감쇠 및 위치값 업데이트
-	for (int i = 0; i < actors.size(); i++)
-	{
-		if (actors[i].rigidbody.isKinematic)
-			continue;
-		/* pow계산을 안하기 위해 그냥 damping값을 1에 가까이 두고 pow(damping, deltaTime) 대신 damping을 그대로 곱해주기도 함 */
-		actors[i].rigidbody.velocity += (actors[i].rigidbody.accumulatedForce / actors[i].rigidbody.mass) * deltaTime;
-		actors[i].rigidbody.velocity *= pow(actors[i].rigidbody.damping, deltaTime);
-		actors[i].transform.AdjustPosition(actors[i].rigidbody.velocity * deltaTime);
-		actors[i].rigidbody.accumulatedForce = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		forceGenerator.GenerateGravity(actors[i].rigidbody);
+		actors[i].rigidbody.Update(actors[i].transform, deltaTime);
 	}
 }
 void Engine::UpdateTimer()
