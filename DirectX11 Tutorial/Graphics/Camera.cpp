@@ -5,7 +5,7 @@
 bool Camera::Initialize()
 {
 	this->transform.position = { 0, 5, 0 };
-	this->transform.rotation = { 0, 50, 30 };
+	this->transform.rotation = { 0, 0, 0 };
 	this->transform.UpdateMatrix();
 	this->UpdateMatrix();
 	return true;

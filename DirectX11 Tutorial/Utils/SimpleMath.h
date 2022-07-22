@@ -29,6 +29,7 @@ public:
 	static Vector3 Right() { return Vector3(1.0f, 0.0f, 0.0f); }
 	static Vector3 Forward() { return Vector3(0.0f, 0.0f, 1.0f); }
 	static Vector3 Normalize(Vector3 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z); return Vector3(v.x / length, v.y / length, v.z / length); }
+	static Vector3 Cross(Vector3 v1, Vector3 v2) { return Vector3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x); }
 	static float Magnitude(Vector3 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
 	static float Dot(Vector3 v1, Vector3 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
 	Vector3 operator+(Vector3 v) { return Vector3(x + v.x, y + v.y, z + v.z); }
@@ -63,17 +64,17 @@ public:
 	Vector3 XYZ() { return Vector3(x, y, z); }
 	static Vector4 Zero() { return Vector4(0.0f, 0.0f, 0.0f, 0.0f); }
 	static Vector4 One() { return Vector4(1.0f, 1.0f, 1.0f, 1.0f); }
-	static Vector4 Normalize(Vector4 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w*v.w); return Vector4(v.x / length, v.y / length, v.z / length, v.w / length); }
+	static Vector4 Normalize(Vector4 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); return Vector4(v.x / length, v.y / length, v.z / length, v.w / length); }
 	static float Magnitude(Vector4 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); }
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
 	Vector4 operator+(Vector4 v) { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
 	Vector4& operator+=(Vector4 v) { x += v.x; y += v.y; z += v.z; w += v.w;  return *this; }
 	Vector4 operator+(float a) { return Vector4(x + a, y + a, z + a, w + a); }
-	Vector4& operator+=(float a) { x += a; y += a; z +=a; w += a;  return *this; }
+	Vector4& operator+=(float a) { x += a; y += a; z += a; w += a;  return *this; }
 	Vector4 operator-(Vector4 v) { return Vector4(x - v.x, y - v.y, z - v.z, w - v.w); }
 	Vector4& operator-=(Vector4 v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w;  return *this; }
 	Vector4 operator-(float a) { return Vector4(x - a, y - a, z - a, w - a); }
-	Vector4& operator-=(float a) { x -= a; y-= a; z -= a; w -= a;  return *this; }
+	Vector4& operator-=(float a) { x -= a; y -= a; z -= a; w -= a;  return *this; }
 	Vector4 operator-() { return Vector4(-x, -y, -z, -w); }
 	Vector4 operator*(float a) { return Vector4(x * a, y * a, z * a, w * a); }
 	Vector4& operator*=(float a) { x *= a; y *= a; z *= a; w *= a;  return *this; }
@@ -81,7 +82,7 @@ public:
 	Vector4& operator/=(float a) { x /= a; y /= a; z /= a; w /= a;  return *this; }
 	DirectX::XMVECTOR ToXMVECTOR() { DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, w); return v; };
 	DirectX::XMFLOAT4 ToXMFLOAT4() { DirectX::XMFLOAT4 v = DirectX::XMFLOAT4(x, y, z, w); return v; };
-	
+
 	Vector4 Quaternion(float angle, Vector3 axis) { return Vector4(cos(angle / 2.0f), axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f)); }
 };
 struct Matrix2x2
@@ -112,8 +113,7 @@ public:
 	Matrix3x3 Inverse() { float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse; }
 	Matrix3x3 operator*(float a) { return Matrix3x3(m00 * a, m01 * a, m02 * a, m10 * a, m11 * a, m12 * a, m20 * a, m21 * a, m22 * a); }
 	Matrix3x3& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m10 *= a; m11 *= a; m12 *= a; m20 *= a; m21 *= a; m22 *= a; return *this; }
-
-	Matrix3x3 Quaternion(Vector4 quaternion) { return Matrix3x3(1 - (2 * pow(quaternion.z, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.y * quaternion.z + 2 * quaternion.w * quaternion.x, 2 * quaternion.y * quaternion.w - 2 * quaternion.z * quaternion.x, 2 * quaternion.y * quaternion.z - 2 * quaternion.w * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.z * quaternion.w + 2 * quaternion.y + quaternion.x, 2 * quaternion.y * quaternion.w + 2 * quaternion.z * quaternion.x, 2 * quaternion.z * quaternion.w - 2 * quaternion.y * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.z, 2))); }
+	//Matrix3x3 Quaternion(Vector4 quaternion) { return Matrix3x3(1 - (2 * pow(quaternion.z, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.y * quaternion.z + 2 * quaternion.w * quaternion.x, 2 * quaternion.y * quaternion.w - 2 * quaternion.z * quaternion.x, 2 * quaternion.y * quaternion.z - 2 * quaternion.w * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.z * quaternion.w + 2 * quaternion.y + quaternion.x, 2 * quaternion.y * quaternion.w + 2 * quaternion.z * quaternion.x, 2 * quaternion.z * quaternion.w - 2 * quaternion.y * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.z, 2))); }
 };
 struct Matrix4x4
 {
@@ -142,29 +142,11 @@ public:
 	static Matrix4x4 Projection(float fovDegree, float aspectRatio, float nearZ, float farZ) { Matrix4x4 m; m.m00 = 1.0f / (aspectRatio * tan(fovDegree / 2.0f)); m.m11 = 1.0f / tan(fovDegree / 2.0f); m.m22 = -(farZ + nearZ) / (farZ - nearZ); m.m23 = -(2 * farZ * nearZ) / (farZ - nearZ); m.m32 = -1; m.m33 = 0; return m; }
 	static Matrix4x4 Rotation(Vector3 angle) { Matrix4x4 mX, mY, mZ; mX.m11 = cos(angle.x); mX.m12 = sin(angle.x); mX.m21 = -sin(angle.x); mX.m22 = cos(angle.x); mY.m00 = cos(angle.y); mY.m02 = -sin(angle.y); mY.m20 = sin(angle.y); mY.m22 = cos(angle.y); mZ.m00 = cos(angle.z); mZ.m01 = sin(angle.z); mZ.m10 = -sin(angle.z); mZ.m11 = cos(angle.z); return mZ * mY * mX; }
 	static Matrix4x4 Scaling(Vector3 scale) { Matrix4x4 m; m.m00 = scale.x; m.m11 = scale.y; m.m22 = scale.z; return m; }
-	static Matrix4x4 Quaternion(Vector3 eulerAngle)
-	{
-		Vector4 quaternion(
-			cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2) +
-			sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2),
-			cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2) -
-			sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2),
-			sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) +
-			cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2),
-			cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) -
-			sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2));
-		Matrix4x4 m;
-		m.m00 = quaternion.w * quaternion.w + quaternion.x * quaternion.x - quaternion.y * quaternion.y - quaternion.z * quaternion.z;
-		m.m01 = 2 * (quaternion.x * quaternion.y - quaternion.w * quaternion.z);
-		m.m02 = 2 * (quaternion.x * quaternion.z + quaternion.w * quaternion.y);
-		m.m10 = 2 * (quaternion.x * quaternion.y + quaternion.w * quaternion.z);
-		m.m11 = quaternion.w * quaternion.w - quaternion.x * quaternion.x + quaternion.y * quaternion.y - quaternion.z * quaternion.z;
-		m.m12 = 2 * (quaternion.y * quaternion.z - quaternion.w * quaternion.x);
-		m.m20 = 2 * (quaternion.x * quaternion.z - quaternion.w * quaternion.y);
-		m.m21 = 2 * (quaternion.y * quaternion.z + quaternion.w * quaternion.x);
-		m.m22 = quaternion.w * quaternion.w - quaternion.x * quaternion.x - quaternion.y * quaternion.y + quaternion.z * quaternion.z;
-		return m;
-	}
+	static Matrix4x4 Quaternion(Vector3 eulerAngle) { Vector4 quaternion(cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2) + sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2), cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2), sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) + cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2), cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2)); Matrix4x4 m; m.m00 = quaternion.w * quaternion.w + quaternion.x * quaternion.x - quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m01 = 2 * (quaternion.x * quaternion.y - quaternion.w * quaternion.z); m.m02 = 2 * (quaternion.x * quaternion.z + quaternion.w * quaternion.y); m.m10 = 2 * (quaternion.x * quaternion.y + quaternion.w * quaternion.z); m.m11 = quaternion.w * quaternion.w - quaternion.x * quaternion.x + quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m12 = 2 * (quaternion.y * quaternion.z - quaternion.w * quaternion.x); m.m20 = 2 * (quaternion.x * quaternion.z - quaternion.w * quaternion.y); m.m21 = 2 * (quaternion.y * quaternion.z + quaternion.w * quaternion.x); m.m22 = quaternion.w * quaternion.w - quaternion.x * quaternion.x - quaternion.y * quaternion.y + quaternion.z * quaternion.z; return m; }
+	static Matrix4x4 Quaternion(Vector3 axis, float angle) { axis = Vector3::Normalize(axis); Vector4 quaternion(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2)); Matrix4x4 m; m.m00 = 1 - 2 * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2 * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m02 = 2 * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m10 = 2 * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m11 = 1 - 2 * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2 * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m20 = 2 * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m21 = 2 * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m22 = 1 - 2 * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
+	static Matrix4x4 MomentOfInertiaSphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2 * mass * radius * radius / 5.0f; m.m11 = 2 * mass * radius * radius / 5.0f; m.m22 = 2 * mass * radius * radius / 5.0f; return m; }
+	static Matrix4x4 MomentOfInertiaEmptySphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2 * mass * radius * radius / 3.0f; m.m11 = 2 * mass * radius * radius / 3.0f; m.m22 = 2 * mass * radius * radius / 3.0f; return m; }
+	static Matrix4x4 MomentOfInertiaCube(float mass, Vector3 scale) { Matrix4x4 m; m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m; }
 	Matrix4x4 operator+(Matrix4x4 m) { return Matrix4x4(m00 + m.m00, m01 + m.m01, m02 + m.m02, m03 + m.m03, m10 + m.m10, m11 + m.m11, m12 + m.m12, m13 + m.m13, m20 + m.m20, m21 + m.m21, m22 + m.m22, m23 + m.m23, m30 + m.m30, m31 + m.m31, m32 + m.m32, m33 + m.m33); }
 	Matrix4x4& operator+=(Matrix4x4 m) { m00 += m.m00; m01 += m.m01; m02 += m.m02; m03 += m.m03; m10 += m.m10; m11 += m.m11; m12 += m.m12; m13 += m.m13; m20 += m.m20; m21 += m.m21; m22 += m.m22; m23 += m.m23; m30 += m.m30; m31 += m.m31; m32 += m.m32; m33 += m.m33; return*this; }
 	Matrix4x4 operator+(float a) { return Matrix4x4(m00 + a, m01 + a, m02 + a, m03 + a, m10 + a, m11 + a, m12 + a, m13 + a, m20 + a, m21 + a, m22 + a, m23 + a, m30 + a, m31 + a, m32 + a, m33 + a); }

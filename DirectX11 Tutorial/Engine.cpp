@@ -316,16 +316,20 @@ void Engine::InitializeScene()
 	actors[0].transform.scale = Vector3(1.0f, 0.1f, 1.0f);
 	actors[0].rigidbody.isKinematic=true;
 	for (int i = 0; i < actors.size(); i++)
-		actors[i].transform.position = Vector3(i * 0.0f, i * 30.0f, 0.0f);
-
+	{
+		actors[i].transform.position = Vector3(i * 0.0f, i * 10.0f, 0.0f);
+	}
+	actors[1].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[1].rigidbody.mass, Vector3::One());
+	actors[2].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaSphere(actors[2].rigidbody.mass, 1);
+	actors[3].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaEmptySphere(actors[3].rigidbody.mass, 1);
 	// 조명
 	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	light.transform.position = Vector3(3.0f, 5.0f, 0.0f );
 
 	// 카메라
 	camera.Initialize();
-	camera.transform.position = Vector3(2.0f, 3.0f, -10.0f);
-	camera.transform.rotation = Vector3(0.0f, 180.0f, 0.0f);
+	camera.transform.position = Vector3(0.0f, 5.0f, 10.0f);
+	camera.transform.rotation = Vector3(0.0f, 0.0f, 0.0f);
 	camera.SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
 
 	// 타이머
@@ -382,7 +386,15 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		this->camera.transform.position += Vector3(0.0f, deltaTime, 0.0f);
+		actors[1].rigidbody.AddTorque(Vector3(0, 0, 10.0), actors[1].transform.position + Vector3(-1, 1, 1), actors[1].transform);
+		// 지금 잘 돌아가는 이유는 내가 로컬좌표계로 주고있기 때문임
+		// 결국 월드좌표계로 힘과 지점을 알려주게 되면 내부에선
+		// 1. 힘(벡터)에 회전 역행렬을 곱함
+		// 2. 지점(점)에 월드 역행렬을 곱함
+		// 3. 이걸 크로스 해서 나온 결과를 쿼터니언 행렬로서 구하고 이걸 곱해줘야함
+		// 지금은 크로스 해서 나온 결과(회전축과 회전할 크기 벡터)를 오일러값으로 바로 바꿔서 일케된듯..? 함
+		// 이걸 잘 누적시키려면 결국 쿼터니언의 연산을 제대로 구현해야함
+
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
@@ -397,10 +409,13 @@ void Engine::UpdatePhysics()
 	{
 		//forceGenerator.GenerateGravity(actors[i].rigidbody);
 		actors[i].rigidbody.Update(actors[i].transform, deltaTime);
-	}
-	actors[1].transform.rotation += Vector3(0.5f, 0, 0) * deltaTime;
-	actors[2].transform.rotation += Vector3(0, 0.5f, 0) * deltaTime;
-	actors[3].transform.rotation += Vector3(0, 0, 0.5f) * deltaTime;
+	}/*
+	actors[1].transform.rotation += Vector3(1, 1, 1) * deltaTime;
+	actors[2].transform.rotation += Vector3(-1, 1, 1) * deltaTime;
+	actors[3].transform.rotation += Vector3(1, 1, -1) * deltaTime;*/
+	actors[1].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[1].transform.position + Vector3(1, 1, 1), actors[1].transform);
+	actors[2].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[2].transform.position + Vector3(1, 1, 1), actors[2].transform);
+	actors[3].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[3].transform.position + Vector3(1, 1, 1), actors[3].transform);
 }
 void Engine::UpdateTimer()
 {
