@@ -8,7 +8,7 @@ void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 	this->defaultColor = defaultColor;
 	Load(filePath);
 }
-void Model::Draw(Matrix4x4& worldMatrix, Matrix4x4& viewProjectionMatrix)
+void Model::Draw(Matrix4x4 worldMatrix, Matrix4x4& viewProjectionMatrix)
 {
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->vsConstantBuffer->GetAddressOf());
 	for (int i = 0; i < meshes.size(); i++)

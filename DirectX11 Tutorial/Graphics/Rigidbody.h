@@ -13,8 +13,10 @@ public:
 	void AddForceAt(Vector3 force, Vector3 worldPoint, Transform transform);
 	void AddTorque(Vector3 force, Vector3 worldPoint, Transform transform);
 	void ClearAccumulatedForce();
-	Vector3 orientation = XMQuaternionIdentity();
+
 	Vector3 velocity;// m/s ¥‹¿ß
+	
+
 	Vector3 rotationVelocity;
 	Vector3 accumulatedForce;
 	Vector3 accumulatedTorque;

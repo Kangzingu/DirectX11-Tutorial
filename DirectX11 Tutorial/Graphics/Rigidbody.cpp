@@ -15,20 +15,20 @@ void Rigidbody::AddForce(Vector3 force)
 void Rigidbody::AddForceAt(Vector3 force, Vector3 worldPoint, Transform transform)
 {
 	accumulatedForce += force;
-	accumulatedTorque +=  (Vector3::Cross(force, worldPoint - transform.position));
+	accumulatedTorque +=  (Vector3::Cross(force, worldPoint - transform.GetPosition()));
 }
 void Rigidbody::AddTorque(Vector3 force, Vector3 worldPoint, Transform transform)
 {
-	accumulatedTorque += (Vector3::Cross(force, worldPoint - transform.position));
+	accumulatedTorque += (Vector3::Cross(force, worldPoint - transform.GetPosition()));
 }
 void Rigidbody::Update(Transform& transform, float deltaTime)
 {
 	if (isKinematic) return;
 	velocity = (velocity + (accumulatedForce / mass) * deltaTime) * pow(damping, deltaTime);
-	transform.position += velocity * deltaTime;
+	transform.Translate(velocity * deltaTime);
 	
 	rotationVelocity = (rotationVelocity + (momentOfInertia.Inverse() * accumulatedTorque) * deltaTime) * pow(damping, deltaTime);
-	transform.rotation += rotationVelocity * deltaTime;
+	transform.Rotate(rotationVelocity * deltaTime);
 
 	ClearAccumulatedForce();
 }

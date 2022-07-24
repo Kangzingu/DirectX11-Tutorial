@@ -10,161 +10,163 @@
 #include <wrl.h>
 #include <memory>
 
-class ParticleContact
-{
-	// 121pg 읽어야함
-public:
-	Actor* actors[2];
-	float restitution;// 반발계수(충돌 깊이의 역할)
-	Vector3 contactNormal;// actor[0]이 actor[1]로 다가가는
-	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
-	float separatingVelocity;
+//class ParticleContact
+//{
+//	// 121pg 읽어야함
+//public:
+//	Actor* actors[2];
+//	float restitution;// 반발계수(충돌 깊이의 역할)
+//	Vector3 contactNormal;// actor[0]이 actor[1]로 다가가는
+//	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
+//	float separatingVelocity;
+//
+//public:
+//	void Resolve(float duration)
+//	{
+//		// 최종적인 접촉 해결 과정은 다음과 같을거임
+//		// 1. 각 충돌 별 separating velocity를 구하고 가장 심하게 충돌된 걸 고름
+//		// 2. 만약 가장 심한게 0보다 크면(충돌이 아니면) 그냥 끝
+//		// 3. 0보다 작으면 그에 대한 해결을 함(Impulse로 속도 바꾸고.. 겹친 부분 떼주고..)
+//		// 4. 1단계로 돌아감
+//		ResolveVelocity(duration);
+//		ResolveInterpenetration(duration);
+//	}
+//	float CalculateSeparatingVelocity() const
+//	{
+//		Vector3 relativeVelocity = actors[0]->rigidbody.velocity;
+//		if (actors[1] != nullptr)
+//			relativeVelocity -= actors[1]->rigidbody.velocity;
+//		return Vector3::Dot(relativeVelocity, contactNormal);
+//	}
+//
+//private:
+//	void ResolveVelocity(float duration)
+//	{
+//		// 두 물체의 상대속력(접촉속력)을 구함
+//		separatingVelocity = CalculateSeparatingVelocity();
+//
+//		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
+//			return;
+//
+//		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
+//		float newSepVelocity = -separatingVelocity * restitution;
+//
+//		Vector3 accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
+//		if (actors[1] != nullptr) accCausedVelocity -= actors[1]->rigidbody.accumulatedForce / actors[1]->rigidbody.mass;
+//		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contactNormal) * duration;
+//		if (accCausedSepVelocity < 0)
+//		{
+//			newSepVelocity += restitution * accCausedSepVelocity;
+//			if (newSepVelocity < 0) newSepVelocity = 0;
+//		}
+//
+//		float deltaVelocity = newSepVelocity - separatingVelocity;
+//
+//		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
+//		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
+//
+//		if (totalInverseMass <= 0) return;
+//
+//		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
+//		float impulse = deltaVelocity / totalInverseMass;
+//
+//		Vector3 impulsePerIMess = contactNormal * impulse;
+//
+//		actors[0]->rigidbody.velocity = actors[0]->rigidbody.velocity + impulsePerIMess / actors[0]->rigidbody.mass;
+//
+//		if (actors[1] != nullptr)
+//		{
+//			actors[1]->rigidbody.velocity = actors[1]->rigidbody.velocity + impulsePerIMess / -actors[1]->rigidbody.mass;
+//		}
+//	}
+//	void ResolveInterpenetration(float duration)
+//	{
+//		// 113pg 참고
+//		if (penetration <= 0) return;
+//		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
+//		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
+//		if (totalInverseMass <= 0) return;
+//		Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);
+//		actors[0]->transform.position += movePerIMass / actors[0]->rigidbody.mass;
+//		if (actors[1] != nullptr) actors[1]->transform.position+=movePerIMass / -actors[1]->rigidbody.mass;
+//	}
+//};
+//class ParticleContactResolver
+//{
+//protected:
+//	unsigned int iterations;
+//	unsigned int iterationsUsed;
+//
+//public:
+//	ParticleContactResolver(unsigned int iterations)
+//	{
+//
+//	}
+//	void SetIterations(unsigned int iterations)
+//	{
+//
+//	}
+//	void ResolveContacts(ParticleContact* contactArray, unsigned int numContacts, float duration)
+//	{
+//		iterationsUsed = 0;
+//		while (iterationsUsed < iterations)
+//		{
+//			float max = 0;
+//			unsigned int maxIndex = numContacts;
+//			for (unsigned int i = 0; i < numContacts; i++)
+//			{
+//				float sepVel = contactArray[i].CalculateSeparatingVelocity();
+//				if (sepVel < max)
+//				{
+//					max = sepVel;
+//					maxIndex = i;
+//				}
+//			}
+//			contactArray[maxIndex].Resolve(duration);
+//			iterationsUsed++;
+//		}
+//	}
+//};
+//class ParticleLink
+//{// 충돌 해결을 역으로 생각해서 물체가 멀어지면 가까워지게 하는 식으로, 오히려 연결된 것 처럼 행동하게 해보는거임
+//public:
+//	Actor* actor[2];
+//protected:
+//	float currentLength() const;
+//public:
+//	virtual unsigned int fillContact(ParticleContact* contact, unsigned int limit) const = 0;
+//	
+//};
+//class ParticleCable : public ParticleLink
+//{
+//public:
+//	float maxLength;
+//	float restitution;
+//public:
+//	float CurrentLength() const
+//	{
+//		return Vector3::Magnitude(actor[0]->transform.position - actor[1]->transform.position);
+//	}
+//	unsigned int fillContact(ParticleContact* contact, unsigned int limit) const
+//	{
+//		float length = CurrentLength();
+//		if (length < maxLength) 
+//			return 0;
+//
+//		contact->actors[0] = actor[0];
+//		contact->actors[1] = actor[1];
+//
+//		contact->contactNormal = Vector3::Normalize(actor[1]->transform.position - actor[0]->transform.position);
+//		
+//		contact->penetration = length - maxLength;
+//		contact->restitution = restitution;
+//
+//		return 1;
+//	}
+//};
+//ParticleContact contact;
 
-public:
-	void Resolve(float duration)
-	{
-		// 최종적인 접촉 해결 과정은 다음과 같을거임
-		// 1. 각 충돌 별 separating velocity를 구하고 가장 심하게 충돌된 걸 고름
-		// 2. 만약 가장 심한게 0보다 크면(충돌이 아니면) 그냥 끝
-		// 3. 0보다 작으면 그에 대한 해결을 함(Impulse로 속도 바꾸고.. 겹친 부분 떼주고..)
-		// 4. 1단계로 돌아감
-		ResolveVelocity(duration);
-		ResolveInterpenetration(duration);
-	}
-	float CalculateSeparatingVelocity() const
-	{
-		Vector3 relativeVelocity = actors[0]->rigidbody.velocity;
-		if (actors[1] != nullptr)
-			relativeVelocity -= actors[1]->rigidbody.velocity;
-		return Vector3::Dot(relativeVelocity, contactNormal);
-	}
-
-private:
-	void ResolveVelocity(float duration)
-	{
-		// 두 물체의 상대속력(접촉속력)을 구함
-		separatingVelocity = CalculateSeparatingVelocity();
-
-		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
-			return;
-
-		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
-		float newSepVelocity = -separatingVelocity * restitution;
-
-		Vector3 accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
-		if (actors[1] != nullptr) accCausedVelocity -= actors[1]->rigidbody.accumulatedForce / actors[1]->rigidbody.mass;
-		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contactNormal) * duration;
-		if (accCausedSepVelocity < 0)
-		{
-			newSepVelocity += restitution * accCausedSepVelocity;
-			if (newSepVelocity < 0) newSepVelocity = 0;
-		}
-
-		float deltaVelocity = newSepVelocity - separatingVelocity;
-
-		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
-		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
-
-		if (totalInverseMass <= 0) return;
-
-		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
-		float impulse = deltaVelocity / totalInverseMass;
-
-		Vector3 impulsePerIMess = contactNormal * impulse;
-
-		actors[0]->rigidbody.velocity = actors[0]->rigidbody.velocity + impulsePerIMess / actors[0]->rigidbody.mass;
-
-		if (actors[1] != nullptr)
-		{
-			actors[1]->rigidbody.velocity = actors[1]->rigidbody.velocity + impulsePerIMess / -actors[1]->rigidbody.mass;
-		}
-	}
-	void ResolveInterpenetration(float duration)
-	{
-		// 113pg 참고
-		if (penetration <= 0) return;
-		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
-		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
-		if (totalInverseMass <= 0) return;
-		Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);
-		actors[0]->transform.position += movePerIMass / actors[0]->rigidbody.mass;
-		if (actors[1] != nullptr) actors[1]->transform.position+=movePerIMass / -actors[1]->rigidbody.mass;
-	}
-};
-class ParticleContactResolver
-{
-protected:
-	unsigned int iterations;
-	unsigned int iterationsUsed;
-
-public:
-	ParticleContactResolver(unsigned int iterations)
-	{
-
-	}
-	void SetIterations(unsigned int iterations)
-	{
-
-	}
-	void ResolveContacts(ParticleContact* contactArray, unsigned int numContacts, float duration)
-	{
-		iterationsUsed = 0;
-		while (iterationsUsed < iterations)
-		{
-			float max = 0;
-			unsigned int maxIndex = numContacts;
-			for (unsigned int i = 0; i < numContacts; i++)
-			{
-				float sepVel = contactArray[i].CalculateSeparatingVelocity();
-				if (sepVel < max)
-				{
-					max = sepVel;
-					maxIndex = i;
-				}
-			}
-			contactArray[maxIndex].Resolve(duration);
-			iterationsUsed++;
-		}
-	}
-};
-class ParticleLink
-{// 충돌 해결을 역으로 생각해서 물체가 멀어지면 가까워지게 하는 식으로, 오히려 연결된 것 처럼 행동하게 해보는거임
-public:
-	Actor* actor[2];
-protected:
-	float currentLength() const;
-public:
-	virtual unsigned int fillContact(ParticleContact* contact, unsigned int limit) const = 0;
-	
-};
-class ParticleCable : public ParticleLink
-{
-public:
-	float maxLength;
-	float restitution;
-public:
-	float CurrentLength() const
-	{
-		return Vector3::Magnitude(actor[0]->transform.position - actor[1]->transform.position);
-	}
-	unsigned int fillContact(ParticleContact* contact, unsigned int limit) const
-	{
-		float length = CurrentLength();
-		if (length < maxLength) 
-			return 0;
-
-		contact->actors[0] = actor[0];
-		contact->actors[1] = actor[1];
-
-		contact->contactNormal = Vector3::Normalize(actor[1]->transform.position - actor[0]->transform.position);
-		
-		contact->penetration = length - maxLength;
-		contact->restitution = restitution;
-
-		return 1;
-	}
-};
-ParticleContact contact;
+int spacePressedCount = 0;
 
 void Engine::Initialize(HINSTANCE hInstance)
 {
@@ -313,25 +315,26 @@ void Engine::InitializeScene()
 	actors.push_back(actor);
 	actors.push_back(actor);
 	actors.push_back(actor);
-	actors[0].transform.scale = Vector3(1.0f, 0.1f, 1.0f);
 	actors[0].rigidbody.isKinematic=true;
 	for (int i = 0; i < actors.size(); i++)
 	{
-		actors[i].transform.position = Vector3(i * 0.0f, i * 10.0f, 0.0f);
+		actors[i].transform.SetPosition(Vector3(i * 0.0f, i * 10.0f, 0.0f));
 	}
 	actors[1].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[1].rigidbody.mass, Vector3::One());
 	actors[2].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaSphere(actors[2].rigidbody.mass, 1);
 	actors[3].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaEmptySphere(actors[3].rigidbody.mass, 1);
+
+	actors[1].transform.Rotate(Vector3(0, 0, 0));
+	actors[2].transform.Rotate(Vector3(0, PI*2.0f, 0));
+	actors[3].transform.Rotate(Vector3(0, PI*3.0f, 0));
+
 	// 조명
 	light.Initialize(device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	light.transform.position = Vector3(3.0f, 5.0f, 0.0f );
+	light.transform.SetPosition(Vector3(3.0f, 5.0f, 0.0f));
 
 	// 카메라
-	camera.Initialize();
-	camera.transform.position = Vector3(0.0f, 5.0f, 10.0f);
-	camera.transform.rotation = Vector3(0.0f, 0.0f, 0.0f);
-	camera.SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
-
+	camera.Initialize(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
+	camera.transform.SetPosition(Vector3(0.0f, 5.0f, 10.0f));
 	// 타이머
 	sceneTimer.Start();
 	fpsTimer.Start();
@@ -348,7 +351,8 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera.transform.rotation+= Vector3((float)mouseEvent.GetPosY() * 0.001f, (float)mouseEvent.GetPosX() * 0.001f, 0);
+			this->camera.transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.001f);
+			this->camera.transform.Rotate(camera.transform.GetRight() * (float)mouseEvent.GetPosY() * -0.001f);
 			camera.UpdateMatrix();
 		}
 	}
@@ -366,27 +370,28 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('W'))
 	{
-		this->camera.transform.position+= Vector3(this->camera.transform.forward * cameraSpeed * deltaTime);
+		this->camera.transform.Translate(Vector3(this->camera.transform.GetForward() * cameraSpeed * deltaTime));
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('A'))
 	{
-		this->camera.transform.position += Vector3(this->camera.transform.right * cameraSpeed * deltaTime);
+		this->camera.transform.Translate(Vector3(this->camera.transform.GetRight() * cameraSpeed * deltaTime));
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('S'))
 	{
-		this->camera.transform.position += Vector3( - this->camera.transform.forward * cameraSpeed * deltaTime);
+		this->camera.transform.Translate(Vector3( - this->camera.transform.GetForward() * cameraSpeed * deltaTime));
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed('D'))
 	{
-		this->camera.transform.position += Vector3( - this->camera.transform.right * cameraSpeed * deltaTime);
+		this->camera.transform.Translate(Vector3( - this->camera.transform.GetRight() * cameraSpeed * deltaTime));
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		actors[1].rigidbody.AddTorque(Vector3(0, 0, 10.0), actors[1].transform.position + Vector3(-1, 1, 1), actors[1].transform);
+		spacePressedCount++;
+		actors[1].rigidbody.AddTorque(Vector3(0, 0, 1.0f), actors[1].transform.GetPosition() + Vector3(-1, 1, 1), actors[1].transform);
 		// 지금 잘 돌아가는 이유는 내가 로컬좌표계로 주고있기 때문임
 		// 결국 월드좌표계로 힘과 지점을 알려주게 되면 내부에선
 		// 1. 힘(벡터)에 회전 역행렬을 곱함
@@ -399,8 +404,7 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
-		this->camera.transform.position +=Vector3(0.0f, -deltaTime, 0.0f);
-		camera.UpdateMatrix();
+		actors[1].rigidbody.AddTorque(Vector3(-1.0f, 0, 0), actors[1].transform.GetPosition() + Vector3(0, 0,1), actors[1].transform);
 	}
 }
 void Engine::UpdatePhysics()
@@ -413,9 +417,9 @@ void Engine::UpdatePhysics()
 	actors[1].transform.rotation += Vector3(1, 1, 1) * deltaTime;
 	actors[2].transform.rotation += Vector3(-1, 1, 1) * deltaTime;
 	actors[3].transform.rotation += Vector3(1, 1, -1) * deltaTime;*/
-	actors[1].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[1].transform.position + Vector3(1, 1, 1), actors[1].transform);
-	actors[2].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[2].transform.position + Vector3(1, 1, 1), actors[2].transform);
-	actors[3].rigidbody.AddTorque(Vector3(0, 0, -1.1), actors[3].transform.position + Vector3(1, 1, 1), actors[3].transform);
+	//actors[1].rigidbody.AddTorque(Vector3(0, 0, 1), actors[1].transform.GetPosition() + Vector3(1, 1, 1), actors[1].transform);
+	//actors[2].rigidbody.AddTorque(Vector3(0, 0, 1), actors[2].transform.GetPosition() + Vector3(1, 1, 1), actors[2].transform);
+	//actors[3].rigidbody.AddTorque(Vector3(0, 0, 1), actors[3].transform.GetPosition() + Vector3(1, 1, 1), actors[3].transform);
 }
 void Engine::UpdateTimer()
 {
@@ -441,7 +445,7 @@ void Engine::UpdateScene()
 	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 	psConstantBuffer.data.dynamicLightColor = light.lightColor;
 	psConstantBuffer.data.dynamicLightStrength = light.lightStrength;
-	psConstantBuffer.data.dynamicLightPosition = light.transform.position.ToXMFLOAT3();
+	psConstantBuffer.data.dynamicLightPosition = light.transform.GetPosition().ToXMFLOAT3();
 	psConstantBuffer.data.dynamicLightAttenuation_a = light.attenuation_a;
 	psConstantBuffer.data.dynamicLightAttenuation_b = light.attenuation_b;
 	psConstantBuffer.data.dynamicLightAttenuation_c = light.attenuation_c;
@@ -456,7 +460,6 @@ void Engine::UpdateScene()
 		for (int i = 0; i < actors.size(); i++)
 		{
 			viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
-			actors[i].transform.UpdateMatrix();
 			actors[i].Draw(viewProjectionMatrix);
 		};	
 		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
@@ -483,23 +486,23 @@ void Engine::UpdateScene()
 		primitiveBatch->Begin();
 
 		Vector4 lineColor;
-		Vector3 waterSurface = actors[0].transform.position;
+		Vector3 waterSurface = actors[0].transform.GetPosition();
 		VertexPositionColor v1(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
 		VertexPositionColor v2(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::White);
 		for (int i = 1; i < actors.size(); i++)
 		{
-			waterSurface.x = actors[i].transform.position.x;
-			waterSurface.z = actors[i].transform.position.z;
+			waterSurface.x = actors[i].transform.GetPosition().x;
+			waterSurface.z = actors[i].transform.GetPosition().z;
 			v1 = VertexPositionColor(waterSurface.ToXMVECTOR(), DirectX::Colors::White);
-			float lineLength = Vector3::Magnitude(waterSurface - actors[i].transform.position);
+			float lineLength = Vector3::Magnitude(waterSurface - actors[i].transform.GetPosition());
 			lineColor = { 1.0f / lineLength, 1.0f / lineLength, 1.0f, 1.0f };
-			v2 = VertexPositionColor(actors[i].transform.position.ToXMVECTOR(), lineColor.ToXMVECTOR());
+			v2 = VertexPositionColor(actors[i].transform.GetPosition().ToXMVECTOR(), lineColor.ToXMVECTOR());
 			primitiveBatch->DrawLine(v1, v2);
 		}
 		{
 			Vector4 mainLineColor, subLineColor;
 			VertexPositionColor startVertex, endVertex;
-			float cameraDistanceFromXZPlane = abs(camera.transform.position.y);
+			float cameraDistanceFromXZPlane = abs(camera.transform.GetPosition().y);
 			float distanceLevel = 10;
 			while (cameraDistanceFromXZPlane >= 10)
 			{
@@ -549,12 +552,18 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	string movingObjectVelocity = "Moving Object Velocity: " + to_string(actors[1].rigidbody.velocity.x) + ", " + to_string(actors[1].rigidbody.velocity.y) + ", " + to_string(actors[1].rigidbody.velocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string movingObjectVelocity1 = "Actor[1] Euler Rotation: " + to_string(actors[1].transform.GetRotation().x) + ", " + to_string(actors[1].transform.GetRotation().y) + ", " + to_string(actors[1].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity1).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string movingObjectVelocity2 = "Actor[2] Euler Rotation: " + to_string(actors[2].transform.GetRotation().x) + ", " + to_string(actors[2].transform.GetRotation().y) + ", " + to_string(actors[2].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity2).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string movingObjectVelocity3 = "Actor[3] Euler Rotation: " + to_string(actors[3].transform.GetRotation().x) + ", " + to_string(actors[3].transform.GetRotation().y) + ", " + to_string(actors[3].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity3).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string groundObjectVelocity = "Ground Object Velocity: " + to_string(actors[0].rigidbody.velocity.x) + ", " + to_string(actors[0].rigidbody.velocity.y) + ", " + to_string(actors[0].rigidbody.velocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string cameraPosition = "Camera Position: " + to_string(camera.transform.position.x) + ", " + to_string(camera.transform.position.y) + ", " + to_string(camera.transform.position.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 120), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string cameraPosition = "Camera Position: " + to_string(camera.transform.GetPosition().x) + ", " + to_string(camera.transform.GetPosition().y) + ", " + to_string(camera.transform.GetPosition().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 150), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string spacePressedCountString = "Space Pressed Count"+ to_string(spacePressedCount);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(spacePressedCountString).c_str(), XMFLOAT2(5, 180), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	/*string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);

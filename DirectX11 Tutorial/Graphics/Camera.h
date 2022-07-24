@@ -5,7 +5,7 @@ using namespace DirectX;
 class Camera : public Object
 {
 public:
-	bool Initialize();
+	void Initialize(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 	void SetProjectionMatrix(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
 	void UpdateMatrix();
