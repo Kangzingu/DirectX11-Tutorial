@@ -2,17 +2,11 @@
 
 #include "../Utils/SimpleMath.h"
 
-void Camera::Initialize(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+void Camera::SetProjectionMatrix(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
 	this->projectionMatrix = Matrix4x4::Projection(fovDegrees, aspectRatio, nearZ, farZ);
 	this->UpdateMatrix();
 }
-
-void Camera::SetProjectionMatrix(float fovDegrees, float aspectRatio, float nearZ, float farZ)
-{
-	this->projectionMatrix = Matrix4x4::Projection(fovDegrees, aspectRatio, nearZ, farZ);
-}
-
 void Camera::UpdateMatrix()
 {
 	Vector3 eyePosition = this->transform.GetPosition();

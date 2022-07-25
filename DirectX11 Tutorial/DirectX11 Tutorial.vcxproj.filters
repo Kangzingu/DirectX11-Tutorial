@@ -123,6 +123,12 @@
     <ClCompile Include="Graphics\ForceGenerator.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Collider.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Contact.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -237,6 +243,12 @@
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ForceGenerator.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Collider.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Contact.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

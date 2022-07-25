@@ -14,20 +14,17 @@ struct VSConstantBuffer2D
 	DirectX::XMMATRIX wvpMatrix;
 };
 
-struct PSLightConstantBuffer
+struct PSConstantBuffer
 {
 	// 16byte
 	DirectX::XMFLOAT3 ambientLightColor;
 	float ambientLightStrength;
-
 	// 16byte
 	DirectX::XMFLOAT3 dynamicLightColor;
 	float dynamicLightStrength;
-
 	// 16byte
 	DirectX::XMFLOAT3 dynamicLightPosition;
-	float dynamicLightAttenuation_a;
-
-	float dynamicLightAttenuation_b;
-	float dynamicLightAttenuation_c;
+	float dynamicLightAttenA;
+	float dynamicLightAttenB;
+	float dynamicLightAttenC;
 };

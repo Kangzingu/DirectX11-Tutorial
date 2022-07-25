@@ -1,4 +1,5 @@
 #pragma once
+#include "DirectXHelpers.h"
 #include "Graphics/AdapterReader.h"
 #include "Graphics/Camera.h"
 #include "Graphics/ForceGenerator.h"
@@ -10,9 +11,17 @@
 #include "Graphics/Shaders.h"
 #include "Utils/Timer.h"
 #include "Utils/WIndow/WindowManager.h"
+#include <CommonStates.h>
+#include <d3d11.h>
+#include <Effects.h>
+#include <memory>
+#include <PrimitiveBatch.h>
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include <SimpleMath.h>
+#include <VertexTypes.h>
 #include <WICTextureLoader.h>
+#include <wrl.h>
 
 using namespace std;
 using namespace Microsoft::WRL;
@@ -57,7 +66,7 @@ private:
 	PixelShader pixelShader;
 	PixelShader pixelShaderNoLight;
 	ConstantBuffer<VSConstantBuffer> vsConstantBuffer;
-	ConstantBuffer<PSLightConstantBuffer> psConstantBuffer;
+	ConstantBuffer<PSConstantBuffer> psConstantBuffer;
 
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;

@@ -4,6 +4,8 @@
 class Transform
 {
 public:
+	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
+
 	Matrix4x4 GetWorldMatrix();
 	Matrix4x4 GetTranslationMatrix();
 	Matrix4x4 GetRotationMatrix();
@@ -19,6 +21,7 @@ public:
 	Vector3 GetForward();
 
 	void SetPosition(Vector3 position);
+	void SetRotation(Vector3 rotation);
 	void SetRotationQuaternion(Vector4 rotationQuaternion);
 	void SetScale(Vector3 scale);
 
@@ -29,7 +32,7 @@ public:
 private:
 	Vector3 position = Vector3::Zero();
 	Vector3 rotation = Vector3::Zero();
-	Vector4 rotationQuaternion = Vector4(0, 0, 0, 1);
+	Vector4 rotationQuaternion = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 	Vector3 scale = Vector3::One();
 
 	Vector3 right = Vector3::Right();

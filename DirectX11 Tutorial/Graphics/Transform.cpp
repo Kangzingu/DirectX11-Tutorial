@@ -1,11 +1,27 @@
 #include "Transform.h"
 #include "../Utils/SimpleMath.h"
 
+void Transform::Initialize(Vector3 position, Vector3 rotation, Vector3 scale)
+{
+	this->SetPosition(position);
+	this->SetScale(scale);
+}
 void Transform::SetPosition(Vector3 position)
 {
 	this->position = position;
 	this->translationMatrix = Matrix4x4::Translation(this->position);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
+}
+void Transform::SetRotation(Vector3 rotation)
+{
+	this->rotation = rotation;
+	this->rotationQuaternion = Vector4::Quaternion(Vector3::Normalize(rotation), Vector3::Magnitude(rotation));
+	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);
+	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
+	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
+	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
+	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
+	this->forward = Vector3::Normalize(this->rotationMatrix * Vector3::Forward());
 }
 void Transform::SetRotationQuaternion(Vector4 rotationQuaternion)
 {
@@ -33,8 +49,7 @@ void Transform::Rotate(Vector3 rotation)
 {
 	//this->rotationQuaternion = Vector4::CombineQuaternion(Vector4::Quaternion(Vector3::Normalize(rotation), Vector3::Magnitude(rotation)), this->rotationQuaternion);
 	Vector4 addQuaternion= Vector4(rotation, 0);
-	addQuaternion = (Vector4::CombineQuaternion(addQuaternion, this->rotationQuaternion));
-	addQuaternion /= 2.0f;
+	addQuaternion = (Vector4::CombineQuaternion(addQuaternion, this->rotationQuaternion)) / 2.0f;
 	this->rotationQuaternion += addQuaternion;
 	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);
 	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
@@ -57,18 +72,18 @@ Vector3 Transform::GetPosition() { return position; }
 Vector3 Transform::GetRotation()
 {
 	float t0 = 2.0f * (rotationQuaternion.w * rotationQuaternion.x + rotationQuaternion.y * rotationQuaternion.z);
-	float t1 = 1.0 - 2.0f * (rotationQuaternion.x * rotationQuaternion.x + rotationQuaternion.y * rotationQuaternion.y);
+	float t1 = 1.0f - 2.0f * (rotationQuaternion.x * rotationQuaternion.x + rotationQuaternion.y * rotationQuaternion.y);
 	rotation.x = atan2(t0, t1);
 
-	float t2 = +2.0 * (rotationQuaternion.w * rotationQuaternion.y - rotationQuaternion.z * rotationQuaternion.x);
-	if (t2 > +1.0)
-		t2 = +1.0;
-	if (t2 < -1.0)
-		t2 = -1.0;
+	float t2 = 2.0f * (rotationQuaternion.w * rotationQuaternion.y - rotationQuaternion.z * rotationQuaternion.x);
+	if (t2 > +1.0f)
+		t2 = +1.0f;
+	if (t2 < -1.0f)
+		t2 = -1.0f;
 	rotation.y = asin(t2);
 
-	float  t3 = +2.0 * (rotationQuaternion.w * rotationQuaternion.z + rotationQuaternion.x * rotationQuaternion.y);
-	float t4 = +1.0 - 2.0 * (rotationQuaternion.y * rotationQuaternion.y + rotationQuaternion.z * rotationQuaternion.z);
+	float  t3 = 2.0f * (rotationQuaternion.w * rotationQuaternion.z + rotationQuaternion.x * rotationQuaternion.y);
+	float t4 = +1.0f - 2.0f * (rotationQuaternion.y * rotationQuaternion.y + rotationQuaternion.z * rotationQuaternion.z);
 	rotation.z = atan2(t3, t4);
 	return rotation;
 }
