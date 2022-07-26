@@ -45,6 +45,8 @@ public:
 	bool IsRenderWindowExist();
 
 private:
+	float backgroundColor[4];
+
 	Light light;
 	Camera camera;
 	vector<Actor> actors;
@@ -79,6 +81,11 @@ private:
 
 	ComPtr<ID3D11SamplerState> samplerState;
 
-	unique_ptr<DirectX::SpriteBatch> spriteBatch;
-	unique_ptr<DirectX::SpriteFont> spriteFont;
+	unique_ptr<SpriteBatch> spriteBatch;
+	unique_ptr<SpriteFont> spriteFont;
+
+	unique_ptr<CommonStates> commonState;
+	unique_ptr<BasicEffect> basicEffect;
+	unique_ptr<PrimitiveBatch<VertexPositionColor>> primitiveBatch;
+	ComPtr<ID3D11InputLayout> primitiveBatchInputLayout;
 };

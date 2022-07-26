@@ -14,8 +14,8 @@ bool Window::Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, st
 	this->RegisterWindowClass();
 
 	RECT windowRect;
-	windowRect.left = 100;
-	windowRect.top = 100;
+	windowRect.left = 30;
+	windowRect.top = 30;
 	windowRect.right = windowRect.left + this->windowWidth;
 	windowRect.bottom = windowRect.top + this->windowHeight;
 	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);

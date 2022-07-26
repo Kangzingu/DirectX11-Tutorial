@@ -67,32 +67,9 @@ public:
 	static Vector4 Normalize(Vector4 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); return Vector4(v.x / length, v.y / length, v.z / length, v.w / length); }
 	static float Magnitude(Vector4 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); }
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
-	static Vector4 Quaternion(Vector3 axis, float angle)
-	{
-		angle = General::DegreeToRadian(angle);
-		return Vector4(
-			axis.x * sin(angle / 2.0f), 
-			axis.y * sin(angle / 2.0f), 
-			axis.z * sin(angle / 2.0f),
-			cos(angle / 2.0f));
-	}
-	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2)
-	{
-		return Vector4(
-			q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,
-			q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,
-			q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
-			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
-	}
-	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2)
-	{
-		return Vector4(
-			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
-			q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
-			q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
-			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
-	}
-
+	static Vector4 Quaternion(Vector3 axis, float angle){angle = General::DegreeToRadian(angle);return Vector4(axis.x * sin(angle / 2.0f),axis.y * sin(angle / 2.0f),axis.z * sin(angle / 2.0f),cos(angle / 2.0f));}
+	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2){return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);}
+	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2){return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);}
 	Vector4 operator+(Vector4 v) { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
 	Vector4& operator+=(Vector4 v) { x += v.x; y += v.y; z += v.z; w += v.w;  return *this; }
 	Vector4 operator+(float a) { return Vector4(x + a, y + a, z + a, w + a); }
@@ -156,8 +133,6 @@ public:
 	Matrix4x4 Transpose() { Matrix4x4 m; m.m01 = m10; m.m02 = m20; m.m03 = m30; m.m10 = m01; m.m12 = m21; m.m13 = m31; m.m20 = m02; m.m21 = m12; m.m23 = m32; m.m30 = m03; m.m31 = m13; m.m32 = m23; return m; }
 	float Determinant() { return(m00 * m11 * m22 * m33 + m00 * m12 * m23 * m31 + m00 * m13 * m21 * m32 + m01 * m10 * m23 * m32 + m01 * m12 * m20 * m33 + m01 * m13 * m22 * m30 + m02 * m10 * m21 * m33 + m02 * m11 * m23 * m30 + m02 * m13 * m20 * m31 + m03 * m10 * m22 * m31 + m03 * m11 * m20 * m32 + m03 * m12 * m21 * m30 - m00 * m11 * m23 * m32 - m00 * m12 * m21 * m33 - m00 * m13 * m22 * m31 - m01 * m10 * m22 * m33 - m01 * m12 * m23 * m30 - m01 * m13 * m20 * m32 - m02 * m10 * m23 * m31 - m02 * m11 * m20 * m33 - m02 * m13 * m21 * m30 - m03 * m10 * m21 * m32 - m03 * m11 * m22 * m30 - m03 * m12 * m20 * m31); }
 	Matrix4x4 Inverse() { float determinantInverse = 1.0f / Determinant(); return Matrix4x4(m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31, m01 * m23 * m32 + m02 * m21 * m33 + m03 * m22 * m31 - m01 * m22 * m33 - m02 * m23 * m31 - m03 * m21 * m32, m01 * m12 * m33 + m02 * m13 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 - m03 * m12 * m31, m01 * m13 * m22 + m02 * m11 * m23 + m03 * m12 * m21 - m01 * m12 * m23 - m02 * m13 * m21 - m03 * m11 * m22, m10 * m23 * m32 + m12 * m20 * m33 + m13 * m22 * m30 - m10 * m22 * m33 - m12 * m23 * m30 - m13 * m20 * m32, m00 * m22 * m33 + m02 * m23 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 - m03 * m22 * m30, m00 * m13 * m32 + m02 * m10 * m33 + m03 * m12 * m30 - m00 * m12 * m33 - m02 * m13 * m30 - m03 * m10 * m32, m00 * m12 * m23 + m02 * m13 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 - m03 * m12 * m20, m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 - m13 * m21 * m30, m00 * m23 * m31 + m01 * m20 * m33 + m03 * m21 * m30 - m00 * m21 * m33 - m01 * m23 * m30 - m03 * m20 * m31, m00 * m11 * m33 + m01 * m13 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 - m03 * m11 * m30, m00 * m13 * m21 + m01 * m10 * m23 + m03 * m11 * m20 - m00 * m11 * m23 - m01 * m13 * m20 - m03 * m10 * m21, m10 * m22 * m31 + m11 * m20 * m32 + m12 * m21 * m30 - m10 * m21 * m32 - m11 * m22 * m30 - m12 * m20 * m31, m00 * m21 * m32 + m01 * m22 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 - m02 * m21 * m30, m00 * m12 * m31 + m01 * m10 * m32 + m02 * m11 * m30 - m00 * m11 * m32 - m01 * m12 * m30 - m02 * m10 * m31, m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 - m02 * m11 * m20) * determinantInverse; }
-	// http://www.cg.info.hiroshima-cu.ac.jp/~miyazaki/knowledge/teche0023.html
-	// https://matrixcalc.org/ko/#determinant(%7B%7B1,2,3%7D,%7B4,4,3%7D,%7B1,1,3%7D%7D)
 	static Matrix4x4 Zero() { return Matrix4x4(); }
 	static Matrix4x4 Identity() { Matrix4x4 m; m.m00 = 1.0f; m.m11 = 1.0f; m.m22 = 1.0f; m.m33 = 1.0f; return m; }
 	static Matrix4x4 Translation(Vector3 v) { Matrix4x4 m; m = Matrix4x4::Identity(); m.m03 = v.x; m.m13 = v.y; m.m23 = v.z; return m; }
@@ -167,60 +142,11 @@ public:
 	static Matrix4x4 Rotation(Vector3 angle) { Matrix4x4 mX, mY, mZ; mX.m11 = cos(angle.x); mX.m12 = sin(angle.x); mX.m21 = -sin(angle.x); mX.m22 = cos(angle.x); mY.m00 = cos(angle.y); mY.m02 = -sin(angle.y); mY.m20 = sin(angle.y); mY.m22 = cos(angle.y); mZ.m00 = cos(angle.z); mZ.m01 = sin(angle.z); mZ.m10 = -sin(angle.z); mZ.m11 = cos(angle.z); return mZ * mY * mX; }
 	static Matrix4x4 Scaling(Vector3 scale) { Matrix4x4 m; m.m00 = scale.x; m.m11 = scale.y; m.m22 = scale.z; return m; }
 	//static Matrix4x4 RotationQuaternion(Vector3 eulerAngle) { Vector4 quaternion(cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2) + sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2), cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2), sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) + cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2), cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2)); Matrix4x4 m; m.m00 = quaternion.w * quaternion.w + quaternion.x * quaternion.x - quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m01 = 2 * (quaternion.x * quaternion.y - quaternion.w * quaternion.z); m.m02 = 2 * (quaternion.x * quaternion.z + quaternion.w * quaternion.y); m.m10 = 2 * (quaternion.x * quaternion.y + quaternion.w * quaternion.z); m.m11 = quaternion.w * quaternion.w - quaternion.x * quaternion.x + quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m12 = 2 * (quaternion.y * quaternion.z - quaternion.w * quaternion.x); m.m20 = 2 * (quaternion.x * quaternion.z - quaternion.w * quaternion.y); m.m21 = 2 * (quaternion.y * quaternion.z + quaternion.w * quaternion.x); m.m22 = quaternion.w * quaternion.w - quaternion.x * quaternion.x - quaternion.y * quaternion.y + quaternion.z * quaternion.z; return m; }
-	static Matrix4x4 RotationQuaternion(Vector3 axis, float angle)
-	{
-		axis = Vector3::Normalize(axis);
-		Vector4 quaternion(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f));
-		Matrix4x4 m; 
-		m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z);
-		m.m01 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); 
-		m.m02 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w);
-		m.m10 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w);
-		m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z);
-		m.m12 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w);
-		m.m20 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); 
-		m.m21 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); 
-		m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y);
-		return m;
-	}
-	static Matrix4x4 RotationQuaternion(Vector4 quaternion)
-	{
-		Matrix4x4 m;
-		m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z);
-		m.m01 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); 
-		m.m02 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w);
-		m.m10 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w);
-		m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z);
-		m.m12 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w);
-		m.m20 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w);
-		m.m21 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w);
-		m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y);
-		return m;
-	}
-	static Matrix4x4 MomentOfInertiaSphere(float mass, float radius)
-	{
-		Matrix4x4 m;
-		m.m00 = 2.0f * mass * radius * radius / 5.0f;
-		m.m11 = 2.0f * mass * radius * radius / 5.0f;
-		m.m22 = 2.0f * mass * radius * radius / 5.0f; 
-		return m;
-	}
-	static Matrix4x4 MomentOfInertiaEmptySphere(float mass, float radius)
-	{
-		Matrix4x4 m;
-		m.m00 = 2.0f * mass * radius * radius / 3.0f; 
-		m.m11 = 2.0f * mass * radius * radius / 3.0f;
-		m.m22 = 2.0f * mass * radius * radius / 3.0f;
-		return m;
-	}
-	static Matrix4x4 MomentOfInertiaCube(float mass, Vector3 scale)
-	{
-		Matrix4x4 m;
-		m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f;
-		m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f;
-		m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; 
-		return m;
-	}
+	static Matrix4x4 RotationQuaternion(Vector3 axis, float angle) { axis = Vector3::Normalize(axis); Vector4 quaternion(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); Matrix4x4 m; m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m02 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m10 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m20 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m21 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
+	static Matrix4x4 RotationQuaternion(Vector4 quaternion) { Matrix4x4 m; m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m02 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m10 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m20 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m21 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
+	static Matrix4x4 InertiaTensorSphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 5.0f; m.m11 = 2.0f * mass * radius * radius / 5.0f; m.m22 = 2.0f * mass * radius * radius / 5.0f; return m; }
+	static Matrix4x4 InertiaTensorEmptySphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 3.0f; m.m11 = 2.0f * mass * radius * radius / 3.0f; m.m22 = 2.0f * mass * radius * radius / 3.0f; return m; }
+	static Matrix4x4 InertiaTensorCube(float mass, Vector3 scale) { Matrix4x4 m; m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m; }
 	Matrix4x4 operator+(Matrix4x4 m) { return Matrix4x4(m00 + m.m00, m01 + m.m01, m02 + m.m02, m03 + m.m03, m10 + m.m10, m11 + m.m11, m12 + m.m12, m13 + m.m13, m20 + m.m20, m21 + m.m21, m22 + m.m22, m23 + m.m23, m30 + m.m30, m31 + m.m31, m32 + m.m32, m33 + m.m33); }
 	Matrix4x4& operator+=(Matrix4x4 m) { m00 += m.m00; m01 += m.m01; m02 += m.m02; m03 += m.m03; m10 += m.m10; m11 += m.m11; m12 += m.m12; m13 += m.m13; m20 += m.m20; m21 += m.m21; m22 += m.m22; m23 += m.m23; m30 += m.m30; m31 += m.m31; m32 += m.m32; m33 += m.m33; return*this; }
 	Matrix4x4 operator+(float a) { return Matrix4x4(m00 + a, m01 + a, m02 + a, m03 + a, m10 + a, m11 + a, m12 + a, m13 + a, m20 + a, m21 + a, m22 + a, m23 + a, m30 + a, m31 + a, m32 + a, m33 + a); }
@@ -232,7 +158,7 @@ public:
 	Matrix4x4 operator*(Matrix4x4 m) { return Matrix4x4(m00 * m.m00 + m01 * m.m10 + m02 * m.m20 + m03 * m.m30, m00 * m.m01 + m01 * m.m11 + m02 * m.m21 + m03 * m.m31, m00 * m.m02 + m01 * m.m12 + m02 * m.m22 + m03 * m.m32, m00 * m.m03 + m01 * m.m13 + m02 * m.m23 + m03 * m.m33, m10 * m.m00 + m11 * m.m10 + m12 * m.m20 + m13 * m.m30, m10 * m.m01 + m11 * m.m11 + m12 * m.m21 + m13 * m.m31, m10 * m.m02 + m11 * m.m12 + m12 * m.m22 + m13 * m.m32, m10 * m.m03 + m11 * m.m13 + m12 * m.m23 + m13 * m.m33, m20 * m.m00 + m21 * m.m10 + m22 * m.m20 + m23 * m.m30, m20 * m.m01 + m21 * m.m11 + m22 * m.m21 + m23 * m.m31, m20 * m.m02 + m21 * m.m12 + m22 * m.m22 + m23 * m.m32, m20 * m.m03 + m21 * m.m13 + m22 * m.m23 + m23 * m.m33, m30 * m.m00 + m31 * m.m10 + m32 * m.m20 + m33 * m.m30, m30 * m.m01 + m31 * m.m11 + m32 * m.m21 + m33 * m.m31, m30 * m.m02 + m31 * m.m12 + m32 * m.m22 + m33 * m.m32, m30 * m.m03 + m31 * m.m13 + m32 * m.m23 + m33 * m.m33); }
 	Matrix4x4& operator*=(Matrix4x4 m) { m00 = m00 * m.m00 + m01 * m.m10 + m02 * m.m20 + m03 * m.m30; m01 = m00 * m.m01 + m01 * m.m11 + m02 * m.m21 + m03 * m.m31; m02 = m00 * m.m02 + m01 * m.m12 + m02 * m.m22 + m03 * m.m32; m03 = m00 * m.m03 + m01 * m.m13 + m02 * m.m23 + m03 * m.m33; m10 = m10 * m.m00 + m11 * m.m10 + m12 * m.m20 + m13 * m.m30; m11 = m10 * m.m01 + m11 * m.m11 + m12 * m.m21 + m13 * m.m31; m12 = m10 * m.m02 + m11 * m.m12 + m12 * m.m22 + m13 * m.m32; m13 = m10 * m.m03 + m11 * m.m13 + m12 * m.m23 + m13 * m.m33; m20 = m20 * m.m00 + m21 * m.m10 + m22 * m.m20 + m23 * m.m30; m21 = m20 * m.m01 + m21 * m.m11 + m22 * m.m21 + m23 * m.m31; m22 = m20 * m.m02 + m21 * m.m12 + m22 * m.m22 + m23 * m.m32; m23 = m20 * m.m03 + m21 * m.m13 + m22 * m.m23 + m23 * m.m33; m30 = m30 * m.m00 + m31 * m.m10 + m32 * m.m20 + m33 * m.m30; m31 = m30 * m.m01 + m31 * m.m11 + m32 * m.m21 + m33 * m.m31; m32 = m30 * m.m02 + m31 * m.m12 + m32 * m.m22 + m33 * m.m32; m33 = m30 * m.m03 + m31 * m.m13 + m32 * m.m23 + m33 * m.m33; return *this; }
 	Vector4 operator*(Vector4 v) { return Vector4(m00 * v.x + m01 * v.y + m02 * v.z + m03 * v.w, m10 * v.x + m11 * v.y + m12 * v.z + m13 * v.w, m20 * v.x + m21 * v.y + m22 * v.z + m23 * v.w, m30 * v.x + m31 * v.y + m32 * v.z + m33 * v.w); }
-	Vector3 operator*(Vector3 v) { return Vector3(m00 * v.x + m01 * v.y + m02 * v.z + m03, m10 * v.x + m11 * v.y + m12 * v.z + m13, m20 * v.x + m21 * v.y + m22 * v.z+ m23); }
+	Vector3 operator*(Vector3 v) { return Vector3(m00 * v.x + m01 * v.y + m02 * v.z + m03, m10 * v.x + m11 * v.y + m12 * v.z + m13, m20 * v.x + m21 * v.y + m22 * v.z + m23); }
 	Matrix4x4 operator*(float a) { return Matrix4x4(m00 * a, m01 * a, m02 * a, m03 * a, m10 * a, m11 * a, m12 * a, m13 * a, m20 * a, m21 * a, m22 * a, m23 * a, m30 * a, m31 * a, m32 * a, m33 * a); }
 	Matrix4x4& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m03 *= a; m10 *= a; m11 *= a; m12 *= a; m13 *= a; m20 *= a; m21 *= a; m22 *= a; m23 *= a; m30 *= a; m31 *= a; m32 *= a; m33 *= a; return*this; }
 	Matrix4x4 operator=(DirectX::XMMATRIX m) { return Matrix4x4(m); }

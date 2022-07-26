@@ -20,8 +20,8 @@ public:
 	float damping = 0.95f;
 	float angularDamping = 0.95f;
 	Vector3 velocity = Vector3::Zero();// m/s ¥‹¿ß
-	Vector3 rotationVelocity = Vector3::Zero();
+	Vector3 angularVelocity = Vector3::Zero();
 	Vector3 accumulatedForce = Vector3::Zero();
 	Vector3 accumulatedTorque = Vector3::Zero();
-	Matrix4x4 momentOfInertia = Matrix4x4::Identity();
+	Matrix4x4 inertiaTensor = Matrix4x4::Identity();
 };

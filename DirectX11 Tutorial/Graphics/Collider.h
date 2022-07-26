@@ -24,3 +24,11 @@ public:
 	CubeCollider() {}
 	Vector3 size = Vector3::One();
 };
+
+class PlaneCollider : public Collider
+{
+public:
+	PlaneCollider() {}
+	Vector3 normal = Vector3::Forward();
+	float offset = 0;
+};

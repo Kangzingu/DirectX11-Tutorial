@@ -7,8 +7,8 @@ void Rigidbody::Initialize(bool isKinematic, float mass, float damping, float an
 	this->damping = damping;
 	this->angularDamping = angularDamping;
 	this->velocity = velocity;
-	this->rotationVelocity = rotationVelocity;
-	this->momentOfInertia = momentOfInertia;
+	this->angularVelocity = rotationVelocity;
+	this->inertiaTensor = momentOfInertia;
 	this->ClearAccumulatedForce();
 }
 void Rigidbody::AddForce(Vector3 force)
@@ -30,8 +30,8 @@ void Rigidbody::Update(Transform& transform, float deltaTime)
 	velocity = (velocity + (accumulatedForce / mass) * deltaTime) * pow(damping, deltaTime);
 	transform.Translate(velocity * deltaTime);
 	
-	rotationVelocity = (rotationVelocity + (transform.GetRotationMatrix() * momentOfInertia.Inverse() * transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
-	transform.Rotate(rotationVelocity * deltaTime);
+	angularVelocity = (angularVelocity + (transform.GetRotationMatrix() * inertiaTensor.Inverse() * transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
+	transform.Rotate(angularVelocity * deltaTime);
 
 	ClearAccumulatedForce();
 }
