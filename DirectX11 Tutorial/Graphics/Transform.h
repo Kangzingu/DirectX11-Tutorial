@@ -27,6 +27,8 @@ public:
 
 	void Translate(Vector3 position);
 	void Rotate(Vector3 rotation);
+	void Rotate(Vector3 axis, float angle);
+	void Rotate(Vector4 rotationQuaternion);
 	void Scale(Vector3 scale);
 
 private:

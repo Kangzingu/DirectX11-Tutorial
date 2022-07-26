@@ -2,6 +2,7 @@
 #include "DirectXHelpers.h"
 #include "Graphics/AdapterReader.h"
 #include "Graphics/Camera.h"
+#include "Graphics/Collision.h"
 #include "Graphics/ForceGenerator.h"
 #include "Graphics/ImGui/imgui.h"
 #include "Graphics/ImGui/imgui_impl_win32.h"

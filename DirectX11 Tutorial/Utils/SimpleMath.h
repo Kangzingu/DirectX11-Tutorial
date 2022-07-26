@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const float PI = 3.141593f;
+const float PI = 3.141592f;
 
 struct General
 {
@@ -69,13 +69,22 @@ public:
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
 	static Vector4 Quaternion(Vector3 axis, float angle)
 	{
+		angle = General::DegreeToRadian(angle);
 		return Vector4(
-			cos(angle / 2.0f),
 			axis.x * sin(angle / 2.0f), 
 			axis.y * sin(angle / 2.0f), 
-			axis.z * sin(angle / 2.0f));
+			axis.z * sin(angle / 2.0f),
+			cos(angle / 2.0f));
 	}
 	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2)
+	{
+		return Vector4(
+			q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,
+			q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,
+			q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
+			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
+	}
+	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2)
 	{
 		return Vector4(
 			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,

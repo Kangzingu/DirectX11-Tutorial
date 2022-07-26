@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Collision.cpp" />
     <ClCompile Include="Graphics\Contact.cpp" />
     <ClCompile Include="Graphics\Collider.cpp" />
     <ClCompile Include="Graphics\ForceGenerator.cpp" />
@@ -193,6 +194,7 @@
     <ClCompile Include="Utils\WIndow\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Collision.h" />
     <ClInclude Include="Graphics\Contact.h" />
     <ClInclude Include="Graphics\Collider.h" />
     <ClInclude Include="Graphics\ForceGenerator.h" />

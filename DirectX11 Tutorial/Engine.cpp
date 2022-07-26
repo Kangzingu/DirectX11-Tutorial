@@ -50,7 +50,7 @@ void Engine::InitializeScene()
 
 	// 카메라
 	model.isEnabled = false;
-	transform.SetPosition(Vector3(0.0f, 5.0f, 10.0f));
+	transform.SetPosition(Vector3(0.0f, 9.0f, 10.0f));
 	rigidbody.isEnabled = false;
 	collider.isEnabled = false;
 	camera.Initialize(model, transform, rigidbody, collider);
@@ -65,12 +65,16 @@ void Engine::InitializeScene()
 	{
 		actors[i].transform.SetPosition(Vector3(i * 0.0f, i * 3.0f, 0.0f));
 	}
-	actors[1].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[1].rigidbody.mass, Vector3::One());
+	/*actors[1].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[1].rigidbody.mass, Vector3::One());
 	actors[2].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[2].rigidbody.mass, Vector3::One());
-	actors[3].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[3].rigidbody.mass, Vector3::One());
-	actors[1].transform.Rotate(Vector3(0, 0, 0));
-	actors[2].transform.Rotate(Vector3(0, 0, 0));
-	actors[3].transform.Rotate(Vector3(0, 0, 0));
+	actors[3].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[3].rigidbody.mass, Vector3::One());*/
+	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
+	//actors[2].transform.Rotate(Vector3(0, 1, 0), 30.0f);
+	//actors[3].transform.Rotate(Vector3(0, 0, 0));
+
+	actors[1].rigidbody.AddTorqueAt(Vector3(0, 0, PI/2.0f), actors[1].transform.GetPosition() + Vector3(0.1f, 0, 0), actors[1].transform);
+	actors[2].rigidbody.AddTorqueAt(Vector3(0, 0, PI / 2.0f), actors[2].transform.GetPosition() + Vector3(0.2f, 0, 0), actors[2].transform);
+	actors[3].rigidbody.AddTorqueAt(Vector3(0, 0, PI / 2.0f), actors[3].transform.GetPosition() + Vector3(0.3f, 0, 0), actors[3].transform);
 }
 void Engine::HandleEvent()
 {
@@ -123,10 +127,6 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		actors[1].rigidbody.AddTorqueAt(Vector3(0, 0, 1.0f), actors[1].transform.GetPosition() + Vector3(1, 0, 0), actors[1].transform);
-		actors[2].rigidbody.AddTorqueAt(Vector3(0, 0, 1.0f), actors[2].transform.GetPosition() + Vector3(0.6f, 0, 0), actors[2].transform);
-		actors[3].rigidbody.AddTorqueAt(Vector3(0, 0, 1.0f), actors[3].transform.GetPosition() + Vector3(0.3f, 0, 0), actors[3].transform);
-
 		camera.UpdateMatrix();
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
@@ -140,13 +140,28 @@ void Engine::UpdatePhysics()
 	{
 		//forceGenerator.GenerateGravity(actors[i].rigidbody);
 		actors[i].rigidbody.Update(actors[i].transform, deltaTime);
-	}/*
-	actors[1].transform.rotation += Vector3(1, 1, 1) * deltaTime;
-	actors[2].transform.rotation += Vector3(-1, 1, 1) * deltaTime;
-	actors[3].transform.rotation += Vector3(1, 1, -1) * deltaTime;*/
-	//actors[1].rigidbody.AddTorque(Vector3(0, 0, 1), actors[1].transform.GetPosition() + Vector3(1, 1, 1), actors[1].transform);
-	//actors[2].rigidbody.AddTorque(Vector3(0, 0, 1), actors[2].transform.GetPosition() + Vector3(1, 1, 1), actors[2].transform);
-	//actors[3].rigidbody.AddTorque(Vector3(0, 0, 1), actors[3].transform.GetPosition() + Vector3(1, 1, 1), actors[3].transform);
+	}
+	
+	// 충돌이 있었다고 치고 해결
+	vector<Contact> contacts;
+	for (int i = 0; i < contacts.size(); i++)
+	{
+		// 충돌 좌표계의 기저를 구함(계산 편의를 위해)
+		Vector3 contactCoordBasisX = contacts[i].normal;
+		Vector3 contactCoordBasisY = Vector3::Up();
+		Vector3 contactCoordBasisZ;
+		
+		contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
+		if (Vector3::Magnitude(contactCoordBasisZ) == 0.0f)
+		{
+			contactCoordBasisY = Vector3::Right();
+			contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
+		}
+		contactCoordBasisY = Vector3::Normalize(Vector3::Cross(contactCoordBasisZ, contactCoordBasisX));
+
+		Matrix4x4 contactCoordBasis(contactCoordBasisX, contactCoordBasisY, contactCoordBasisZ);
+	}
+
 }
 void Engine::UpdateTimer()
 {
@@ -206,48 +221,42 @@ void Engine::UpdateScene()
 		unique_ptr<PrimitiveBatch<VertexPositionColor>> primitiveBatch;
 		primitiveBatch = make_unique<PrimitiveBatch<VertexPositionColor>>(deviceContext.Get());
 		primitiveBatch->Begin();
-		//{
-		//	Vector4 mainLineColor, subLineColor;
-		//	VertexPositionColor startVertex, endVertex;
-		//	float cameraDistanceFromXZPlane = abs(camera.transform.GetPosition().y);
-		//	float distanceLevel = 10;
-		//	while (cameraDistanceFromXZPlane >= 10)
-		//	{
-		//		cameraDistanceFromXZPlane = cameraDistanceFromXZPlane / 10;
-		//		distanceLevel *= 10;
-		//	}
-		//	mainLineColor = { 1.0f, 1.0f, 1.0f,  cameraDistanceFromXZPlane / 10.0f / 3.0f };
-		//	subLineColor = { 1.0f, 1.0f, 1.0f, (10.0f - cameraDistanceFromXZPlane) / 10.0f / 3.0f };
-		//	// x축 평행선
-		//	for (int offset = -50; offset <= 50; offset++)
-		//	{
-		//		startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-		//		endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-		//		primitiveBatch->DrawLine(startVertex, endVertex);
-		//	}
-		//	for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
-		//	{
-		//		startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-		//		endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-		//		primitiveBatch->DrawLine(startVertex, endVertex);
-		//	}
-
-		//	// z축 평행선
-		//	for (int offset = -50; offset <= 50; offset++)
-		//	{
-		//		startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-		//		endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-		//		primitiveBatch->DrawLine(startVertex, endVertex);
-		//	}
-		//	for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
-		//	{
-		//		startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-		//		endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-		//		primitiveBatch->DrawLine(startVertex, endVertex);
-		//	}
-		//	primitiveBatch->End();
-		//}
 		{
+			Vector4 mainLineColor, subLineColor;
+			VertexPositionColor startVertex, endVertex;
+			float cameraDistanceFromXZPlane = abs(camera.transform.GetPosition().y);
+			float distanceLevel = 10;
+			while (cameraDistanceFromXZPlane >= 10)
+			{
+				cameraDistanceFromXZPlane = cameraDistanceFromXZPlane / 10;
+				distanceLevel *= 10;
+			}
+			mainLineColor = { 1.0f, 1.0f, 1.0f,  cameraDistanceFromXZPlane / 10.0f / 2.0f };
+			subLineColor = { 1.0f, 1.0f, 1.0f, (10.0f - cameraDistanceFromXZPlane) / 10.0f / 2.0f};
+			// x축 평행선
+			int offsetCounter = -1;
+			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			for (int offset = -50; offset <= 50; offset++)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			
+			primitiveBatch->End();
+		}
+		/*{
 			VertexPositionColor startVertex, endVertex;
 			startVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
 			endVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
@@ -294,7 +303,7 @@ void Engine::UpdateScene()
 				}
 			}
 			primitiveBatch->End();
-		}
+		}*/
 	}
 
 	UpdateUI();
@@ -307,16 +316,21 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	string movingObjectVelocity1 = "Actor[1] Euler Rotation: " + to_string(actors[1].transform.GetRotation().x) + ", " + to_string(actors[1].transform.GetRotation().y) + ", " + to_string(actors[1].transform.GetRotation().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity1).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string movingObjectVelocity2 = "Actor[2] Euler Rotation: " + to_string(actors[2].transform.GetRotation().x) + ", " + to_string(actors[2].transform.GetRotation().y) + ", " + to_string(actors[2].transform.GetRotation().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity2).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string movingObjectVelocity3 = "Actor[3] Euler Rotation: " + to_string(actors[3].transform.GetRotation().x) + ", " + to_string(actors[3].transform.GetRotation().y) + ", " + to_string(actors[3].transform.GetRotation().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(movingObjectVelocity3).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor1EulerRotation= "Actor[1] Euler Rotation: " + to_string(actors[1].transform.GetRotation().x) + ", " + to_string(actors[1].transform.GetRotation().y) + ", " + to_string(actors[1].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1EulerRotation).c_str(), DirectX::XMFLOAT2(5, 30), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor2EulerRotation = "Actor[2] Euler Rotation: " + to_string(actors[2].transform.GetRotation().x) + ", " + to_string(actors[2].transform.GetRotation().y) + ", " + to_string(actors[2].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2EulerRotation).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor3EulerRotation = "Actor[3] Euler Rotation: " + to_string(actors[3].transform.GetRotation().x) + ", " + to_string(actors[3].transform.GetRotation().y) + ", " + to_string(actors[3].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3EulerRotation).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string groundObjectVelocity = "Ground Object Velocity: " + to_string(actors[0].rigidbody.velocity.x) + ", " + to_string(actors[0].rigidbody.velocity.y) + ", " + to_string(actors[0].rigidbody.velocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 120), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string cameraPosition = "Camera Position: " + to_string(camera.transform.GetPosition().x) + ", " + to_string(camera.transform.GetPosition().y) + ", " + to_string(camera.transform.GetPosition().z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 150), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor1QuaternionRotation = "Actor[1] Quaternion: " + to_string(actors[1].transform.GetRotationQuaternion().x) + ", " + to_string(actors[1].transform.GetRotationQuaternion().y) + ", " + to_string(actors[1].transform.GetRotationQuaternion().z) + ", " + to_string(actors[1].transform.GetRotationQuaternion().w);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1QuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 180), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	DirectX::XMVECTOR dxQuaternionRotation = DirectX::XMQuaternionRotationMatrix(actors[1].transform.GetRotationMatrix().ToXMMATRIX());
+	string actor1DXQuaternionRotation = "Actor[1] Quaternion: " + to_string(XMVectorGetX(dxQuaternionRotation)) + ", " + to_string(XMVectorGetY(dxQuaternionRotation)) + ", " + to_string(XMVectorGetZ(dxQuaternionRotation)) + ", " + to_string(XMVectorGetW(dxQuaternionRotation));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1DXQuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 210), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
