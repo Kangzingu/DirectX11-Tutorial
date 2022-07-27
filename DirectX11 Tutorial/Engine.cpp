@@ -130,10 +130,9 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		actors[1].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, 0, 1), actors[1].transform);
-		actors[2].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[2].transform.GetPosition() + Vector3(0.5f, 0, 1), actors[2].transform);
-		actors[3].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[3].transform.GetPosition() + Vector3(1, 0, 1), actors[3].transform);
-		camera.UpdateMatrix();
+		actors[1].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, 0, 1), actors[1].transform);
+		actors[2].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[2].transform.GetPosition() + Vector3(0.5f, 0, 1), actors[2].transform);
+		actors[3].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[3].transform.GetPosition() + Vector3(1, 0, 1), actors[3].transform);
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
