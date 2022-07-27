@@ -17,425 +17,6 @@ void Engine::Run()
 		UpdateScene();
 	}
 }
-void Engine::InitializeScene()
-{
-	backgroundColor[0] = 0;
-	backgroundColor[1] = 0;
-	backgroundColor[2] = 0;
-	backgroundColor[3] = 1;
-
-	// 컴포넌트 초기화
-	Actor actor;
-	Model model;
-	Model lightModel;
-	Transform transform;
-	Rigidbody rigidbody;
-	Collider collider;
-
-	// 액터
-	model.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(false, 1.0f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::InertiaTensorCube(1.0f, transform.GetScale()));
-	collider.Initialize();
-	actor.Initialize(model, transform, rigidbody, collider);
-	actors.push_back(actor);
-	actors.push_back(actor);
-	actors.push_back(actor);
-	actors.push_back(actor);
-
-	// 조명
-	lightModel.Initialize("Assets/Objects/light.fbx", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	transform.SetPosition(Vector3(3.0f, 10.0f, 0.0f));
-	rigidbody.isEnabled = false;
-	collider.isEnabled = false;
-	light.Initialize(lightModel, transform, rigidbody, collider);
-	light.SetAmbientLight(psConstantBuffer, Vector3::One(), 0.5f);
-	light.SetDynamicLight(psConstantBuffer, Vector3::One(), 7.0f, 1.0f, 0.1f, 0.1f);
-
-	// 카메라
-	model.isEnabled = false;
-	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
-	transform.Rotate(Vector3(1, 0, 0), -40);
-	rigidbody.isEnabled = false;
-	collider.isEnabled = false;
-	camera.Initialize(model, transform, rigidbody, collider);
-	camera.SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
-	
-	// 타이머
-	sceneTimer.Start();
-	fpsTimer.Start();
-
-	// 추가 설정
-	for (int i = 0; i < actors.size(); i++)
-	{
-		actors[i].transform.SetPosition(Vector3(i * 3.0f - 6.0f, 0.0f, 0.0f));
-	}
-	actors[0].transform.SetPosition(Vector3(0, 1000, 0));
-	/*actors[1].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[1].rigidbody.mass, Vector3::One());
-	actors[2].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[2].rigidbody.mass, Vector3::One());
-	actors[3].rigidbody.momentOfInertia = Matrix4x4::MomentOfInertiaCube(actors[3].rigidbody.mass, Vector3::One());*/
-	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
-	//actors[2].transform.Rotate(Vector3(0, 1, 0), 30.0f);
-	//actors[3].transform.Rotate(Vector3(0, 0, 0));
-
-}
-void Engine::HandleEvent()
-{
-	// 윈도우 메시지 처리
-	windowManager.window.HandleMessage();
-
-	// 마우스 이벤트
-	while (!windowManager.mouse.IsEventBufferEmpty())
-	{
-		MouseEvent mouseEvent = windowManager.mouse.ReadEvent();
-		//if (windowManager.mouse.IsRightDown() == true)
-		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
-		{
-			this->camera.transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -deltaTime);
-			this->camera.transform.Rotate(camera.transform.GetRight() * (float)mouseEvent.GetPosY() * -deltaTime );
-			camera.UpdateMatrix();
-		}
-	}
-
-	// 키보드 이벤트
-	float cameraSpeed = 10.0f;
-	while (!windowManager.keyboard.IsCharBufferEmpty())
-	{
-		unsigned char ch = windowManager.keyboard.ReadChar();
-	}
-	while (!windowManager.keyboard.IsKeyBufferEmpty())
-	{
-		KeyboardEvent kbe = windowManager.keyboard.ReadKey();
-		unsigned char keycode = kbe.GetKeyCode();
-	}
-	if (windowManager.keyboard.KeyIsPressed('W'))
-	{
-		this->camera.transform.Translate(Vector3( - this->camera.transform.GetForward() * cameraSpeed * deltaTime));
-		camera.UpdateMatrix();
-	}
-	if (windowManager.keyboard.KeyIsPressed('A'))
-	{
-		this->camera.transform.Translate(Vector3( - this->camera.transform.GetRight() * cameraSpeed * deltaTime));
-		camera.UpdateMatrix();
-	}
-	if (windowManager.keyboard.KeyIsPressed('S'))
-	{
-		this->camera.transform.Translate(Vector3(this->camera.transform.GetForward() * cameraSpeed * deltaTime));
-		camera.UpdateMatrix();
-	}
-	if (windowManager.keyboard.KeyIsPressed('D'))
-	{
-		this->camera.transform.Translate(Vector3(this->camera.transform.GetRight() * cameraSpeed * deltaTime));
-		camera.UpdateMatrix();
-	}
-	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
-	{
-		actors[1].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, 0, 1), actors[1].transform);
-		actors[2].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[2].transform.GetPosition() + Vector3(0.5f, 0, 1), actors[2].transform);
-		actors[3].rigidbody.AddForceAt(Vector3(0, 0, -1), actors[3].transform.GetPosition() + Vector3(1, 0, 1), actors[3].transform);
-	}
-	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
-	{
-		actors[1].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, -1, 1), actors[1].transform);
-		actors[2].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, -1, 1), actors[1].transform);
-		actors[3].rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1].transform.GetPosition() + Vector3(0, -1, 1), actors[1].transform);
-	}
-}
-void Engine::UpdatePhysics()
-{
-	for (int i = 0; i < actors.size(); i++)
-	{
-		//forceGenerator.GenerateGravity(actors[i].rigidbody);
-		actors[i].rigidbody.Update(actors[i].transform, deltaTime);
-	}
-	
-	// 충돌이 있었다고 치고 해결
-	vector<Contact> contacts;
-	for (int i = 0; i < contacts.size(); i++)
-	{
-		// 충돌 좌표계의 기저를 구함(계산 편의를 위해)
-		Vector3 contactCoordBasisX = contacts[i].normal;
-		Vector3 contactCoordBasisY = Vector3::Up();
-		Vector3 contactCoordBasisZ;
-		
-		contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
-		if (Vector3::Magnitude(contactCoordBasisZ) == 0.0f)
-		{
-			contactCoordBasisY = Vector3::Right();
-			contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
-		}
-		contactCoordBasisY = Vector3::Normalize(Vector3::Cross(contactCoordBasisZ, contactCoordBasisX));
-
-		Matrix4x4 contactCoordBasis(contactCoordBasisX, contactCoordBasisY, contactCoordBasisZ);
-	}
-
-}
-void Engine::UpdateTimer()
-{
-	fpsCount += 1;
-	if (fpsTimer.GetElapsedMiliseconds() > 1000.0f)
-	{
-		fps = "FPS: " + to_string(fpsCount);
-		fpsCount = 0;
-		fpsTimer.Restart();
-	}
-	deltaTime = sceneTimer.GetElapsedMiliseconds() / 1000.0f;
-	sceneTimer.Restart();
-}
-void Engine::UpdateScene()
-{
-	deviceContext->ClearRenderTargetView(renderTargetView.Get(), backgroundColor);
-	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deviceContext->IASetInputLayout(vertexShader.GetInputLayout());
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
-	deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
-	light.SetContantBuffer(psConstantBuffer);
-	psConstantBuffer.ApplyChanges();
-	deviceContext->PSSetConstantBuffers(0, 1, psConstantBuffer.GetAddressOf());
-	deviceContext->RSSetState(rasterizerState.Get());
-	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
-	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
-
-	Matrix4x4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
-	{// 오브젝트 그리기
-		for (int i = 0; i < actors.size(); i++)
-		{
-			actors[i].Draw(viewProjectionMatrix);
-		}
-		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
-		light.Draw(viewProjectionMatrix);
-	}
-
-	{// 선 그리기
-		basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), camera.viewMatrix.ToXMMATRIX(), camera.projectionMatrix.ToXMMATRIX());
-		basicEffect->Apply(deviceContext.Get());
-		CreateInputLayoutFromEffect<VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
-		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
-		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
-
-		primitiveBatch->Begin();
-		{
-			Vector4 lineColor;
-			VertexPositionColor startVertex, endVertex;
-			// 첫째 힘
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(-0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.5, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.6, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.4, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(1, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(1.1, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0.9, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-
-			// 둘째 힘
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1].transform.GetPosition() + Vector3(-0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2].transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3].transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-		}
-		
-		{
-			Vector4 mainLineColor, subLineColor;
-			VertexPositionColor startVertex, endVertex;
-			float cameraDistanceFromXZPlane = abs(camera.transform.GetPosition().y);
-			float distanceLevel = 10;
-			while (cameraDistanceFromXZPlane >= 10)
-			{
-				cameraDistanceFromXZPlane = cameraDistanceFromXZPlane / 10;
-				distanceLevel *= 10;
-			}
-			mainLineColor = { 1.0f, 1.0f, 1.0f,  cameraDistanceFromXZPlane / 10.0f / 2.0f };
-			subLineColor = { 1.0f, 1.0f, 1.0f, (10.0f - cameraDistanceFromXZPlane) / 10.0f / 2.0f};
-			// x축 평행선
-			int offsetCounter = -1;
-			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
-			{
-				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-				primitiveBatch->DrawLine(startVertex, endVertex);
-				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
-				primitiveBatch->DrawLine(startVertex, endVertex);
-			}
-			for (int offset = -50; offset <= 50; offset++)
-			{
-				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-				primitiveBatch->DrawLine(startVertex, endVertex);
-				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
-				primitiveBatch->DrawLine(startVertex, endVertex);
-			}
-			
-			primitiveBatch->End();
-		}/*
-		{
-			VertexPositionColor startVertex, endVertex;
-			startVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
-			endVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
-			for (int i = 0; i < actors.size(); i++)
-			{
-				if (actors[i].collider.isEnabled)
-				{
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() *Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-				}
-			}
-			primitiveBatch->End();
-		}*/
-	}
-
-	UpdateUI();
-
-	swapchain->Present(0, NULL);
-}
-void Engine::UpdateUI()
-{
-	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
-	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->Begin();
-	Vector3 angularVelocity = actors[1].rigidbody.angularVelocity * 180.0f / PI;
-	string actor1AngularVelocity = "Left Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	angularVelocity = actors[2].rigidbody.angularVelocity * 180.0f / PI;
-	string actor2AngularVelocity = "Center Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	angularVelocity = actors[3].rigidbody.angularVelocity * 180.0f / PI;
-	string actor3AngularVelocity = "Right Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 115), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	//string description= "Torque added position: 0, 0, 0 - 0.5, 0.5, 0.5 - 1, 1, 1 순";
-	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(description).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	/*
-	string actor2EulerRotation = "Actor[2] Euler Rotation: " + to_string(actors[2].transform.GetRotation().x) + ", " + to_string(actors[2].transform.GetRotation().y) + ", " + to_string(actors[2].transform.GetRotation().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2EulerRotation).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string actor3EulerRotation = "Actor[3] Euler Rotation: " + to_string(actors[3].transform.GetRotation().x) + ", " + to_string(actors[3].transform.GetRotation().y) + ", " + to_string(actors[3].transform.GetRotation().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3EulerRotation).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string groundObjectVelocity = "Ground Object Velocity: " + to_string(actors[0].rigidbody.velocity.x) + ", " + to_string(actors[0].rigidbody.velocity.y) + ", " + to_string(actors[0].rigidbody.velocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 120), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string cameraPosition = "Camera Position: " + to_string(camera.transform.GetPosition().x) + ", " + to_string(camera.transform.GetPosition().y) + ", " + to_string(camera.transform.GetPosition().z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 150), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string actor1QuaternionRotation = "Actor[1] Quaternion: " + to_string(actors[1].transform.GetRotationQuaternion().x) + ", " + to_string(actors[1].transform.GetRotationQuaternion().y) + ", " + to_string(actors[1].transform.GetRotationQuaternion().z) + ", " + to_string(actors[1].transform.GetRotationQuaternion().w);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1QuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 180), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	DirectX::XMVECTOR dxQuaternionRotation = DirectX::XMQuaternionRotationMatrix(actors[1].transform.GetRotationMatrix().ToXMMATRIX());
-	string actor1DXQuaternionRotation = "Actor[1] Quaternion: " + to_string(XMVectorGetX(dxQuaternionRotation)) + ", " + to_string(XMVectorGetY(dxQuaternionRotation)) + ", " + to_string(XMVectorGetZ(dxQuaternionRotation)) + ", " + to_string(XMVectorGetW(dxQuaternionRotation));
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1DXQuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 210), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
-	spriteBatch->End();
-
-	/*
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &psConstantBuffer.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strength", &psConstantBuffer.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
-	
-	ImGui::NewLine();
-	ImGui::DragFloat3("Dynamic Light Color", &light.dynamicColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat3("Dynamic Light Postion", &light.dynamicPosition.x, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Strength", &light.dynamicStrength, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation A", &light.dynamicAttenA, 0.01f, 0.1f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation B", &light.dynamicAttenB, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &light.dynamicAttenC, 0.01f, 0.0f, 10.0f);
-	//ImGui::Text("This is example text");
-	//if (ImGui::Button("Click me"))
-	//	counter++;
-	//ImGui::SameLine();
-	//string clickCount = "Click Count: " + to_string(counter);
-	//ImGui::Text(clickCount.c_str());
-	//ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
-	ImGui::End();
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	*/
-}
-bool Engine::IsRenderWindowExist()
-{
-	return windowManager.window.IsEnable();
-}
-
 void Engine::InitializeWindow(HINSTANCE hInstance)
 {
 	this->windowManager.Initialize(hInstance, "Simple Physics Engine", "Default", 1600, 900);
@@ -558,160 +139,428 @@ void Engine::InitializeShaders()
 	vsConstantBuffer.Initialize(device.Get(), deviceContext.Get());
 	psConstantBuffer.Initialize(device.Get(), deviceContext.Get());
 }
+void Engine::InitializeScene()
+{
+	backgroundColor[0] = 0;
+	backgroundColor[1] = 0;
+	backgroundColor[2] = 0;
+	backgroundColor[3] = 1;
 
+	// 컴포넌트 초기화
+	Actor* actor;
+	Model model;
+	Model lightModel;
+	Transform transform;
+	Rigidbody rigidbody;
+	Collider collider;
 
-//class ParticleContact
-//{
-//	// 121pg 읽어야함
-//public:
-//	Actor* actors[2];
-//	float restitution;// 반발계수(충돌 깊이의 역할)
-//	Vector3 contactNormal;// actor[0]이 actor[1]로 다가가는
-//	float penetration;// 충돌 깊이(언젠간 구해야함..ㅎ)
-//	float separatingVelocity;
-//
-//public:
-//	void Resolve(float duration)
-//	{
-//		// 최종적인 접촉 해결 과정은 다음과 같을거임
-//		// 1. 각 충돌 별 separating velocity를 구하고 가장 심하게 충돌된 걸 고름
-//		// 2. 만약 가장 심한게 0보다 크면(충돌이 아니면) 그냥 끝
-//		// 3. 0보다 작으면 그에 대한 해결을 함(Impulse로 속도 바꾸고.. 겹친 부분 떼주고..)
-//		// 4. 1단계로 돌아감
-//		ResolveVelocity(duration);
-//		ResolveInterpenetration(duration);
-//	}
-//	float CalculateSeparatingVelocity() const
-//	{
-//		Vector3 relativeVelocity = actors[0]->rigidbody.velocity;
-//		if (actors[1] != nullptr)
-//			relativeVelocity -= actors[1]->rigidbody.velocity;
-//		return Vector3::Dot(relativeVelocity, contactNormal);
-//	}
-//
-//private:
-//	void ResolveVelocity(float duration)
-//	{
-//		// 두 물체의 상대속력(접촉속력)을 구함
-//		separatingVelocity = CalculateSeparatingVelocity();
-//
-//		if (separatingVelocity > 0)// 접촉이 아니라 멀어지고 있는거라면
-//			return;
-//
-//		// 총 충격량을 구함(충돌 후 운동량 - 충돌 전 운동량)
-//		float newSepVelocity = -separatingVelocity * restitution;
-//
-//		Vector3 accCausedVelocity = actors[0]->rigidbody.accumulatedForce / actors[0]->rigidbody.mass;
-//		if (actors[1] != nullptr) accCausedVelocity -= actors[1]->rigidbody.accumulatedForce / actors[1]->rigidbody.mass;
-//		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contactNormal) * duration;
-//		if (accCausedSepVelocity < 0)
-//		{
-//			newSepVelocity += restitution * accCausedSepVelocity;
-//			if (newSepVelocity < 0) newSepVelocity = 0;
-//		}
-//
-//		float deltaVelocity = newSepVelocity - separatingVelocity;
-//
-//		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
-//		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
-//
-//		if (totalInverseMass <= 0) return;
-//
-//		// 일케하면 (상대 물체 질량 / 총 질량의 합)따라 영향을 받음(질량이 크면 충격에 따른 속도 변화가 작아져야 하므로)
-//		float impulse = deltaVelocity / totalInverseMass;
-//
-//		Vector3 impulsePerIMess = contactNormal * impulse;
-//
-//		actors[0]->rigidbody.velocity = actors[0]->rigidbody.velocity + impulsePerIMess / actors[0]->rigidbody.mass;
-//
-//		if (actors[1] != nullptr)
-//		{
-//			actors[1]->rigidbody.velocity = actors[1]->rigidbody.velocity + impulsePerIMess / -actors[1]->rigidbody.mass;
-//		}
-//	}
-//	void ResolveInterpenetration(float duration)
-//	{
-//		// 113pg 참고
-//		if (penetration <= 0) return;
-//		float totalInverseMass = 1.0f / actors[0]->rigidbody.mass;
-//		if (actors[1] != nullptr) totalInverseMass += 1.0f / actors[1]->rigidbody.mass;
-//		if (totalInverseMass <= 0) return;
-//		Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);
-//		actors[0]->transform.position += movePerIMass / actors[0]->rigidbody.mass;
-//		if (actors[1] != nullptr) actors[1]->transform.position+=movePerIMass / -actors[1]->rigidbody.mass;
-//	}
-//};
-//class ParticleContactResolver
-//{
-//protected:
-//	unsigned int iterations;
-//	unsigned int iterationsUsed;
-//
-//public:
-//	ParticleContactResolver(unsigned int iterations)
-//	{
-//
-//	}
-//	void SetIterations(unsigned int iterations)
-//	{
-//
-//	}
-//	void ResolveContacts(ParticleContact* contactArray, unsigned int numContacts, float duration)
-//	{
-//		iterationsUsed = 0;
-//		while (iterationsUsed < iterations)
-//		{
-//			float max = 0;
-//			unsigned int maxIndex = numContacts;
-//			for (unsigned int i = 0; i < numContacts; i++)
-//			{
-//				float sepVel = contactArray[i].CalculateSeparatingVelocity();
-//				if (sepVel < max)
-//				{
-//					max = sepVel;
-//					maxIndex = i;
-//				}
-//			}
-//			contactArray[maxIndex].Resolve(duration);
-//			iterationsUsed++;
-//		}
-//	}
-//};
-//class ParticleLink
-//{// 충돌 해결을 역으로 생각해서 물체가 멀어지면 가까워지게 하는 식으로, 오히려 연결된 것 처럼 행동하게 해보는거임
-//public:
-//	Actor* actor[2];
-//protected:
-//	float currentLength() const;
-//public:
-//	virtual unsigned int fillContact(ParticleContact* contact, unsigned int limit) const = 0;
-//	
-//};
-//class ParticleCable : public ParticleLink
-//{
-//public:
-//	float maxLength;
-//	float restitution;
-//public:
-//	float CurrentLength() const
-//	{
-//		return Vector3::Magnitude(actor[0]->transform.position - actor[1]->transform.position);
-//	}
-//	unsigned int fillContact(ParticleContact* contact, unsigned int limit) const
-//	{
-//		float length = CurrentLength();
-//		if (length < maxLength) 
-//			return 0;
-//
-//		contact->actors[0] = actor[0];
-//		contact->actors[1] = actor[1];
-//
-//		contact->contactNormal = Vector3::Normalize(actor[1]->transform.position - actor[0]->transform.position);
-//		
-//		contact->penetration = length - maxLength;
-//		contact->restitution = restitution;
-//
-//		return 1;
-//	}
-//};
-//ParticleContact contact;
+	// 액터
+	model.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
+	rigidbody.Initialize(false, 1.0f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::InertiaTensorCube(1.0f, transform.GetScale()));
+	collider.Initialize();
+	actor = new Actor();
+	actor->Initialize(model, transform, rigidbody, collider);
+	actor->transform.SetPosition(Vector3(0, 1000, 0));
+	actors.push_back(actor);
+	for (int i = 1; i < 4; i++)
+	{
+		actor = new Actor();
+		actor->Initialize(model, transform, rigidbody, collider);
+		actor->transform.SetPosition(Vector3(i * 3.0f - 6.0f, 0.0f, 0.0f));
+		actors.push_back(actor);
+	}
+	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
+	//actors[2].transform.Rotate(Vector3(0, 1, 0), 30.0f);
+	//actors[3].transform.Rotate(Vector3(0, 0, 0));
+
+	// 조명
+	lightModel.Initialize("Assets/Objects/light.fbx", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	transform.SetPosition(Vector3(3.0f, 10.0f, 0.0f));
+	rigidbody.isEnabled = false;
+	collider.isEnabled = false;
+	light = new Light();
+	light->Initialize(lightModel, transform, rigidbody, collider);
+	light->SetAmbientLight(psConstantBuffer, Vector3::One(), 0.5f);
+	light->SetDynamicLight(psConstantBuffer, Vector3::One(), 7.0f, 1.0f, 0.1, 0.1f);
+
+	// 카메라
+	model.isEnabled = false;
+	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
+	transform.Rotate(Vector3(1, 0, 0), -40);
+	rigidbody.isEnabled = false;
+	collider.isEnabled = false;
+	camera = new Camera();
+	camera->Initialize(model, transform, rigidbody, collider);
+	camera->SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
+	
+	// 타이머
+	sceneTimer.Start();
+	fpsTimer.Start();
+
+}
+bool Engine::IsRenderWindowExist()
+{
+	return windowManager.window.IsEnable();
+}
+void Engine::UpdateTimer()
+{
+	fpsCount += 1;
+	if (fpsTimer.GetElapsedMiliseconds() > 1000.0f)
+	{
+		fps = "FPS: " + to_string(fpsCount);
+		fpsCount = 0;
+		fpsTimer.Restart();
+	}
+	deltaTime = sceneTimer.GetElapsedMiliseconds() / 1000.0f;
+	sceneTimer.Restart();
+}
+void Engine::HandleEvent()
+{
+	// 윈도우 메시지 처리
+	windowManager.window.HandleMessage();
+
+	// 마우스 이벤트
+	while (!windowManager.mouse.IsEventBufferEmpty())
+	{
+		MouseEvent mouseEvent = windowManager.mouse.ReadEvent();
+		//if (windowManager.mouse.IsRightDown() == true)
+		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
+		{
+			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -deltaTime);
+			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -deltaTime );
+			camera->UpdateMatrix();
+		}
+	}
+
+	// 키보드 이벤트
+	float cameraSpeed = 10.0f;
+	while (!windowManager.keyboard.IsCharBufferEmpty())
+	{
+		unsigned char ch = windowManager.keyboard.ReadChar();
+	}
+	while (!windowManager.keyboard.IsKeyBufferEmpty())
+	{
+		KeyboardEvent kbe = windowManager.keyboard.ReadKey();
+		unsigned char keycode = kbe.GetKeyCode();
+	}
+	if (windowManager.keyboard.KeyIsPressed('W'))
+	{
+		this->camera->transform.Translate(Vector3( - this->camera->transform.GetForward() * cameraSpeed * deltaTime));
+		camera->UpdateMatrix();
+	}
+	if (windowManager.keyboard.KeyIsPressed('A'))
+	{
+		this->camera->transform.Translate(Vector3( - this->camera->transform.GetRight() * cameraSpeed * deltaTime));
+		camera->UpdateMatrix();
+	}
+	if (windowManager.keyboard.KeyIsPressed('S'))
+	{
+		this->camera->transform.Translate(Vector3(this->camera->transform.GetForward() * cameraSpeed * deltaTime));
+		camera->UpdateMatrix();
+	}
+	if (windowManager.keyboard.KeyIsPressed('D'))
+	{
+		this->camera->transform.Translate(Vector3(this->camera->transform.GetRight() * cameraSpeed * deltaTime));
+		camera->UpdateMatrix();
+	}
+	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
+	{
+		actors[1]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, 0, 1));
+		actors[2]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0.5f, 0, 1));
+		actors[3]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(1, 0, 1));
+	}
+	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
+	{
+		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, -1, 1));
+		actors[2]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0, -1, 1));
+		actors[3]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(0, -1, 1));
+	}
+}
+void Engine::UpdatePhysics()
+{
+	for (int i = 0; i < actors.size(); i++)
+	{
+		//forceGenerator.GenerateGravity(actors[i].rigidbody);
+		actors[i]->rigidbody.Update(deltaTime);
+	}
+	
+	// 충돌이 있었다고 치고 해결
+	vector<Contact> contacts;
+	for (int i = 0; i < contacts.size(); i++)
+	{
+		// 충돌 좌표계의 기저를 구함(계산 편의를 위해)
+		Vector3 contactCoordBasisX = contacts[i].normal;
+		Vector3 contactCoordBasisY = Vector3::Up();
+		Vector3 contactCoordBasisZ;
+		
+		contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
+		if (Vector3::Magnitude(contactCoordBasisZ) == 0.0f)
+		{
+			contactCoordBasisY = Vector3::Right();
+			contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
+		}
+		contactCoordBasisY = Vector3::Normalize(Vector3::Cross(contactCoordBasisZ, contactCoordBasisX));
+
+		Matrix4x4 contactCoordBasis(contactCoordBasisX, contactCoordBasisY, contactCoordBasisZ);
+	}
+
+}
+void Engine::UpdateScene()
+{
+	deviceContext->ClearRenderTargetView(renderTargetView.Get(), backgroundColor);
+	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	deviceContext->IASetInputLayout(vertexShader.GetInputLayout());
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
+	deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
+	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
+	light->SetContantBuffer(psConstantBuffer);
+	psConstantBuffer.ApplyChanges();
+	deviceContext->PSSetConstantBuffers(0, 1, psConstantBuffer.GetAddressOf());
+	deviceContext->RSSetState(rasterizerState.Get());
+	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
+	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
+
+	Matrix4x4 viewProjectionMatrix = camera->projectionMatrix * camera->viewMatrix;
+	{// 오브젝트 그리기
+		for (int i = 0; i < actors.size(); i++)
+		{
+			actors[i]->Draw(viewProjectionMatrix);
+		}
+		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
+		light->Draw(viewProjectionMatrix);
+	}
+
+	{// 선 그리기
+		basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), camera->viewMatrix.ToXMMATRIX(), camera->projectionMatrix.ToXMMATRIX());
+		basicEffect->Apply(deviceContext.Get());
+		CreateInputLayoutFromEffect<VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
+		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
+		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
+
+		primitiveBatch->Begin();
+		{
+			Vector4 lineColor;
+			VertexPositionColor startVertex, endVertex;
+			// 첫째 힘
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.6, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.4, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1.1, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.9, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+
+			// 둘째 힘
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+			primitiveBatch->DrawLine(startVertex, endVertex);
+		}
+		
+		{
+			Vector4 mainLineColor, subLineColor;
+			VertexPositionColor startVertex, endVertex;
+			float cameraDistanceFromXZPlane = abs(camera->transform.GetPosition().y);
+			float distanceLevel = 10;
+			while (cameraDistanceFromXZPlane >= 10)
+			{
+				cameraDistanceFromXZPlane = cameraDistanceFromXZPlane / 10;
+				distanceLevel *= 10;
+			}
+			mainLineColor = { 1.0f, 1.0f, 1.0f,  cameraDistanceFromXZPlane / 10.0f / 2.0f };
+			subLineColor = { 1.0f, 1.0f, 1.0f, (10.0f - cameraDistanceFromXZPlane) / 10.0f / 2.0f};
+			// x축 평행선
+			int offsetCounter = -1;
+			for (float offset = -50.0f; offset <= 50.0f; offset += 0.1f)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), subLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			for (int offset = -50; offset <= 50; offset++)
+			{
+				startVertex = VertexPositionColor(XMVectorSet(-100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(100.0f * distanceLevel, 0.0f, offset * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+				startVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, -100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			
+			primitiveBatch->End();
+		}/*
+		{
+			VertexPositionColor startVertex, endVertex;
+			startVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
+			endVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
+			for (int i = 0; i < actors.size(); i++)
+			{
+				if (actors[i].collider.isEnabled)
+				{
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() *Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
+					primitiveBatch->DrawLine(startVertex, endVertex);
+				}
+			}
+			primitiveBatch->End();
+		}*/
+	}
+
+	UpdateUI();
+
+	swapchain->Present(0, NULL);
+}
+void Engine::UpdateUI()
+{
+	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
+	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteBatch->Begin();
+	Vector3 angularVelocity = actors[1]->rigidbody.angularVelocity * 180.0f / PI;
+	string actor1AngularVelocity = "Left Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	angularVelocity = actors[2]->rigidbody.angularVelocity * 180.0f / PI;
+	string actor2AngularVelocity = "Center Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	angularVelocity = actors[3]->rigidbody.angularVelocity * 180.0f / PI;
+	string actor3AngularVelocity = "Right Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 115), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	//string description= "Torque added position: 0, 0, 0 - 0.5, 0.5, 0.5 - 1, 1, 1 순";
+	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(description).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	/*
+	string actor2EulerRotation = "Actor[2] Euler Rotation: " + to_string(actors[2].transform.GetRotation().x) + ", " + to_string(actors[2].transform.GetRotation().y) + ", " + to_string(actors[2].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2EulerRotation).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor3EulerRotation = "Actor[3] Euler Rotation: " + to_string(actors[3].transform.GetRotation().x) + ", " + to_string(actors[3].transform.GetRotation().y) + ", " + to_string(actors[3].transform.GetRotation().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3EulerRotation).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string groundObjectVelocity = "Ground Object Velocity: " + to_string(actors[0].rigidbody.velocity.x) + ", " + to_string(actors[0].rigidbody.velocity.y) + ", " + to_string(actors[0].rigidbody.velocity.z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(groundObjectVelocity).c_str(), DirectX::XMFLOAT2(5, 120), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string cameraPosition = "Camera Position: " + to_string(camera.transform.GetPosition().x) + ", " + to_string(camera.transform.GetPosition().y) + ", " + to_string(camera.transform.GetPosition().z);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(cameraPosition).c_str(), DirectX::XMFLOAT2(5, 150), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string actor1QuaternionRotation = "Actor[1] Quaternion: " + to_string(actors[1].transform.GetRotationQuaternion().x) + ", " + to_string(actors[1].transform.GetRotationQuaternion().y) + ", " + to_string(actors[1].transform.GetRotationQuaternion().z) + ", " + to_string(actors[1].transform.GetRotationQuaternion().w);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1QuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 180), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	DirectX::XMVECTOR dxQuaternionRotation = DirectX::XMQuaternionRotationMatrix(actors[1].transform.GetRotationMatrix().ToXMMATRIX());
+	string actor1DXQuaternionRotation = "Actor[1] Quaternion: " + to_string(XMVectorGetX(dxQuaternionRotation)) + ", " + to_string(XMVectorGetY(dxQuaternionRotation)) + ", " + to_string(XMVectorGetZ(dxQuaternionRotation)) + ", " + to_string(XMVectorGetW(dxQuaternionRotation));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1DXQuaternionRotation).c_str(), DirectX::XMFLOAT2(5, 210), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string contactNormal = "Contact Normal: " + to_string(XMVectorGetX(contact.contactNormal)) + ", " + to_string(XMVectorGetY(contact.contactNormal)) + ", " + to_string(XMVectorGetZ(contact.contactNormal));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
+	spriteBatch->End();
+
+	/*
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::Begin("Light Controls");
+	ImGui::DragFloat3("Ambient Light Color", &psConstantBuffer.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat("Ambient Light Strength", &psConstantBuffer.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
+	
+	ImGui::NewLine();
+	ImGui::DragFloat3("Dynamic Light Color", &light.dynamicColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("Dynamic Light Postion", &light.dynamicPosition.x, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Strength", &light.dynamicStrength, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation A", &light.dynamicAttenA, 0.01f, 0.1f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation B", &light.dynamicAttenB, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation C", &light.dynamicAttenC, 0.01f, 0.0f, 10.0f);
+	//ImGui::Text("This is example text");
+	//if (ImGui::Button("Click me"))
+	//	counter++;
+	//ImGui::SameLine();
+	//string clickCount = "Click Count: " + to_string(counter);
+	//ImGui::Text(clickCount.c_str());
+	//ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
+	ImGui::End();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	*/
+}
+void Engine::DestructScene()
+{
+	delete camera;
+	delete light;
+	for (int i = 0; i < actors.size(); i++)
+	{
+		delete actors[i];
+	}
+}

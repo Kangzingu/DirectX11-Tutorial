@@ -31,6 +31,7 @@ public:
 	static Vector3 Normalize(Vector3 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z); return Vector3(v.x / length, v.y / length, v.z / length); }
 	static Vector3 Cross(Vector3 v1, Vector3 v2) { return Vector3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x); }
 	static float Magnitude(Vector3 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
+	static float SquareMagnitude(Vector3 v) { return v.x * v.x + v.y * v.y + v.z * v.z; }
 	static float Dot(Vector3 v1, Vector3 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
 	Vector3 operator+(Vector3 v) { return Vector3(x + v.x, y + v.y, z + v.z); }
 	Vector3& operator+=(Vector3 v) { x += v.x; y += v.y; z += v.z;  return *this; }
@@ -66,6 +67,7 @@ public:
 	static Vector4 One() { return Vector4(1.0f, 1.0f, 1.0f, 1.0f); }
 	static Vector4 Normalize(Vector4 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); return Vector4(v.x / length, v.y / length, v.z / length, v.w / length); }
 	static float Magnitude(Vector4 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); }
+	static float SquareMagnitude(Vector4 v) { return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w; }
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
 	static Vector4 Quaternion(Vector3 axis, float angle){angle = General::DegreeToRadian(angle);return Vector4(axis.x * sin(angle / 2.0f),axis.y * sin(angle / 2.0f),axis.z * sin(angle / 2.0f),cos(angle / 2.0f));}
 	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2){return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);}

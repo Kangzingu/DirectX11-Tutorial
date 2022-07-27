@@ -6,4 +6,9 @@ void Object::Initialize(Model& model, Transform& transform, Rigidbody& rigidbody
 	this->transform = transform;
 	this->rigidbody = rigidbody;
 	this->collider = collider;
+
+	this->model.object = this;
+	this->transform.object = this;
+	this->rigidbody.object = this;
+	this->collider.object = this;
 }

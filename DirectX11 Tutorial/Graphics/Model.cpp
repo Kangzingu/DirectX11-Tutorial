@@ -1,3 +1,4 @@
+#include "Object.h"
 #include "Model.h"
 
 void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor)

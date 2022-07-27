@@ -14,4 +14,7 @@ public:
 	Transform transform;
 	Rigidbody rigidbody;
 	Collider collider;
+	SphereCollider sphereCollider;
+	CubeCollider cubeCollider;
+	PlaneCollider planeCollider;
 };

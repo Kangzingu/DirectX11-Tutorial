@@ -1,9 +1,11 @@
 #pragma once
 #include "Model.h"
 
+class Object;
 class Transform
 {
 public:
+	Object* object;
 	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
 
 	Matrix4x4 GetWorldMatrix();

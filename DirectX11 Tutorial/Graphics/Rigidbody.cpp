@@ -1,3 +1,4 @@
+#include "Object.h"
 #include "Rigidbody.h"
 
 void Rigidbody::Initialize(bool isKinematic, float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 momentOfInertia)
@@ -15,23 +16,23 @@ void Rigidbody::AddForce(Vector3 force)
 {
 	accumulatedForce += force;
 }
-void Rigidbody::AddForceAt(Vector3 force, Vector3 worldPoint, Transform transform)
+void Rigidbody::AddForceAt(Vector3 force, Vector3 worldPoint)
 {
 	accumulatedForce += force;
-	accumulatedTorque +=  (Vector3::Cross(worldPoint - transform.GetPosition(), force));
+	accumulatedTorque +=  (Vector3::Cross(worldPoint - object->transform.GetPosition(), force));
 }
-void Rigidbody::AddTorqueAt(Vector3 force, Vector3 worldPoint, Transform transform)
+void Rigidbody::AddTorqueAt(Vector3 force, Vector3 worldPoint)
 {
-	accumulatedTorque += (Vector3::Cross(worldPoint - transform.GetPosition(), force));
+	accumulatedTorque += (Vector3::Cross(worldPoint - object->transform.GetPosition(), force));
 }
-void Rigidbody::Update(Transform& transform, float deltaTime)
+void Rigidbody::Update(float deltaTime)
 {
 	if (isKinematic) return;
 	velocity = (velocity + (accumulatedForce / mass) * deltaTime) * pow(damping, deltaTime);
-	transform.Translate(velocity * deltaTime);
+	object->transform.Translate(velocity * deltaTime);
 	
-	angularVelocity = (angularVelocity + (transform.GetRotationMatrix() * inertiaTensor.Inverse() * transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
-	transform.Rotate(angularVelocity * deltaTime);
+	angularVelocity = (angularVelocity + (object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
+	object->transform.Rotate(angularVelocity * deltaTime);
 
 	ClearAccumulatedForce();
 }

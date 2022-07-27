@@ -44,12 +44,13 @@ public:
 	void UpdateUI();
 	bool IsRenderWindowExist();
 
+	void DestructScene();
 private:
 	float backgroundColor[4];
 
-	Light light;
-	Camera camera;
-	vector<Actor> actors;
+	Light* light;
+	Camera* camera;
+	vector<Actor*> actors;
 
 	Timer fpsTimer;
 	Timer sceneTimer;

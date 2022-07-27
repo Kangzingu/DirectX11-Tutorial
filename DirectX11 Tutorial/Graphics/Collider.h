@@ -1,9 +1,12 @@
 #pragma once
 #include "../Utils/SimpleMath.h"
 
+class Object;
 class Collider
 {
 public:
+	Object* object;
+
 	Collider() {}
 	void Initialize();
 

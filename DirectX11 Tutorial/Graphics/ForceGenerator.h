@@ -6,7 +6,7 @@ using namespace DirectX;
 class Gravity
 {
 public:
-	XMVECTOR force = XMVectorSet(0, -9.8f, 0, 0);
+	Vector3 force = Vector3(0, -9.8f, 0);
 };
 
 class ForceGenerator

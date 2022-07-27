@@ -4,14 +4,17 @@
 #include "Transform.h"
 using namespace DirectX;
 
+class Object;
 class Rigidbody
 {
 public:
+	Object* object;
+
 	void Initialize(bool isKinematic, float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 momentOfInertia);
-	void Update(Transform& transform, float deltaTime);
+	void Update(float deltaTime);
 	void AddForce(Vector3 force);
-	void AddForceAt(Vector3 force, Vector3 worldPoint, Transform transform);
-	void AddTorqueAt(Vector3 force, Vector3 worldPoint, Transform transform);
+	void AddForceAt(Vector3 force, Vector3 worldPoint);
+	void AddTorqueAt(Vector3 force, Vector3 worldPoint);
 	void ClearAccumulatedForce();
 
 	bool isEnabled = true;

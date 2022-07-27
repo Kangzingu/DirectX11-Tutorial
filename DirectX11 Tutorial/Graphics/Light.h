@@ -4,6 +4,7 @@
 class Light : public Object
 {
 public:
+	Light() {}
 	void Draw(Matrix4x4 viewProjectionMatrix);
 	void SetContantBuffer(ConstantBuffer<PSConstantBuffer>& psConstantBuffer);
 	void SetAmbientLight(ConstantBuffer<PSConstantBuffer>& psConstantBuffer, Vector3 ambientColor, float ambientStrength);
