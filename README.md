@@ -1,18 +1,18 @@
 <h1 align="center"> 간단한 강체 물리엔진 </h2>  
 
 ## 목표
- * 최소한의 3D 렌더링, 강체의 운동(충돌과 반응) 구현
+ * 강체의 운동(충돌과 반응) 구현
 <br>
 
 ## 제작 방법  
- * 최대한 기초부터 직접 구현
- * 우선 공부를 위해 다음 자료들을 참고하며 각각 구현하되, 이 후 렌더링과 물리의 필요 기능들을 통합해 하나의 물리엔진으로 구현 
-   * 렌더링 : 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상을 보면서 구현
-   * 물리 : 주로 Game Physics Engine Development - Ian Millington 책을 보면서 구현(렌더링 구현이전까지 결과는 Unity에서 확인)
+ * 기초부터 직접 구현
+ * 다음 자료들을 참고하되 원리를 직접 이해하고 필요 기능들을 통합해 하나의 물리엔진으로 구현 
+   * 렌더링 : 주로 [C++ DirectX11 Engine Tutorial - Jpres](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 영상 참고
+   * 물리 : 주로 Game Physics Engine Development - Ian Millington 책 참고
 <br>
 
 ## 언어 및 사용 라이브러리 
- * C++(DirectX11, ASSIMP, ImGui)
+ * C++(DirectX11)
 <br>
 
 ## 제작 과정  
