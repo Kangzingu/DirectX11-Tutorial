@@ -167,7 +167,7 @@ void Engine::InitializeScene()
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i * 3.0f - 6.0f, 0.0f, 0.0f));
+		actor->transform.SetPosition(Vector3(i * 1.2f - 6.0f, 0.0f, 0.0f));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -264,11 +264,15 @@ void Engine::HandleEvent()
 		this->camera->transform.Translate(Vector3(this->camera->transform.GetRight() * cameraSpeed * deltaTime));
 		camera->UpdateMatrix();
 	}
+	if (windowManager.keyboard.KeyIsPressed('Q'))
+	{
+		//actors[1]->rigidbody.AddForceAt(Vector3(1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
+	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		actors[1]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, 0, 1));
-		actors[2]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0.5f, 0, 1));
-		actors[3]->rigidbody.AddForceAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(1, 0, 1));
+		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, 0, 1));
+		actors[2]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0.5f, 0, 1));
+		actors[3]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(1, 0, 1));
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
@@ -340,67 +344,67 @@ void Engine::UpdateScene()
 		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
 		primitiveBatch->Begin();
-		{
-			Vector4 lineColor;
-			VertexPositionColor startVertex, endVertex;
-			// 첫째 힘
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.6, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.4, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1.1, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.9, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
-			primitiveBatch->DrawLine(startVertex, endVertex);
+		//{
+		//	Vector4 lineColor;
+		//	VertexPositionColor startVertex, endVertex;
+		//	// 첫째 힘
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, 0, 1.1f)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.6, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.5, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.4, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 2)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1.1, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(1, 0, 1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.9, 0, 1.1)).ToXMVECTOR(), DirectX::Colors::Red);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
 
-			// 둘째 힘
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-			startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
-			primitiveBatch->DrawLine(startVertex, endVertex);
-		}
+		//	// 둘째 힘
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[1]->transform.GetPosition() + Vector3(-0.1, -1, 1.1f)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[2]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 2)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//	startVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(0, -1, 1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	endVertex = VertexPositionColor((actors[3]->transform.GetPosition() + Vector3(-0.1, -1, 1.1)).ToXMVECTOR(), DirectX::Colors::Blue);
+		//	primitiveBatch->DrawLine(startVertex, endVertex);
+		//}
 		
 		{
 			Vector4 mainLineColor, subLineColor;
@@ -434,57 +438,100 @@ void Engine::UpdateScene()
 				endVertex = VertexPositionColor(XMVectorSet(offset * distanceLevel, 0.0f, 100.0f * distanceLevel, 0.0f), mainLineColor.ToXMVECTOR());
 				primitiveBatch->DrawLine(startVertex, endVertex);
 			}
-			
-			primitiveBatch->End();
-		}/*
+		}
+		primitiveBatch->End();
+		deviceContext->OMSetDepthStencilState(commonState->DepthNone(), 0);
+
+		primitiveBatch->Begin();
 		{
 			VertexPositionColor startVertex, endVertex;
-			startVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
-			endVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Green);
+			startVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Red);
+			endVertex= VertexPositionColor(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::Colors::Red);
 			for (int i = 0; i < actors.size(); i++)
 			{
-				if (actors[i].collider.isEnabled)
+				for (int j = i + 1; j < actors.size(); j++)
 				{
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, 1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() *Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(-1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
-					startVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, 1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					endVertex = VertexPositionColor((actors[i].transform.GetWorldMatrix() * Vector3(1, -1, -1)).ToXMVECTOR(), DirectX::Colors::Green);
-					primitiveBatch->DrawLine(startVertex, endVertex);
+					if (Collision::CubeAndCube(actors[i], actors[j]))
+					{
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+
+
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(-0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+						startVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, 0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						endVertex = VertexPositionColor((actors[j]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, -0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
+						primitiveBatch->DrawLine(startVertex, endVertex);
+					}
 				}
 			}
 			primitiveBatch->End();
-		}*/
+		}
 	}
 
 	UpdateUI();

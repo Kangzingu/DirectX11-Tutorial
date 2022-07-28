@@ -46,6 +46,8 @@ public:
 	Vector3& operator*=(float a) { x *= a; y *= a; z *= a;  return *this; }
 	Vector3 operator/(float a) { return Vector3(x / a, y / a, z / a); }
 	Vector3& operator/=(float a) { x /= a; y /= a; z /= a;  return *this; }
+	bool operator==(Vector3 v) { if (x == v.x && y == v.y && z == v.z)return true; else return false; }
+	bool operator!=(Vector3 v) { if (x != v.x || y != v.y || z != v.z)return true; else return false; }
 	DirectX::XMVECTOR ToXMVECTOR() { DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, 1); return v; };
 	DirectX::XMFLOAT3 ToXMFLOAT3() { DirectX::XMFLOAT3 v = DirectX::XMFLOAT3(x, y, z); return v; };
 };
@@ -69,9 +71,9 @@ public:
 	static float Magnitude(Vector4 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); }
 	static float SquareMagnitude(Vector4 v) { return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w; }
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
-	static Vector4 Quaternion(Vector3 axis, float angle){angle = General::DegreeToRadian(angle);return Vector4(axis.x * sin(angle / 2.0f),axis.y * sin(angle / 2.0f),axis.z * sin(angle / 2.0f),cos(angle / 2.0f));}
-	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2){return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);}
-	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2){return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);}
+	static Vector4 Quaternion(Vector3 axis, float angle) { angle = General::DegreeToRadian(angle); return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); }
+	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2) { return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y, q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x, q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z); }
+	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2) { return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y, q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x, q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z); }
 	Vector4 operator+(Vector4 v) { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
 	Vector4& operator+=(Vector4 v) { x += v.x; y += v.y; z += v.z; w += v.w;  return *this; }
 	Vector4 operator+(float a) { return Vector4(x + a, y + a, z + a, w + a); }
@@ -85,8 +87,19 @@ public:
 	Vector4& operator*=(float a) { x *= a; y *= a; z *= a; w *= a;  return *this; }
 	Vector4 operator/(float a) { return Vector4(x / a, y / a, z / a, w / a); }
 	Vector4& operator/=(float a) { x /= a; y /= a; z /= a; w /= a;  return *this; }
+	bool operator==(Vector4 v) { if (x == v.x && y == v.y && z == v.z && w == v.w)return true; else return false; }
+	bool operator!=(Vector4 v) { if (x != v.x || y != v.y || z != v.z || w != v.w)return true; else return false; }
 	DirectX::XMVECTOR ToXMVECTOR() { DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, w); return v; };
 	DirectX::XMFLOAT4 ToXMFLOAT4() { DirectX::XMFLOAT4 v = DirectX::XMFLOAT4(x, y, z, w); return v; };
+};
+struct LineSegment
+{
+public:
+	Vector3 origin;
+	Vector3 direction;
+	float length;
+public:
+	LineSegment(Vector3 origin, Vector3 direction, float length) : origin(origin), direction(direction), length(length) {}
 };
 struct Matrix2x2
 {
