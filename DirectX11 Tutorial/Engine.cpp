@@ -17,6 +17,7 @@ void Engine::Run()
 		UpdateScene();
 	}
 }
+bool isGravityOn = false;
 void Engine::InitializeWindow(HINSTANCE hInstance)
 {
 	this->windowManager.Initialize(hInstance, "Simple Physics Engine", "Default", 1600, 900);
@@ -161,13 +162,16 @@ void Engine::InitializeScene()
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
-	actor->transform.SetPosition(Vector3(0, 1000, 0));
+	actor->transform.SetPosition(Vector3(0, 0, 0));
+	actor->transform.SetScale(Vector3(100, 1, 100));
+	actor->rigidbody.isKinematic = true;
+	actor->rigidbody.mass = 1000;
 	actors.push_back(actor);
 	for (int i = 1; i < 4; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i * 1.2f - 6.0f, 0.0f, 0.0f));
+		actor->transform.SetPosition(Vector3(0.0f, 5 + i * 2.2f, 0.0f));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -266,7 +270,11 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('Q'))
 	{
-		//actors[1]->rigidbody.AddForceAt(Vector3(1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
+		actors[1]->rigidbody.AddForceAt(Vector3(1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
+	}
+	if (windowManager.keyboard.KeyIsPressed('G'))
+	{
+		isGravityOn = true;
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
@@ -285,28 +293,63 @@ void Engine::UpdatePhysics()
 {
 	for (int i = 0; i < actors.size(); i++)
 	{
-		//forceGenerator.GenerateGravity(actors[i].rigidbody);
+		if(isGravityOn)
+			forceGenerator.GenerateGravity(actors[i]->rigidbody);
 		actors[i]->rigidbody.Update(deltaTime);
 	}
 	
 	// 충돌이 있었다고 치고 해결
 	vector<Contact> contacts;
+	for (int i = 0; i < actors.size(); i++)
+	{
+		for (int j = i+1; j < actors.size(); j++)
+		{
+			Collision::CubeAndCube(actors[i], actors[j], contacts);
+		}
+	}
+
+	// 반발계수(일단 임의로 지정함)
+	float restitution = 0.5f;
 	for (int i = 0; i < contacts.size(); i++)
 	{
-		// 충돌 좌표계의 기저를 구함(계산 편의를 위해)
-		Vector3 contactCoordBasisX = contacts[i].normal;
-		Vector3 contactCoordBasisY = Vector3::Up();
-		Vector3 contactCoordBasisZ;
-		
-		contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
-		if (Vector3::Magnitude(contactCoordBasisZ) == 0.0f)
-		{
-			contactCoordBasisY = Vector3::Right();
-			contactCoordBasisZ = Vector3::Normalize(Vector3::Cross(contactCoordBasisX, contactCoordBasisY));
-		}
-		contactCoordBasisY = Vector3::Normalize(Vector3::Cross(contactCoordBasisZ, contactCoordBasisX));
+		// 1. 속도 변경
 
-		Matrix4x4 contactCoordBasis(contactCoordBasisX, contactCoordBasisY, contactCoordBasisZ);
+		float separatingVelocity;
+		Vector3 relativeVelocity = contacts[i].object1->rigidbody.velocity - contacts[i].object2->rigidbody.velocity;
+		separatingVelocity = Vector3::Dot(relativeVelocity, contacts[i].normal);
+		
+		// 멀어지고 있는거라면
+		if (separatingVelocity > 0)
+			continue;
+		
+		float newSepVelocity = -separatingVelocity * restitution;
+
+		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.accumulatedForce / contacts[i].object1->rigidbody.mass - contacts[i].object2->rigidbody.accumulatedForce / contacts[i].object2->rigidbody.mass;
+		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contacts[i].normal) * deltaTime;
+		if (accCausedSepVelocity < 0)
+		{
+			// ? 속도를 음수니까 빼야지 더해지는거 아닌강..
+			newSepVelocity += restitution * accCausedSepVelocity;
+			if (newSepVelocity < 0) newSepVelocity = 0;
+		}
+		float deltaVelocity = newSepVelocity - separatingVelocity;
+		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.mass + 1.0f / contacts[i].object2->rigidbody.mass;
+
+		if (totalInverseMass <= 0)
+			continue;
+
+		float impulse = deltaVelocity / totalInverseMass;
+		Vector3 impulsePerIMess = contacts[i].normal * impulse;
+		contacts[i].object1->rigidbody.velocity = contacts[i].object1->rigidbody.velocity + impulsePerIMess / contacts[i].object1->rigidbody.mass;
+		contacts[i].object2->rigidbody.velocity = contacts[i].object2->rigidbody.velocity + impulsePerIMess / -contacts[i].object2->rigidbody.mass;
+
+		// 2. 겹친 위치 조정
+		if (contacts[i].penetration <= 0)
+			continue;
+
+		Vector3 movePerIMass = contacts[i].normal * (contacts[i].penetration / totalInverseMass);
+		contacts[i].object1->transform.SetPosition(contacts[i].object1->transform.GetPosition() + movePerIMass / contacts[i].object1->rigidbody.mass);
+		contacts[i].object2->transform.SetPosition(contacts[i].object2->transform.GetPosition() + movePerIMass / -contacts[i].object2->rigidbody.mass);
 	}
 
 }
@@ -451,7 +494,7 @@ void Engine::UpdateScene()
 			{
 				for (int j = i + 1; j < actors.size(); j++)
 				{
-					if (Collision::CubeAndCube(actors[i], actors[j]))
+					if (true)
 					{
 						startVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
 						endVertex = VertexPositionColor((actors[i]->transform.GetWorldMatrix() * Vector3(-0.5f, -0.5f, 0.5f)).ToXMVECTOR(), DirectX::Colors::Red);
@@ -552,7 +595,7 @@ void Engine::UpdateUI()
 	angularVelocity = actors[3]->rigidbody.angularVelocity * 180.0f / PI;
 	string actor3AngularVelocity = "Right Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 115), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 170), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	//string description= "Torque added position: 0, 0, 0 - 0.5, 0.5, 0.5 - 1, 1, 1 순";
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(description).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*

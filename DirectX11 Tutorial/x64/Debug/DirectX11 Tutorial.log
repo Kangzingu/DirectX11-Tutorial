@@ -1,4 +1,4 @@
 ﻿  Engine.cpp
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(185,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(215,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  DirectX11 Tutorial.vcxproj -> C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(189,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(219,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DirectX11 Tutorial.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
