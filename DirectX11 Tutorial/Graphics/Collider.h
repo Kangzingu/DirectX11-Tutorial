@@ -4,36 +4,63 @@
 class Object;
 class Collider
 {
-public:
-	Object* object;
-	Collider() {}
-	void Initialize();
-	void Update(float deltaTime);
-
+private:
 	bool isEnabled = true;
 	Vector3 center = Vector3::Zero();
+
+public:
+	Object* object;
+
+	bool IsEnabled();
+
+	Vector3 GetCenter();
+
+public:
+	void Initialize();
+	void Update(float deltaTime);
+	
+	void SetEnabled(bool isEnabled);
+
+	void SetCenter(Vector3 center);
 };
 
 class SphereCollider : public Collider
 {
-public:
-	SphereCollider() {}
+private:
 	float radius = 1.0f;
+	
+public:
+	float GetRadius();
+
+public:
+	void SetRadius(float radius);
 };
 
 class CubeCollider : public Collider
 {
-public:
-	CubeCollider() {}
+private:
 	Vector3 size = Vector3::One();
+
+public:
+	Vector3 GetSize();
+
+public:
+	void SetSize(Vector3 size);
 };
 
 class PlaneCollider : public Collider
 {
-public:
-	PlaneCollider() {}
+private:
 	Vector3 normal = Vector3::Forward();
 	float offset = 0;
+
+public:
+	Vector3 GetNormal();
+	float GetOffset();
+
+public:
+	void SetNormal(Vector3 normal);
+	void SetOffset(float offset);
 };
 
 //class ParticleContact

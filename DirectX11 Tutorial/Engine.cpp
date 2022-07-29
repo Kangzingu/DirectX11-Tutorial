@@ -164,14 +164,14 @@ void Engine::InitializeScene()
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->transform.SetPosition(Vector3(0, 0, 0));
 	actor->transform.SetScale(Vector3(100, 1, 100));
-	actor->rigidbody.isKinematic = true;
-	actor->rigidbody.mass = 1000;
+	actor->rigidbody.SetKinematic(true);
+	actor->rigidbody.SetMass(1000);
 	actors.push_back(actor);
 	for (int i = 1; i < 4; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(0.0f, 5 + i * 2.2f, 0.0f));
+		actor->transform.SetPosition(Vector3(i * 4.2f, 3, 0.0f));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -181,8 +181,8 @@ void Engine::InitializeScene()
 	// 조명
 	lightModel.Initialize("Assets/Objects/light.fbx", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.SetPosition(Vector3(3.0f, 10.0f, 0.0f));
-	rigidbody.isEnabled = false;
-	collider.isEnabled = false;
+	rigidbody.SetEnabled(false);
+	collider.SetEnabled(false);
 	light = new Light();
 	light->Initialize(lightModel, transform, rigidbody, collider);
 	light->SetAmbientLight(psConstantBuffer, Vector3::One(), 0.5f);
@@ -192,8 +192,8 @@ void Engine::InitializeScene()
 	model.isEnabled = false;
 	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
 	transform.Rotate(Vector3(1, 0, 0), -40);
-	rigidbody.isEnabled = false;
-	collider.isEnabled = false;
+	rigidbody.SetEnabled(false);
+	collider.SetEnabled(false);
 	camera = new Camera();
 	camera->Initialize(model, transform, rigidbody, collider);
 	camera->SetProjectionMatrix(45.0f, static_cast<float>(this->windowManager.window.GetWidth()) / static_cast<float>(this->windowManager.window.GetHeight()), 0.1f, 3000.0f);
@@ -271,6 +271,7 @@ void Engine::HandleEvent()
 	if (windowManager.keyboard.KeyIsPressed('Q'))
 	{
 		actors[1]->rigidbody.AddForceAt(Vector3(1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
+		actors[3]->rigidbody.AddForceAt(Vector3(-1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
 	}
 	if (windowManager.keyboard.KeyIsPressed('G'))
 	{
@@ -315,7 +316,7 @@ void Engine::UpdatePhysics()
 		// 1. 속도 변경
 
 		float separatingVelocity;
-		Vector3 relativeVelocity = contacts[i].object1->rigidbody.velocity - contacts[i].object2->rigidbody.velocity;
+		Vector3 relativeVelocity = contacts[i].object1->rigidbody.GetVelocity() - contacts[i].object2->rigidbody.GetVelocity();
 		separatingVelocity = Vector3::Dot(relativeVelocity, contacts[i].normal);
 		
 		// 멀어지고 있는거라면
@@ -324,7 +325,7 @@ void Engine::UpdatePhysics()
 		
 		float newSepVelocity = -separatingVelocity * restitution;
 
-		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.accumulatedForce / contacts[i].object1->rigidbody.mass - contacts[i].object2->rigidbody.accumulatedForce / contacts[i].object2->rigidbody.mass;
+		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass() - contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass();
 		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contacts[i].normal) * deltaTime;
 		if (accCausedSepVelocity < 0)
 		{
@@ -333,23 +334,23 @@ void Engine::UpdatePhysics()
 			if (newSepVelocity < 0) newSepVelocity = 0;
 		}
 		float deltaVelocity = newSepVelocity - separatingVelocity;
-		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.mass + 1.0f / contacts[i].object2->rigidbody.mass;
+		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
 
 		if (totalInverseMass <= 0)
 			continue;
 
 		float impulse = deltaVelocity / totalInverseMass;
 		Vector3 impulsePerIMess = contacts[i].normal * impulse;
-		contacts[i].object1->rigidbody.velocity = contacts[i].object1->rigidbody.velocity + impulsePerIMess / contacts[i].object1->rigidbody.mass;
-		contacts[i].object2->rigidbody.velocity = contacts[i].object2->rigidbody.velocity + impulsePerIMess / -contacts[i].object2->rigidbody.mass;
+		contacts[i].object1->rigidbody.AddVelocity(impulsePerIMess / contacts[i].object1->rigidbody.GetMass());
+		contacts[i].object2->rigidbody.AddVelocity(impulsePerIMess / -contacts[i].object2->rigidbody.GetMass());
 
 		// 2. 겹친 위치 조정
 		if (contacts[i].penetration <= 0)
 			continue;
 
 		Vector3 movePerIMass = contacts[i].normal * (contacts[i].penetration / totalInverseMass);
-		contacts[i].object1->transform.SetPosition(contacts[i].object1->transform.GetPosition() + movePerIMass / contacts[i].object1->rigidbody.mass);
-		contacts[i].object2->transform.SetPosition(contacts[i].object2->transform.GetPosition() + movePerIMass / -contacts[i].object2->rigidbody.mass);
+		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
+		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());
 	}
 
 }
@@ -586,13 +587,13 @@ void Engine::UpdateUI()
 	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
-	Vector3 angularVelocity = actors[1]->rigidbody.angularVelocity * 180.0f / PI;
+	Vector3 angularVelocity = actors[1]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor1AngularVelocity = "Left Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	angularVelocity = actors[2]->rigidbody.angularVelocity * 180.0f / PI;
+	angularVelocity = actors[2]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor2AngularVelocity = "Center Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor2AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	angularVelocity = actors[3]->rigidbody.angularVelocity * 180.0f / PI;
+	angularVelocity = actors[3]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor3AngularVelocity = "Right Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 115), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), XMFLOAT2(5, 170), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));

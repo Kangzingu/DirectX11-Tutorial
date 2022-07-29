@@ -4,9 +4,23 @@
 class Object;
 class Transform
 {
+private:
+	Vector3 position = Vector3::Zero();
+	Vector3 rotation = Vector3::Zero();
+	Vector4 rotationQuaternion = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+	Vector3 scale = Vector3::One();
+
+	Vector3 right = Vector3::Right();
+	Vector3 up = Vector3::Up();
+	Vector3 forward = Vector3::Forward();
+
+	Matrix4x4 worldMatrix = Matrix4x4::Identity();
+	Matrix4x4 translationMatrix = Matrix4x4::Identity();
+	Matrix4x4 rotationMatrix = Matrix4x4::Identity();
+	Matrix4x4 scalingMatrix = Matrix4x4::Identity();
+
 public:
 	Object* object;
-	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
 
 	Matrix4x4 GetWorldMatrix();
 	Matrix4x4 GetTranslationMatrix();
@@ -22,6 +36,9 @@ public:
 	Vector3 GetUp();
 	Vector3 GetForward();
 
+public:
+	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
+
 	void SetPosition(Vector3 position);
 	void SetRotation(Vector3 rotation);
 	void SetRotationQuaternion(Vector4 rotationQuaternion);
@@ -32,19 +49,4 @@ public:
 	void Rotate(Vector3 axis, float angle);
 	void Rotate(Vector4 rotationQuaternion);
 	void Scale(Vector3 scale);
-
-private:
-	Vector3 position = Vector3::Zero();
-	Vector3 rotation = Vector3::Zero();
-	Vector4 rotationQuaternion = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-	Vector3 scale = Vector3::One();
-
-	Vector3 right = Vector3::Right();
-	Vector3 up = Vector3::Up();
-	Vector3 forward = Vector3::Forward();
-
-	Matrix4x4 worldMatrix = Matrix4x4::Identity();
-	Matrix4x4 translationMatrix = Matrix4x4::Identity();
-	Matrix4x4 rotationMatrix = Matrix4x4::Identity();
-	Matrix4x4 scalingMatrix = Matrix4x4::Identity();
 };

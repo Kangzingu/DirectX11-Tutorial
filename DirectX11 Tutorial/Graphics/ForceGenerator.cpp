@@ -2,7 +2,7 @@
 
 void ForceGenerator::GenerateGravity(Rigidbody& rigidbody)
 {
-	rigidbody.AddForce(gravity.force * rigidbody.mass);
+	rigidbody.AddForce(gravity.force * rigidbody.GetMass());
 }
 
 // 분리 속도 = (a의 속도 - b의 속도) * (b에서 a를 향하는 방향)
