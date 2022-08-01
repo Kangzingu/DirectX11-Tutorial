@@ -1,9 +1,6 @@
 #pragma once
 #include "Mesh.h"
 #include "../Utils/SimpleMath.h"
-
-using namespace DirectX;
-
 class Object;
 class Model
 {

@@ -33,6 +33,26 @@ public:
 	static float Magnitude(Vector3 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
 	static float SquareMagnitude(Vector3 v) { return v.x * v.x + v.y * v.y + v.z * v.z; }
 	static float Dot(Vector3 v1, Vector3 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
+	static void GetOrthonormalBasis(Vector3& x, Vector3* y, Vector3* z)
+	{
+		// x축으로 부터 직교기저를 생성함, 실질적으로 x가 기준이 되고 y는 계산에 필요하기 때문에 임시로 주어지는것이기 떄문에 결국 바뀜
+		*z = Vector3::Cross(x, *y);
+
+		if (Vector3::SquareMagnitude(*z) == 0.0)
+		{
+			// 두 축이 평행해서 직교기저 생성이 안되니 둘 중 하나인 y를 변경함
+			Vector3 modY = *y;
+			y->x = modY.y;
+			y->z = modY.x;
+			y->y = modY.z;
+			*z = Vector3::Cross(x, *y);
+		}
+		*y = Vector3::Cross(*z, x);
+
+		x = Vector3::Normalize(x);
+		*y = Vector3::Normalize(*y);
+		*z = Vector3::Normalize(*z);
+	}
 	Vector3 operator+(Vector3 v) { return Vector3(x + v.x, y + v.y, z + v.z); }
 	Vector3& operator+=(Vector3 v) { x += v.x; y += v.y; z += v.z;  return *this; }
 	Vector3 operator+(float a) { return Vector3(x + a, y + a, z + a); }

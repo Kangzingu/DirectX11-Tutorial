@@ -162,7 +162,6 @@
     <ClCompile Include="Graphics\Collision.cpp" />
     <ClCompile Include="Graphics\Contact.cpp" />
     <ClCompile Include="Graphics\Collider.cpp" />
-    <ClCompile Include="Graphics\ForceGenerator.cpp" />
     <ClCompile Include="Graphics\Color.cpp" />
     <ClCompile Include="Graphics\Object.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
@@ -171,6 +170,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Transform.cpp" />
     <ClCompile Include="Graphics\Rigidbody.cpp" />
+    <ClCompile Include="Graphics\PhysicsManager.cpp" />
     <ClCompile Include="Utils\ErrorLogger.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_draw.cpp" />
@@ -197,10 +197,10 @@
     <ClInclude Include="Graphics\Collision.h" />
     <ClInclude Include="Graphics\Contact.h" />
     <ClInclude Include="Graphics\Collider.h" />
-    <ClInclude Include="Graphics\ForceGenerator.h" />
     <ClInclude Include="Graphics\Color.h" />
     <ClInclude Include="Graphics\Rigidbody.h" />
     <ClInclude Include="Graphics\Transform.h" />
+    <ClInclude Include="Graphics\PhysicsManager.h" />
     <ClInclude Include="Utils\SimpleMath.h" />
     <ClInclude Include="Utils\Exception.h" />
     <ClInclude Include="Graphics\Object.h" />

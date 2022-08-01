@@ -99,3 +99,9 @@ Vector3 Rigidbody::GetAngularVelocity(){return angularVelocity;}
 Vector3 Rigidbody::GetAccumulatedForce(){return accumulatedForce;}
 Vector3 Rigidbody::GetAccumulatedTorque(){return accumulatedTorque;}
 Matrix4x4 Rigidbody::GetInertiaTensor(){return inertiaTensor;}
+
+// 힘 = 질량 * 가속도
+// 임펄스 힘 = 질량 * 속도
+// 토크 = 관성텐서 * 각가속도
+// 임펄스 토크 = 관성텐서 * 각속도
+// 각속도 = 관성텐서^-1 * (상대위치 X 임펄스 힘) 인듯..?

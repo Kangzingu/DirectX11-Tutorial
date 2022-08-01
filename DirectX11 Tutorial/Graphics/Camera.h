@@ -1,6 +1,5 @@
 #pragma once
 #include "Object.h"
-using namespace DirectX;
 
 class Camera : public Object
 {

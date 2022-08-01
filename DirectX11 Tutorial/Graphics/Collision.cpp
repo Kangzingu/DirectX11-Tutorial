@@ -377,7 +377,7 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	}
 	// 1차 검사 통과! 여기까지 왔다는건 접촉하고 있다는 것임(눈으로 확인함), 이제 상세하게 어디서 얼만큼 충돌했는지 찾는것임
 
-	vector<LineSegment> cube1Edges;
+	/*vector<LineSegment> cube1Edges;
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetRight(), object1->transform.GetScale().x));
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetForward(), object1->transform.GetScale().z));
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetRight(), object1->transform.GetScale().x));
@@ -410,7 +410,7 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	for (int i = 0; i < cube2Edges.size(); i++)
 	{
 		CubeAndEdge(*object2, *object1, cube2Edges[i], contacts);
-	}
+	}*/
 
 	vector<Vector3> cube1Vertices;
 	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));

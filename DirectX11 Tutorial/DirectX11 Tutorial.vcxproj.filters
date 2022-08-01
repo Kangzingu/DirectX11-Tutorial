@@ -120,9 +120,6 @@
     <ClCompile Include="Graphics\Rigidbody.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ForceGenerator.cpp">
-      <Filter>소스 파일\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Collider.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Collision.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\PhysicsManager.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,9 +245,6 @@
     <ClInclude Include="Graphics\Transform.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ForceGenerator.h">
-      <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Collider.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
@@ -255,6 +252,9 @@
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Collision.h">
+      <Filter>헤더 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\PhysicsManager.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

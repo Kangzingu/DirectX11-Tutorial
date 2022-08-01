@@ -33,7 +33,7 @@ void Model::Load(const std::string& filePath)
 void Model::ProcessNode(aiNode* node, const aiScene* scene, Matrix4x4 parentTransformMatrix)
 {
 	// ai 행렬을 directx 행렬로 바꿔주는 과정. a1은 행렬의 첫 원소(주소를 넘기는 느낌인듯)이고 DirectX는 row-major이기 때문에 transpose 해줘야 한다고 함
-	Matrix4x4 nodeTransformMatrix = parentTransformMatrix * Matrix4x4(XMMATRIX(&node->mTransformation.a1));
+	Matrix4x4 nodeTransformMatrix = parentTransformMatrix * Matrix4x4(DirectX::XMMATRIX(&node->mTransformation.a1));
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];

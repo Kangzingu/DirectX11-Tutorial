@@ -1,14 +1,14 @@
 #pragma once
 #include "DirectXHelpers.h"
+#include "Graphics/Actor.h"
 #include "Graphics/AdapterReader.h"
 #include "Graphics/Camera.h"
 #include "Graphics/Collision.h"
-#include "Graphics/ForceGenerator.h"
 #include "Graphics/ImGui/imgui.h"
 #include "Graphics/ImGui/imgui_impl_win32.h"
 #include "Graphics/ImGui/imgui_impl_dx11.h"
 #include "Graphics/Light.h"
-#include "Graphics/Actor.h"
+#include "Graphics/PhysicsManager.h"
 #include "Graphics/Shaders.h"
 #include "Utils/Timer.h"
 #include "Utils/WIndow/WindowManager.h"
@@ -59,7 +59,7 @@ private:
 	float deltaTime = 0;
 
 	WindowManager windowManager;
-	ForceGenerator forceGenerator;
+	PhysicsManager physicsManager;
 
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> deviceContext;// 그리기를 전담하는 넘인듯
@@ -82,11 +82,11 @@ private:
 
 	ComPtr<ID3D11SamplerState> samplerState;
 
-	unique_ptr<SpriteBatch> spriteBatch;
-	unique_ptr<SpriteFont> spriteFont;
+	unique_ptr<DirectX::SpriteBatch> spriteBatch;
+	unique_ptr<DirectX::SpriteFont> spriteFont;
 
-	unique_ptr<CommonStates> commonState;
-	unique_ptr<BasicEffect> basicEffect;
-	unique_ptr<PrimitiveBatch<VertexPositionColor>> primitiveBatch;
+	unique_ptr<DirectX::CommonStates> commonState;
+	unique_ptr<DirectX::BasicEffect> basicEffect;
+	unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> primitiveBatch;
 	ComPtr<ID3D11InputLayout> primitiveBatchInputLayout;
 };
