@@ -4,39 +4,138 @@
 /* 물체-1 이 물체-2 에 가서 박는것! */
 /************************************/
 
-void Collision::LayAndSphere(Vector3& layPosition, Vector3& layDirection, Object* object)
+bool Collision::BroadPhaseBoundingSphere(Object& object1, Object& object2, vector<pair<Vector3, Vector3>>& aabb)
 {
-	Vector3 layToSphere = object->transform.GetPosition() - layPosition;
-	// lay(카메라)의 원점이 구 안에 있는 경우. 상황에 따라 알아서 처리하도록..
-	if (Vector3::SquareMagnitude(layToSphere) < object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius())
+	// 구 충돌체 만들기
+	float maxLen=0;
+	float len;
+	float object1SquareRadius;
+	float object2SquareRadius;
+	for (int i = 0; i < object1.model.meshes.size(); i++)
 	{
-	}
-	float layToSphereDotLayDirectionResult = Vector3::Dot(layToSphere, layDirection);
-	// lay(카메라)의 진행방향에 구가 있는 경우. 후면에 구가 있으면 1차적으로 걸러짐
-	if (layToSphereDotLayDirectionResult >= 0)
-	{
-		float layAndSphereLeastLengthSquare = Vector3::SquareMagnitude(layToSphere) - layToSphereDotLayDirectionResult * layToSphereDotLayDirectionResult;
-		// lay와 구 원점간의 최소 거리가 반지름보다 작은 경우. 크면 둘이 닿을 수가 없어 2차적으로 걸러짐
-		if (layAndSphereLeastLengthSquare <= object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius())
+		for (UINT j = 0; j < object1.model.meshes[i].vertices.size(); j++)
 		{
-			// 여기부턴 일단 충돌이 있긴 하니까 충돌 위치를 구하는거임
-			layDirection = Vector3::Normalize(layDirection);// 혹시 모르니까..
-			float t = sqrt(Vector3::SquareMagnitude(layToSphere) - layAndSphereLeastLengthSquare);
-			float halfContactPointsGap = sqrt(object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius() - layAndSphereLeastLengthSquare);
-
-			// 닿은 점이 1개인 경우
-			if (halfContactPointsGap == 0)
+			len = Vector3::SquareMagnitude(Vector3(object1.model.meshes[i].vertices[j].pos.x * object1.transform.GetScale().x,
+												   object1.model.meshes[i].vertices[j].pos.y * object1.transform.GetScale().y,
+												   object1.model.meshes[i].vertices[j].pos.z * object1.transform.GetScale().z));
+			if (len > maxLen)
 			{
-				Vector3 contactPoint = layPosition + (layDirection * (t));
-			}
-			// 닿은 점이 2개인 경우
-			else
-			{
-				Vector3 firstContactPoint = layPosition + (layDirection * (t - halfContactPointsGap));
-				Vector3 SecondContactPoint = layPosition + (layDirection * (t + halfContactPointsGap));
+				maxLen = len;
 			}
 		}
 	}
+	object1SquareRadius = maxLen;
+	maxLen = 0;
+	for (int i = 0; i < object2.model.meshes.size(); i++)
+	{
+		for (UINT j = 0; j < object2.model.meshes[i].vertices.size(); j++)
+		{
+			len = Vector3::SquareMagnitude(Vector3(object2.model.meshes[i].vertices[j].pos.x * object2.transform.GetScale().x,
+												   object2.model.meshes[i].vertices[j].pos.y * object2.transform.GetScale().y,
+												   object2.model.meshes[i].vertices[j].pos.z * object2.transform.GetScale().z));
+			if (len > maxLen)
+			{
+				maxLen = len;
+			}
+		}
+	}
+	object2SquareRadius = maxLen;
+	float squareDistance=Vector3::SquareMagnitude(object1.transform.GetPosition() - object2.transform.GetPosition());
+	aabb.push_back(make_pair(object1.transform.GetPosition() - Vector3::Up() * sqrt(object1SquareRadius), object1.transform.GetPosition() + Vector3::Up() * sqrt(object1SquareRadius)));
+
+	if (squareDistance > object1SquareRadius + object2SquareRadius)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Collision::BroadPhaseAxisAlignBoundingBox(Object& object1, Object& object2, vector<pair<Vector3, Vector3>>& aabb)
+{
+	// AABB 충돌체 만들기
+	float maxLen = 0;
+	float len;
+	Vector3 object1MinPosition, object1MaxPosition;
+	Vector3 object2MinPosition, object2MaxPosition;
+	Vector3 object1VertexWorldPos, object2VertexWorldPos;
+			object1MinPosition = object1.transform.GetWorldMatrix() * object1MinPosition;
+			object1MaxPosition = object1.transform.GetWorldMatrix() * object1MaxPosition;
+	for (int i = 0; i < object1.model.meshes.size(); i++)
+	{
+		for (UINT j = 0; j < object1.model.meshes[i].vertices.size(); j++)
+		{
+			object1VertexWorldPos = object1.transform.GetWorldMatrix() * Vector3(object1.model.meshes[i].vertices[j].pos.x,
+																				 object1.model.meshes[i].vertices[j].pos.y,
+																				 object1.model.meshes[i].vertices[j].pos.z);
+			if (object1VertexWorldPos.x < object1MinPosition.x)
+			{
+				object1MinPosition.x = object1VertexWorldPos.x;
+			}
+			if (object1VertexWorldPos.y < object1MinPosition.y)
+			{
+				object1MinPosition.y = object1VertexWorldPos.y;
+			}
+			if (object1VertexWorldPos.z < object1MinPosition.z)
+			{
+				object1MinPosition.z = object1VertexWorldPos.z;
+			}
+			if (object1VertexWorldPos.x > object1MaxPosition.x)
+			{
+				object1MaxPosition.x = object1VertexWorldPos.x;
+			}
+			if (object1VertexWorldPos.y > object1MaxPosition.y)
+			{
+				object1MaxPosition.y = object1VertexWorldPos.y;
+			}
+			if (object1VertexWorldPos.z > object1MaxPosition.z)
+			{
+				object1MaxPosition.z = object1VertexWorldPos.z;
+			}
+		}
+	}
+	object2MinPosition = object2.transform.GetWorldMatrix() * object2MinPosition;
+	object2MaxPosition = object2.transform.GetWorldMatrix() * object2MaxPosition;
+	for (int i = 0; i < object2.model.meshes.size(); i++)
+	{
+		for (UINT j = 0; j < object2.model.meshes[i].vertices.size(); j++)
+		{
+			object2VertexWorldPos = object2.transform.GetWorldMatrix() * Vector3(object2.model.meshes[i].vertices[j].pos.x,
+																				 object2.model.meshes[i].vertices[j].pos.y,
+																				 object2.model.meshes[i].vertices[j].pos.z);
+			if (object2VertexWorldPos.x < object2MinPosition.x)
+			{
+				object2MinPosition.x = object2VertexWorldPos.x;
+			}
+			if (object2VertexWorldPos.y < object2MinPosition.y)
+			{
+				object2MinPosition.y = object2VertexWorldPos.y;
+			}
+			if (object2VertexWorldPos.z < object2MinPosition.z)
+			{
+				object2MinPosition.z = object2VertexWorldPos.z;
+			}
+			if (object2VertexWorldPos.x > object2MaxPosition.x)
+			{
+				object2MaxPosition.x = object2VertexWorldPos.x;
+			}
+			if (object2VertexWorldPos.y > object2MaxPosition.y)
+			{
+				object2MaxPosition.y = object2VertexWorldPos.y;
+			}
+			if (object2VertexWorldPos.z > object2MaxPosition.z)
+			{
+				object2MaxPosition.z = object2VertexWorldPos.z;
+			}
+		}
+	}
+	aabb.push_back(make_pair(object1MinPosition, object1MaxPosition));
+	if (object1MinPosition.x > object2MaxPosition.x || object1MaxPosition.x < object2MinPosition.x ||
+		object1MinPosition.y > object2MaxPosition.y || object1MaxPosition.y < object2MinPosition.y ||
+		object1MinPosition.z > object2MaxPosition.z || object1MaxPosition.z < object2MinPosition.z)
+	{
+		return false;
+	}
+	return true;
 }
 
 void Collision::SphereAndSphere(Object* object1, Object* object2, vector<Contact>& contacts)
@@ -51,43 +150,7 @@ void Collision::SphereAndSphere(Object* object1, Object* object2, vector<Contact
 		contact.object2 = object2;
 		contact.point = object2->transform.GetPosition() + (centerDiff / 2.0f);
 		contact.normal = Vector3::Normalize(centerDiff);
-		contact.penetration = object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius() - centerDistance;
-		contacts.push_back(contact);
-	}
-}
-void Collision::SphereAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts)
-{
-	float distance = Vector3::Dot(object2->planeCollider.GetNormal(), object1->transform.GetPosition()) - object2->planeCollider.GetOffset() - object1->sphereCollider.GetRadius();
-	// 점과 평면의 거리 공식 + 점이 아니라 구니까 radius도 고려한거임
-	if (distance < 0)
-	{
-		Contact contact;
-		contact.object1 = object1;
-		contact.object2 = object2;
-		contact.point = object1->transform.GetPosition() - object2->planeCollider.GetNormal() * (object1->sphereCollider.GetRadius()+ distance);
-		contact.normal = object2->planeCollider.GetNormal();
-		contact.penetration = distance;
-		contacts.push_back(contact);
-	}
-}
-void Collision::SphereAndPlane(Object* object1, Object* object2, vector<Contact>& contacts)
-{
-	float centerDistance = Vector3::Dot(object2->planeCollider.GetNormal(), object1->transform.GetPosition()) - object2->planeCollider.GetOffset();
-	// 점과 평면의 거리 공식 + 점이 아니라 구니까 radius도 고려한거임
-	if (centerDistance < object1->sphereCollider.GetRadius() && centerDistance > -object1->sphereCollider.GetRadius())
-	{
-		Contact contact;
-		contact.object1 = object1;
-		contact.object2 = object2;
-		contact.point = object1->transform.GetPosition() - object2->planeCollider.GetNormal() * centerDistance;
-		contact.normal = object2->planeCollider.GetNormal();
-		contact.penetration = centerDistance - object1->sphereCollider.GetRadius();
-		// 평면이 양면일 수 있으니까 양면 다 쳌
-		if (centerDistance < 0)
-		{
-			contact.normal *= -1;
-			contact.penetration *= -1;
-		}
+		contact.depth = object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius() - centerDistance;
 		contacts.push_back(contact);
 	}
 }
@@ -133,41 +196,11 @@ void Collision::SphereAndCube(Object* object1, Object* object2, vector<Contact>&
 			contact.point = worldCoordClosestPoint;
 			// 이거 중점을 넘어서 더 겹쳐버리면 계산이 아예 반대로 될듯, 관통해버린걸 해결하는거에 포함해서 해결해야하는 느낌?
 			contact.normal = Vector3::Normalize(object1->transform.GetPosition() - worldCoordClosestPoint);
-			contact.penetration = object1->sphereCollider.GetRadius() - Vector3::Magnitude(object1->transform.GetPosition() - worldCoordClosestPoint);
+			contact.depth = object1->sphereCollider.GetRadius() - Vector3::Magnitude(object1->transform.GetPosition() - worldCoordClosestPoint);
 			contacts.push_back(contact);
 		}
 	}
 	// 287pg 읽으면 댐
-}
-void Collision::CubeAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts)
-{
-	Vector3 cubeHalfScale = object1->transform.GetScale() / 2.0f;
-	// 큐브의 각 점과 평면의 충돌을 확인함
-	Vector3 vertexPositions[8] = {
-		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, cubeHalfScale.y, cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, cubeHalfScale.y, cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, cubeHalfScale.y, -cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, cubeHalfScale.y, -cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, -cubeHalfScale.y, cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, -cubeHalfScale.y, cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, -cubeHalfScale.y, -cubeHalfScale.z),
-		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, -cubeHalfScale.y, -cubeHalfScale.z)
-	};
-	for (int i = 0; i < 8; i++)
-	{
-		// 다음 과정은 구와 평면(단, 반지름이 0) 충돌 확인이랑 같음
-		float distance = Vector3::Dot(object2->planeCollider.GetNormal(), vertexPositions[i]) - object2->planeCollider.GetOffset();
-		if (distance < 0)
-		{
-			Contact contact;
-			contact.object1 = object1;
-			contact.object2 = object2;
-			contact.point = vertexPositions[i] - object2->planeCollider.GetNormal() * distance;
-			contact.normal = object2->planeCollider.GetNormal();
-			contact.penetration = distance;
-			contacts.push_back(contact);
-		}
-	}
 }
 // 큐브 간 단순 충돌여부 확인에 사용
 float ProjectObjectToAxis(Object& object, Vector3 axis)
@@ -182,42 +215,42 @@ bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, vector<Contac
 	Vector3 cubeCoordPoint = object2.transform.GetRotationMatrix().Inverse() * object2.transform.GetTranslationMatrix().Inverse() * point;
 	Vector3 cubeHalfScale = object2.transform.GetScale() / 2.0f;
 	Vector3 normal;
-	float penetration;
-	float minPenetration;
+	float depth;
+	float minDepth;
 
-	penetration = cubeHalfScale.x - abs(cubeCoordPoint.x);
+	depth = cubeHalfScale.x - abs(cubeCoordPoint.x);
 	// 만나지 않는다면
-	if (penetration < 0)
+	if (depth < 0)
 		return false;
 	// 만난다면
-	minPenetration = penetration;
+	minDepth = depth;
 	if (cubeCoordPoint.x >= 0)
 		normal = object2.transform.GetRight();
 	else
 		normal = -object2.transform.GetRight();
 
-	penetration = cubeHalfScale.y - abs(cubeCoordPoint.y);
+	depth = cubeHalfScale.y - abs(cubeCoordPoint.y);
 	// 만나지 않는다면
-	if (penetration < 0)
+	if (depth < 0)
 		return false;
 	// 만난다면
-	if (minPenetration > penetration)
+	if (minDepth > depth)
 	{
-		minPenetration = penetration;
+		minDepth = depth;
 		if (cubeCoordPoint.y >= 0)
 			normal = object2.transform.GetUp();
 		else
 			normal = -object2.transform.GetUp();
 	}
 
-	penetration = cubeHalfScale.z - abs(cubeCoordPoint.z);
+	depth = cubeHalfScale.z - abs(cubeCoordPoint.z);
 	// 만나지 않는다면
-	if (penetration < 0)
+	if (depth < 0)
 		return false;
 	// 만난다면
-	if (minPenetration > penetration)
+	if (minDepth > depth)
 	{
-		minPenetration = penetration;
+		minDepth = depth;
 		if (cubeCoordPoint.z >= 0)
 			normal = object2.transform.GetForward();
 		else
@@ -234,7 +267,7 @@ bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, vector<Contac
 	contact.object2 = &object2;
 	contact.point = point;
 	contact.normal = normal;
-	contact.penetration = minPenetration;
+	contact.depth = minDepth;
 	contacts.push_back(contact);
 }
 // 큐브 간 상세 충돌 데이터 확인에 사용
@@ -261,11 +294,11 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Cont
 	vector<LineSegment> cubeEdges;
 	Vector3 closestPointOnCubeEdge;
 	Vector3 closestPointOnEdge;
-	float penetration;
+	float depth;
 
 	Vector3 contactPointOnCubeEdge;
 	Vector3 contactPointOnEdge;
-	float minPenetration = 1000;
+	float minDepth = 1000;
 
 	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetRight(), object2.transform.GetScale().x));
 	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetForward(), object2.transform.GetScale().z));
@@ -309,15 +342,15 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Cont
 		// 쨋든 이거 고쳐야함 closestPointOnCubeEdge - closestPointOnEdge 가 아니고 object2.transform.GetPosition() - closestPointOnEdge 이런식으로 하던가
 		// 이런식이라면 결국 점 충돌검사 방식보다 우선순위가 낮아질 듯. 불안불안한 부분이 많은거같음
 
-		penetration = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
+		depth = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
 		// 이 경우 큐브 중점에서 큐브의 엣지보다 다른 엣지가 더 가까우므로 충돌이 맞음
 		if (Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnEdge))
 		{
 			// 그렇다면 사실상 큐브의 모든 엣지가 다 충돌된걸로 나올거라 가장 얇게 충돌된 넘을 골라낼거임
 			// 
-			if (penetration < minPenetration)
+			if (depth < minDepth)
 			{
-				minPenetration = penetration;
+				minDepth = depth;
 				contactPointOnCubeEdge = closestPointOnCubeEdge;
 				contactPointOnEdge = closestPointOnEdge;
 			}
@@ -331,7 +364,7 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Cont
 	contact.object2 = &object2;
 	contact.point = contactPointOnEdge;
 	contact.normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
-	contact.penetration = minPenetration;
+	contact.depth = minDepth;
 	contacts.push_back(contact);
 }
 bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts)
@@ -441,3 +474,106 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	return true;
 	// 303pg 읽으면 댐
 }
+
+/*
+void Collision::LayAndSphere(Vector3& layPosition, Vector3& layDirection, Object* object)
+{
+	Vector3 layToSphere = object->transform.GetPosition() - layPosition;
+	// lay(카메라)의 원점이 구 안에 있는 경우. 상황에 따라 알아서 처리하도록..
+	if (Vector3::SquareMagnitude(layToSphere) < object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius())
+	{
+	}
+	float layToSphereDotLayDirectionResult = Vector3::Dot(layToSphere, layDirection);
+	// lay(카메라)의 진행방향에 구가 있는 경우. 후면에 구가 있으면 1차적으로 걸러짐
+	if (layToSphereDotLayDirectionResult >= 0)
+	{
+		float layAndSphereLeastLengthSquare = Vector3::SquareMagnitude(layToSphere) - layToSphereDotLayDirectionResult * layToSphereDotLayDirectionResult;
+		// lay와 구 원점간의 최소 거리가 반지름보다 작은 경우. 크면 둘이 닿을 수가 없어 2차적으로 걸러짐
+		if (layAndSphereLeastLengthSquare <= object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius())
+		{
+			// 여기부턴 일단 충돌이 있긴 하니까 충돌 위치를 구하는거임
+			layDirection = Vector3::Normalize(layDirection);// 혹시 모르니까..
+			float t = sqrt(Vector3::SquareMagnitude(layToSphere) - layAndSphereLeastLengthSquare);
+			float halfContactPointsGap = sqrt(object->sphereCollider.GetRadius() * object->sphereCollider.GetRadius() - layAndSphereLeastLengthSquare);
+
+			// 닿은 점이 1개인 경우
+			if (halfContactPointsGap == 0)
+			{
+				Vector3 contactPoint = layPosition + (layDirection * (t));
+			}
+			// 닿은 점이 2개인 경우
+			else
+			{
+				Vector3 firstContactPoint = layPosition + (layDirection * (t - halfContactPointsGap));
+				Vector3 SecondContactPoint = layPosition + (layDirection * (t + halfContactPointsGap));
+			}
+		}
+	}
+}
+void Collision::SphereAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts)
+{
+	float distance = Vector3::Dot(object2->planeCollider.GetNormal(), object1->transform.GetPosition()) - object2->planeCollider.GetOffset() - object1->sphereCollider.GetRadius();
+	// 점과 평면의 거리 공식 + 점이 아니라 구니까 radius도 고려한거임
+	if (distance < 0)
+	{
+		Contact contact;
+		contact.object1 = object1;
+		contact.object2 = object2;
+		contact.point = object1->transform.GetPosition() - object2->planeCollider.GetNormal() * (object1->sphereCollider.GetRadius() + distance);
+		contact.normal = object2->planeCollider.GetNormal();
+		contact.depth = distance;
+		contacts.push_back(contact);
+	}
+}
+void Collision::SphereAndPlane(Object* object1, Object* object2, vector<Contact>& contacts)
+{
+	float centerDistance = Vector3::Dot(object2->planeCollider.GetNormal(), object1->transform.GetPosition()) - object2->planeCollider.GetOffset();
+	// 점과 평면의 거리 공식 + 점이 아니라 구니까 radius도 고려한거임
+	if (centerDistance < object1->sphereCollider.GetRadius() && centerDistance > -object1->sphereCollider.GetRadius())
+	{
+		Contact contact;
+		contact.object1 = object1;
+		contact.object2 = object2;
+		contact.point = object1->transform.GetPosition() - object2->planeCollider.GetNormal() * centerDistance;
+		contact.normal = object2->planeCollider.GetNormal();
+		contact.depth = centerDistance - object1->sphereCollider.GetRadius();
+		// 평면이 양면일 수 있으니까 양면 다 쳌
+		if (centerDistance < 0)
+		{
+			contact.normal *= -1;
+			contact.depth *= -1;
+		}
+		contacts.push_back(contact);
+	}
+}
+void Collision::CubeAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts)
+{
+	Vector3 cubeHalfScale = object1->transform.GetScale() / 2.0f;
+	// 큐브의 각 점과 평면의 충돌을 확인함
+	Vector3 vertexPositions[8] = {
+		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, cubeHalfScale.y, cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, cubeHalfScale.y, cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, cubeHalfScale.y, -cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, cubeHalfScale.y, -cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, -cubeHalfScale.y, cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, -cubeHalfScale.y, cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(-cubeHalfScale.x, -cubeHalfScale.y, -cubeHalfScale.z),
+		object1->transform.GetWorldMatrix() * Vector3(cubeHalfScale.x, -cubeHalfScale.y, -cubeHalfScale.z)
+	};
+	for (int i = 0; i < 8; i++)
+	{
+		// 다음 과정은 구와 평면(단, 반지름이 0) 충돌 확인이랑 같음
+		float distance = Vector3::Dot(object2->planeCollider.GetNormal(), vertexPositions[i]) - object2->planeCollider.GetOffset();
+		if (distance < 0)
+		{
+			Contact contact;
+			contact.object1 = object1;
+			contact.object2 = object2;
+			contact.point = vertexPositions[i] - object2->planeCollider.GetNormal() * distance;
+			contact.normal = object2->planeCollider.GetNormal();
+			contact.depth = distance;
+			contacts.push_back(contact);
+		}
+	}
+}
+*/

@@ -51,6 +51,7 @@ private:
 	Light* light;
 	Camera* camera;
 	vector<Actor*> actors;
+	vector<pair<Vector3, Vector3>> aabb;
 
 	Timer fpsTimer;
 	Timer sceneTimer;

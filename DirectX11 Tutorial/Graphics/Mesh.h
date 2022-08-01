@@ -18,6 +18,8 @@ public:
 	Mesh(const Mesh& mesh);
 	const void Draw();
 	Matrix4x4 worldMatrix;
+	vector<Vertex3D> vertices;
+	vector<DWORD> indices;
 
 private:
 	ID3D11DeviceContext* deviceContext;

@@ -17,7 +17,6 @@ void Engine::Run()
 		UpdateScene();
 	}
 }
-bool isGravityOn = false;
 void Engine::InitializeWindow(HINSTANCE hInstance)
 {
 	this->windowManager.Initialize(hInstance, "Simple Physics Engine", "Default", 1600, 900);
@@ -163,15 +162,15 @@ void Engine::InitializeScene()
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->transform.SetPosition(Vector3(0, 0, 0));
-	actor->transform.SetScale(Vector3(100, 1, 100));
+	actor->transform.SetScale(Vector3(1, 1, 1));
 	actor->rigidbody.SetKinematic(true);
 	actor->rigidbody.SetMass(1000);
 	actors.push_back(actor);
-	for (int i = 1; i < 4; i++)
+	for (int i = 1; i < 30; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i * 4.2f, 3, 0.0f));
+		actor->transform.SetPosition(Vector3(0.0f, i*3, 0.0f));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -231,8 +230,8 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -deltaTime);
-			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -deltaTime );
+			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.001f);
+			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.001f );
 			camera->UpdateMatrix();
 		}
 	}
@@ -275,24 +274,24 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed('G'))
 	{
-		isGravityOn = true;
+		physicsManager.SetGravityOn(true);
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, 0, 1));
-		actors[2]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0.5f, 0, 1));
-		actors[3]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(1, 0, 1));
+
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{
-		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[1]->transform.GetPosition() + Vector3(0, -1, 1));
-		actors[2]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[2]->transform.GetPosition() + Vector3(0, -1, 1));
-		actors[3]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[3]->transform.GetPosition() + Vector3(0, -1, 1));
+		for (int i = 0; i < actors.size(); i++)
+		{
+			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[i]->transform.GetPosition() + Vector3(0.1f *i, 0, 1));
+			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[i]->transform.GetPosition() + Vector3(0, -0.1f * i, 1));
+		}
 	}
 }
 void Engine::UpdatePhysics()
 {
-	physicsManager.Update(actors, deltaTime);
+	physicsManager.Update(actors, deltaTime, aabb);
 }
 void Engine::UpdateScene()
 {
@@ -319,15 +318,27 @@ void Engine::UpdateScene()
 		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
 		light->Draw(viewProjectionMatrix);
 	}
-
+	
 	{// 선 그리기
 		basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), camera->viewMatrix.ToXMMATRIX(), camera->projectionMatrix.ToXMMATRIX());
 		basicEffect->Apply(deviceContext.Get());
 		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
 		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
 		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
+		deviceContext->OMSetDepthStencilState(commonState->DepthNone(), 0);
 
 		primitiveBatch->Begin();
+		{
+			DirectX::VertexPositionColor startVertex, endVertex;
+			for (int i = 0; i < aabb.size(); i++)
+			{
+				startVertex = DirectX::VertexPositionColor(aabb[i].first.ToXMVECTOR(), DirectX::Colors::Red);
+				endVertex = DirectX::VertexPositionColor(aabb[i].second.ToXMVECTOR(), DirectX::Colors::Red);
+				primitiveBatch->DrawLine(startVertex, endVertex);
+			}
+			aabb.clear();
+		}
+		primitiveBatch->End();
 		//{
 		//	Vector4 lineColor;
 		//	VertexPositionColor startVertex, endVertex;
@@ -390,6 +401,7 @@ void Engine::UpdateScene()
 		//	primitiveBatch->DrawLine(startVertex, endVertex);
 		//}
 		
+		/*
 		{
 			Vector4 mainLineColor, subLineColor;
 			DirectX::VertexPositionColor startVertex, endVertex;
@@ -515,9 +527,9 @@ void Engine::UpdateScene()
 				}
 			}
 			primitiveBatch->End();
-		}
+		}*/
 	}
-
+	
 	UpdateUI();
 
 	swapchain->Present(0, NULL);
@@ -527,6 +539,8 @@ void Engine::UpdateUI()
 	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	/*
 	Vector3 angularVelocity = actors[1]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor1AngularVelocity = "Left Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -536,7 +550,7 @@ void Engine::UpdateUI()
 	angularVelocity = actors[3]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor3AngularVelocity = "Right Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor3AngularVelocity).c_str(), DirectX::XMFLOAT2(5, 115), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), DirectX::XMFLOAT2(5, 170), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	*/
 	//string description= "Torque added position: 0, 0, 0 - 0.5, 0.5, 0.5 - 1, 1, 1 순";
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(description).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*

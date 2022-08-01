@@ -7,6 +7,8 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector
 	this->indexbuffer.Initialize(device, indices.data(), indices.size());
 	this->textures = textures;
 	this->worldMatrix = transformMatrix;
+	this->vertices = vertices;
+	this->indices = indices;
 }
 Mesh::Mesh(const Mesh& mesh)
 {
@@ -15,6 +17,8 @@ Mesh::Mesh(const Mesh& mesh)
 	this->indexbuffer = mesh.indexbuffer;
 	this->textures = mesh.textures;
 	this->worldMatrix = mesh.worldMatrix;
+	this->vertices = mesh.vertices;
+	this->indices = mesh.indices;
 }
 const void Mesh::Draw()
 {

@@ -9,5 +9,5 @@ public:
 	Object* object2;
 	Vector3 point;
 	Vector3 normal;
-	float penetration;
+	float depth;
 };

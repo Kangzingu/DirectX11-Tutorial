@@ -1,7 +1,7 @@
 #include "Actor.h"
 #include "PhysicsManager.h"
 
-void PhysicsManager::Update(vector<Actor*> actors, float deltaTime)
+void PhysicsManager::Update(vector<Actor*> actors, float deltaTime, vector<pair<Vector3, Vector3>>& aabb)
 {
 	for (int i = 0; i < actors.size(); i++)
 	{
@@ -15,12 +15,13 @@ void PhysicsManager::Update(vector<Actor*> actors, float deltaTime)
 	{
 		for (int j = i + 1; j < actors.size(); j++)
 		{
-			Collision::CubeAndCube(actors[i], actors[j], contacts);
+			if(Collision::BroadPhaseAxisAlignBoundingBox(*actors[i], *actors[j], aabb))
+				Collision::CubeAndCube(actors[i], actors[j], contacts);
 		}
 	}
 
 	// 반발계수(일단 임의로 지정함)
-	float restitution = 1;
+	float restitution = 0.3f;
 	for (int i = 0; i < contacts.size(); i++)
 	{
 		// 1. 속도 변경
@@ -55,11 +56,16 @@ void PhysicsManager::Update(vector<Actor*> actors, float deltaTime)
 		contacts[i].object2->rigidbody.AddVelocity(impulsePerIMess / -contacts[i].object2->rigidbody.GetMass());
 
 		// 2. 겹친 위치 조정
-		if (contacts[i].penetration <= 0)
+		if (contacts[i].depth <= 0)
 			continue;
 
-		Vector3 movePerIMass = contacts[i].normal * (contacts[i].penetration / totalInverseMass);
+		Vector3 movePerIMass = contacts[i].normal * (contacts[i].depth / totalInverseMass);
 		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
 		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());
 	}
+}
+
+void PhysicsManager::SetGravityOn(bool isGravityOn)
+{
+	this->isGravityOn = isGravityOn;
 }

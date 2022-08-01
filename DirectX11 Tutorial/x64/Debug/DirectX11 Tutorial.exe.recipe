@@ -2,27 +2,27 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_2d.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader_2d.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_2d_discard.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader_2d_discard.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\vertexshader.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\vertexshader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\vertexshader_2d.cso</FullPath>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\vertexshader_2d.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />
