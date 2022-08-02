@@ -1,7 +1,6 @@
 #pragma once
 #include "DirectXHelpers.h"
 #include "Graphics/Actor.h"
-#include "Graphics/AdapterReader.h"
 #include "Graphics/Camera.h"
 #include "Graphics/Collision.h"
 #include "Graphics/ImGui/imgui.h"

@@ -41,7 +41,7 @@ bool Collision::BroadPhaseBoundingSphere(Object& object1, Object& object2, vecto
 	}
 	object2SquareRadius = maxLen;
 	float squareDistance=Vector3::SquareMagnitude(object1.transform.GetPosition() - object2.transform.GetPosition());
-	aabb.push_back(make_pair(object1.transform.GetPosition() - Vector3::Up() * sqrt(object1SquareRadius), object1.transform.GetPosition() + Vector3::Up() * sqrt(object1SquareRadius)));
+	//aabb.push_back(make_pair(object1.transform.GetPosition() - Vector3::Up() * sqrt(object1SquareRadius), object1.transform.GetPosition() + Vector3::Up() * sqrt(object1SquareRadius)));
 
 	if (squareDistance > object1SquareRadius + object2SquareRadius)
 	{

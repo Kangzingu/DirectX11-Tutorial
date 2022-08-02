@@ -1,5 +1,72 @@
 #include "Engine.h"
+// 1. 조건식에 !연산자는 사용 x
+// 2. SAL / noexcept 사용 금지(OUT, INOUT은 필요에 따라 사용 가능)
+// 3. 클래스 선언
+/*	class C
+	{
+	public:
+		//변수
 
+	public:
+		//함수
+
+	protected:
+		//변수
+
+	protected:
+		//함수
+
+	private:
+		//변수
+
+	private:
+		//함수
+	};
+*/
+// 4. 주석은 최대한 없도록
+// 5. 클래스 초기화 등 함수 이름
+// - createActor() / destroyActor()
+// - initializeActor()
+// 6. 약자는 모두 대문자로 ex) ui -> UI
+// 7. 들여쓰기 최대한 안하게
+/*
+- 나쁜예
+bool process()
+{
+	if (hasBall == true)
+	{
+		for (int i = 0; i < length; i++)
+		{
+			// do
+		}
+	}
+}
+
+ - 좋은예
+bool process()
+{
+	if (hasBall == false)
+		return false;
+
+	for (int i = 0; i < length; i++)
+	{
+		// do
+	}
+*/
+// 8. 벡터 순회 방법
+/*
+- 나쁜예
+for (int i = 0; i < numItems.size(); i++)
+{
+	// do
+}
+
+ - 좋은예
+ for (Item& item : items)
+{
+	// do
+}
+*/
 void Engine::Initialize(HINSTANCE hInstance)
 {
 	InitializeWindow(hInstance);
@@ -23,8 +90,22 @@ void Engine::InitializeWindow(HINSTANCE hInstance)
 }
 void Engine::InitializeDirectX()
 {
+	// 어댑터
+	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
+	vector<IDXGIAdapter*> adapters;
+	IDXGIAdapter* adapter;
+	DXGI_ADAPTER_DESC adapterDescription;
+	UINT adapterIndex = 0;
+	ERROR_IF_FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(factory.GetAddressOf())), "DXGIFactory 생성 실패");
+	while (SUCCEEDED(factory->EnumAdapters(adapterIndex, &adapter)))
+	{
+		ERROR_IF_FAILED(adapter->GetDesc(&adapterDescription), "AdapterData를 정상적으로 초기화하지 못했습니다(Adapter에 대한 description을 받아오지 못함)");
+		adapters.push_back(adapter);
+		adapterIndex += 1;
+	}
+	ERROR_IF(!adapters.size() > 0, "IDXGI Adapter를 찾지 못했습니다");
+
 	// 스왑 체인
-	vector<AdapterData> graphicsAdapter = AdapterReader::GetAdapters();
 	DXGI_SWAP_CHAIN_DESC swapChainDescription;
 	ComPtr<ID3D11Texture2D> swapChainBuffer;
 	swapChainDescription.OutputWindow = this->windowManager.window.GetHWND();
@@ -42,7 +123,7 @@ void Engine::InitializeDirectX()
 	swapChainDescription.Windowed = TRUE;
 	swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescription.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	ERROR_IF_FAILED(D3D11CreateDeviceAndSwapChain(graphicsAdapter[0].pAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, NULL, 0, D3D11_SDK_VERSION, &swapChainDescription, swapchain.GetAddressOf(), device.GetAddressOf(), NULL, deviceContext.GetAddressOf()), "디바이스와 스왑체인 생성에 실패했습니다");
+	ERROR_IF_FAILED(D3D11CreateDeviceAndSwapChain(adapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, NULL, 0, D3D11_SDK_VERSION, &swapChainDescription, swapchain.GetAddressOf(), device.GetAddressOf(), NULL, deviceContext.GetAddressOf()), "디바이스와 스왑체인 생성에 실패했습니다");
 	ERROR_IF_FAILED(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(swapChainBuffer.GetAddressOf())), "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
 	ERROR_IF_FAILED(device->CreateRenderTargetView(swapChainBuffer.Get(), NULL, renderTargetView.GetAddressOf()), "렌더타겟 뷰 생성에 실패했습니다");
 
@@ -141,11 +222,6 @@ void Engine::InitializeShaders()
 }
 void Engine::InitializeScene()
 {
-	backgroundColor[0] = 0;
-	backgroundColor[1] = 0;
-	backgroundColor[2] = 0;
-	backgroundColor[3] = 1;
-
 	// 컴포넌트 초기화
 	Actor* actor;
 	Model model;
@@ -162,15 +238,15 @@ void Engine::InitializeScene()
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->transform.SetPosition(Vector3(0, 0, 0));
-	actor->transform.SetScale(Vector3(1, 1, 1));
+	actor->transform.SetScale(Vector3(10, 1, 10));
 	actor->rigidbody.SetKinematic(true);
-	actor->rigidbody.SetMass(1000);
+	actor->rigidbody.SetMass(100000);
 	actors.push_back(actor);
 	for (int i = 1; i < 30; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i*0.01f, i*3, 0.0f));
+		actor->transform.SetPosition(Vector3(i*0.01f, i*3, 0));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -201,6 +277,11 @@ void Engine::InitializeScene()
 	sceneTimer.Start();
 	fpsTimer.Start();
 
+	// 배경 색
+	backgroundColor[0] = 0;
+	backgroundColor[1] = 0;
+	backgroundColor[2] = 0;
+	backgroundColor[3] = 1;
 }
 bool Engine::IsRenderWindowExist()
 {
@@ -230,8 +311,8 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.001f);
-			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.001f );
+			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.0005f);
+			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.0005f );
 			camera->UpdateMatrix();
 		}
 	}
@@ -320,6 +401,7 @@ void Engine::UpdateScene()
 	}
 	
 	{// 선 그리기
+		/*
 		basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), camera->viewMatrix.ToXMMATRIX(), camera->projectionMatrix.ToXMMATRIX());
 		basicEffect->Apply(deviceContext.Get());
 		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
@@ -339,6 +421,7 @@ void Engine::UpdateScene()
 			aabb.clear();
 		}
 		primitiveBatch->End();
+		*/
 		//{
 		//	Vector4 lineColor;
 		//	VertexPositionColor startVertex, endVertex;

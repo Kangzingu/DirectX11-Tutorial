@@ -15,7 +15,7 @@ void PhysicsManager::Update(vector<Actor*> actors, float deltaTime, vector<pair<
 	{
 		for (int j = i + 1; j < actors.size(); j++)
 		{
-		//	if(Collision::BroadPhaseAxisAlignBoundingBox(*actors[i], *actors[j], aabb))
+			if(Collision::BroadPhaseBoundingSphere(*actors[i], *actors[j], aabb))
 				Collision::CubeAndCube(actors[i], actors[j], contacts);
 		}
 	}
