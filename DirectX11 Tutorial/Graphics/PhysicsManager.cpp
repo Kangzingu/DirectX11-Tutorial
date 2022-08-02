@@ -15,7 +15,7 @@ void PhysicsManager::Update(vector<Actor*> actors, float deltaTime, vector<pair<
 	{
 		for (int j = i + 1; j < actors.size(); j++)
 		{
-			if(Collision::BroadPhaseAxisAlignBoundingBox(*actors[i], *actors[j], aabb))
+		//	if(Collision::BroadPhaseAxisAlignBoundingBox(*actors[i], *actors[j], aabb))
 				Collision::CubeAndCube(actors[i], actors[j], contacts);
 		}
 	}
@@ -59,6 +59,7 @@ void PhysicsManager::Update(vector<Actor*> actors, float deltaTime, vector<pair<
 		if (contacts[i].depth <= 0)
 			continue;
 
+		// 질량에 비례해서 떨궈놓는건 수식 유도를 못하겠음.. 아ㅏㅏㅏㅏㅏㅏㅏㅏㅏ
 		Vector3 movePerIMass = contacts[i].normal * (contacts[i].depth / totalInverseMass);
 		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
 		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());

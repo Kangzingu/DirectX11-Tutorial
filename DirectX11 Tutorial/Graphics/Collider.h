@@ -27,7 +27,7 @@ public:
 class SphereCollider : public Collider
 {
 private:
-	float radius = 1.0f;
+	float radius = 0.5f;
 	
 public:
 	float GetRadius();

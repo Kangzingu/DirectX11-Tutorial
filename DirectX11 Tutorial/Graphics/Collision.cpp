@@ -210,7 +210,7 @@ float ProjectObjectToAxis(Object& object, Vector3 axis)
 		abs(Vector3::Dot(object.transform.GetForward() * object.transform.GetScale().z, axis));
 }
 // 큐브 간 상세 충돌 데이터 확인에 사용
-bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, vector<Contact>& contacts)
+bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, Contact* contact)
 {
 	Vector3 cubeCoordPoint = object2.transform.GetRotationMatrix().Inverse() * object2.transform.GetTranslationMatrix().Inverse() * point;
 	Vector3 cubeHalfScale = object2.transform.GetScale() / 2.0f;
@@ -262,16 +262,17 @@ bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, vector<Contac
 	// contact.object1 = nullptr;
 	// contact.object2 = &object1;
 	
-	Contact contact;
-	contact.object1 = &object1;
-	contact.object2 = &object2;
-	contact.point = point;
-	contact.normal = normal;
-	contact.depth = minDepth;
-	contacts.push_back(contact);
+	if (minDepth > contact->depth)
+	{
+		contact->object1 = &object1;
+		contact->object2 = &object2;
+		contact->point = point;
+		contact->normal = normal;
+		contact->depth = minDepth;
+	}
 }
 // 큐브 간 상세 충돌 데이터 확인에 사용
-void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Contact>& contacts)
+void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, Contact* contact)
 {
 	//    2 ------- 3
 	//   /|        /|
@@ -344,7 +345,8 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Cont
 
 		depth = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
 		// 이 경우 큐브 중점에서 큐브의 엣지보다 다른 엣지가 더 가까우므로 충돌이 맞음
-		if (Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnEdge))
+		if (Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnEdge) &&
+			Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnEdge) > Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnCubeEdge))
 		{
 			// 그렇다면 사실상 큐브의 모든 엣지가 다 충돌된걸로 나올거라 가장 얇게 충돌된 넘을 골라낼거임
 			// 
@@ -358,14 +360,15 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, vector<Cont
 	}
 	if (contactPointOnCubeEdge - contactPointOnEdge == Vector3::Zero())
 		return;
-	// 이거 살짝 이상함.. 반대편 물체가 없다는겡..
-	Contact contact;
-	contact.object1 = &object1;
-	contact.object2 = &object2;
-	contact.point = contactPointOnEdge;
-	contact.normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
-	contact.depth = minDepth;
-	contacts.push_back(contact);
+
+	if (minDepth > contact->depth)
+	{
+		contact->object1 = &object1;
+		contact->object2 = &object2;
+		contact->point = contactPointOnEdge;
+		contact->normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
+		contact->depth = minDepth;
+	}
 }
 bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts)
 {
@@ -374,6 +377,9 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	// Cube2의 x, y, z 축 3개
 	// Cbue1의 x, y, z 축과 Cube2의 x, y, z 축을 각각 조합 후 외적으로 만든 Cross(xx), Cross(xy), Cross(xz), Cross(yx), Cross(yy), Cross(yz), Cross(zx), Cross(zy), Cross(zz) 축 9개	
 	vector<Vector3> axes;
+	Contact contact;
+	contact.depth = 0;
+
 	axes.push_back(object1->transform.GetRight());
 	axes.push_back(object1->transform.GetUp());
 	axes.push_back(object1->transform.GetForward());
@@ -410,7 +416,7 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	}
 	// 1차 검사 통과! 여기까지 왔다는건 접촉하고 있다는 것임(눈으로 확인함), 이제 상세하게 어디서 얼만큼 충돌했는지 찾는것임
 
-	/*vector<LineSegment> cube1Edges;
+	vector<LineSegment> cube1Edges;
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetRight(), object1->transform.GetScale().x));
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetForward(), object1->transform.GetScale().z));
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetRight(), object1->transform.GetScale().x));
@@ -425,7 +431,7 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetForward(), object1->transform.GetScale().z));
 	for (int i = 0; i < cube1Edges.size(); i++)
 	{
-		CubeAndEdge(*object1, *object2, cube1Edges[i], contacts);
+		CubeAndEdge(*object1, *object2, cube1Edges[i], &contact);
 	}
 	vector<LineSegment> cube2Edges;
 	cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetRight(), object2->transform.GetScale().x));
@@ -442,8 +448,8 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, object2->transform.GetForward(), object2->transform.GetScale().z));
 	for (int i = 0; i < cube2Edges.size(); i++)
 	{
-		CubeAndEdge(*object2, *object1, cube2Edges[i], contacts);
-	}*/
+		CubeAndEdge(*object2, *object1, cube2Edges[i], &contact);
+	}
 
 	vector<Vector3> cube1Vertices;
 	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
@@ -456,7 +462,7 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
 	for (int i = 0; i < cube1Vertices.size(); i++)
 	{
-		CubeAndPoint(*object1, *object2, cube1Vertices[i], contacts);
+		CubeAndPoint(*object1, *object2, cube1Vertices[i], &contact);
 	}
 	vector<Vector3> cube2Vertices;
 	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
@@ -469,7 +475,12 @@ bool Collision::CubeAndCube(Object* object1, Object* object2, vector<Contact>& c
 	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
 	for (int i = 0; i < cube2Vertices.size(); i++)
 	{
-		CubeAndPoint(*object2, *object1, cube2Vertices[i], contacts);
+		CubeAndPoint(*object2, *object1, cube2Vertices[i], &contact);
+	}
+
+	if (contact.depth != 0)
+	{
+		contacts.push_back(contact);
 	}
 	return true;
 	// 303pg 읽으면 댐

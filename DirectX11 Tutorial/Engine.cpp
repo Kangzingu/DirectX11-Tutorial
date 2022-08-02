@@ -170,7 +170,7 @@ void Engine::InitializeScene()
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(0.0f, i*3, 0.0f));
+		actor->transform.SetPosition(Vector3(i*0.01f, i*3, 0.0f));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
