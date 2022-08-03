@@ -48,7 +48,8 @@ void Transform::Translate(Vector3 position)
 }
 void Transform::Rotate(Vector3 rotation)
 {
-	Vector4 addQuaternion = Vector4(rotation, 0);
+	Vector3 radRotation = Vector3(General::DegreeToRadian(rotation.x), General::DegreeToRadian(rotation.y), General::DegreeToRadian(rotation.z));
+	Vector4 addQuaternion = Vector4(radRotation, 0);
 	addQuaternion = (Vector4::CombineQuaternionVersion2(addQuaternion, this->rotationQuaternion)) / 2.0f;
 	this->rotationQuaternion += addQuaternion;
 	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);

@@ -311,8 +311,8 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.0005f);
-			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.0005f );
+			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.05f);
+			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.05f );
 			camera->UpdateMatrix();
 		}
 	}
@@ -359,7 +359,6 @@ void Engine::HandleEvent()
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_SPACE))
 	{
-
 	}
 	if (windowManager.keyboard.KeyIsPressed(VK_CONTROL))
 	{

@@ -12,5 +12,5 @@ void Camera::UpdateMatrix()
 	Vector3 eyePosition = this->transform.GetPosition();
 	Vector3 targetPosition = this->transform.GetPosition() + this->transform.GetForward();
 	Vector3 upDirection = this->transform.GetUp();
-	this->viewMatrix = Matrix4x4(DirectX::XMMatrixLookAtLH(eyePosition.ToXMVECTOR(), targetPosition.ToXMVECTOR(), upDirection.ToXMVECTOR()));
+	this->viewMatrix = transform.GetWorldMatrix().Inverse();// Matrix4x4(DirectX::XMMatrixLookAtLH(eyePosition.ToXMVECTOR(), targetPosition.ToXMVECTOR(), upDirection.ToXMVECTOR()));
 }

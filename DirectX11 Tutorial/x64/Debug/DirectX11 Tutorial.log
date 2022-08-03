@@ -1,7 +1,10 @@
 ﻿  Engine.cpp
-  Object.cpp
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(107,2): warning C4804: '>': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(250,50): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(265,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(300,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  DirectX11 Tutorial.vcxproj -> C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
+  PhysicsManager.cpp
+  main.cpp
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(106,2): warning C4804: '>': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(249,50): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(264,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
+D:\GitHubRepository\Simple-Physics-Engine\DirectX11 Tutorial\Engine.cpp(299,49): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DirectX11 Tutorial.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe
