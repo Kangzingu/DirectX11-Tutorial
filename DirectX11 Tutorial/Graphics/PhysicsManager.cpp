@@ -1,82 +1,45 @@
 #include "Actor.h"
 #include "PhysicsManager.h"
 
-void PhysicsManager::Update(vector<Actor*> actors, float deltaTime, vector<pair<Vector3, Vector3>>& aabb)
+PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug) : actors(actors), deltaTime(deltaTime), lineForDebug(lineForDebug) {}
+
+void PhysicsManager::Update()
 {
-	for (int i = 0; i < actors.size(); i++)
+	// 순서 계속 헷갈린다.. 마지막에 Transform 을 바꿔주는게 상식적으론 맞는거 같은데 차이를 잘 모르겠다
+	GenerateGravity();
+	UpdateTransform();
+
+	contacts.clear();
+	DetectCollision();
+	ResolveCollision();
+}
+
+void PhysicsManager::GenerateGravity()
+{
+	for (int i = 0; i < (*actors).size(); i++)
 	{
-		if (isGravityOn)
-			actors[i]->rigidbody.AddForce(gravity * actors[i]->rigidbody.GetMass());
-		actors[i]->rigidbody.Update(deltaTime);
-	}
-	// 충돌이 있었다고 치고 해결
-	vector<Contact> contacts;
-	for (int i = 0; i < actors.size(); i++)
-	{
-		for (int j = i + 1; j < actors.size(); j++)
-		{
-			if(Collision::BroadPhaseBoundingSphere(*actors[i], *actors[j], aabb))
-				Collision::CubeAndCube(actors[i], actors[j], contacts);
-		}
-	}
-	/*****/
-	ResolveCollision(contacts, deltaTime);
-	/*****/
-
-	// 반발계수(일단 임의로 지정함)
-	float restitution = 0.3f;
-	for (int i = 0; i < contacts.size(); i++)
-	{
-		/*
-		// 1. 속도 변경
-
-		float separatingVelocity;
-		Vector3 relativeVelocity = contacts[i].object1->rigidbody.GetVelocity() - contacts[i].object2->rigidbody.GetVelocity();
-		separatingVelocity = Vector3::Dot(relativeVelocity, contacts[i].normal);
-
-		// 멀어지고 있는거라면
-		if (separatingVelocity > 0)
-			continue;
-
-		float newSepVelocity = -separatingVelocity * restitution;
-
-		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass() - contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass();
-		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contacts[i].normal) * deltaTime;
-		if (accCausedSepVelocity < 0)
-		{
-			// ? 속도를 음수니까 빼야지 더해지는거 아닌강..
-			newSepVelocity += restitution * accCausedSepVelocity;
-			if (newSepVelocity < 0) newSepVelocity = 0;
-		}
-		float deltaVelocity = newSepVelocity - separatingVelocity;
-		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
-
-		if (totalInverseMass <= 0)
-			continue;
-
-		float impulse = deltaVelocity / totalInverseMass;
-		Vector3 impulsePerIMess = contacts[i].normal * impulse;
-		contacts[i].object1->rigidbody.AddVelocity(impulsePerIMess / contacts[i].object1->rigidbody.GetMass());
-		contacts[i].object2->rigidbody.AddVelocity(impulsePerIMess / -contacts[i].object2->rigidbody.GetMass());
-		*/
-		// 2. 겹친 위치 조정
-		if (contacts[i].depth <= 0)
-			continue;
-
-		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
-		// 질량에 비례해서 떨궈놓는건 수식 유도를 못하겠음.. 아ㅏㅏㅏㅏㅏㅏㅏㅏㅏ
-		Vector3 movePerIMass = contacts[i].normal * (contacts[i].depth / totalInverseMass);
-		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
-		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());
+		(*actors)[i]->rigidbody.AddForce(gravity * (*actors)[i]->rigidbody.GetMass());
 	}
 }
 
-void PhysicsManager::DetectBroadPhaseCollision()
+void PhysicsManager::UpdateTransform()
 {
+	for (int i = 0; i < (*actors).size(); i++)
+	{
+		(*actors)[i]->rigidbody.Update(deltaTime);
+	}
 }
 
-void PhysicsManager::DetectNarrowPhaseCollision()
+void PhysicsManager::DetectCollision()
 {
+	for (int i = 0; i < (*actors).size(); i++)
+	{
+		for (int j = i + 1; j < (*actors).size(); j++)
+		{
+			if (Collision::BroadPhaseBoundingSphere(*(*actors)[i], *(*actors)[j], lineForDebug))
+				Collision::NarrowPhaseCubeAndCube((*actors)[i], (*actors)[j], contacts, lineForDebug);
+		}
+	}
 }
 
 void MakeOrthonormalBasis(const Vector3& x, Vector3* y, Vector3* z)
@@ -92,7 +55,7 @@ void MakeOrthonormalBasis(const Vector3& x, Vector3* y, Vector3* z)
 	*z = Vector3::Normalize(*z);
 	*y = Vector3::Normalize(*y);
 }
-void PhysicsManager::ResolveCollision(vector<Contact>& contacts, float deltaTime)
+void PhysicsManager::ResolveCollision()
 {
 	for (int i = 0; i < contacts.size(); i++)
 	{
@@ -158,7 +121,7 @@ void PhysicsManager::ResolveCollision(vector<Contact>& contacts, float deltaTime
 			closingVelocity1 += closingVelocity2;
 		}
 		Vector3 totalClosingVelocity = contactToWorldCoordMatrix.Transpose() * closingVelocity1;
-		float restitution = 0.4f;
+		float restitution = 1.0f;
 		float desiredVelocity = -totalClosingVelocity.x * (1 + restitution);
 
 		Vector3 impulseContact = Vector3(desiredVelocity / deltaVelocity, 0, 0);
@@ -169,25 +132,69 @@ void PhysicsManager::ResolveCollision(vector<Contact>& contacts, float deltaTime
 		Vector3 impulsiveTorque = Vector3::Cross(impulse, relativeContactPosition1);
 		Vector3 rotationChange = contacts[i].object1->transform.GetRotationMatrix()* contacts[i].object1->rigidbody.GetInertiaTensor().Inverse()* contacts[i].object1->transform.GetRotationMatrix().Inverse()* impulsiveTorque;
 
-		contacts[i].object1->transform.Translate(velocityChange * deltaTime);
-		contacts[i].object1->transform.Rotate(rotationChange * deltaTime);
+		contacts[i].object1->rigidbody.AddVelocity(velocityChange * deltaTime);
+		contacts[i].object1->rigidbody.AddAngularVelocity(rotationChange * deltaTime);
 		if (contacts[i].object2 != nullptr)
 		{
 			Vector3 relativeContactPosition2 = contacts[i].point - contacts[i].object2->transform.GetPosition();
 
 			impulse *= -1;
-			velocityChange = impulse / contacts[i].object2->rigidbody.GetMass(); 
+			velocityChange = impulse / contacts[i].object2->rigidbody.GetMass();
 			impulsiveTorque = Vector3::Cross(impulse, relativeContactPosition2);
 			rotationChange = contacts[i].object2->transform.GetRotationMatrix() * contacts[i].object2->rigidbody.GetInertiaTensor().Inverse() * contacts[i].object2->transform.GetRotationMatrix().Inverse() * impulsiveTorque;
 
-			contacts[i].object2->transform.Translate(velocityChange * deltaTime);
-			contacts[i].object2->transform.Rotate(rotationChange * deltaTime);
+			contacts[i].object2->rigidbody.AddVelocity(velocityChange * deltaTime);
+			contacts[i].object2->rigidbody.AddAngularVelocity(rotationChange * deltaTime);
 		}
 	}
-}
 
 
-void PhysicsManager::SetGravityOn(bool isGravityOn)
-{
-	this->isGravityOn = isGravityOn;
+	// 반발계수(일단 임의로 지정함)
+	float restitution = 0.3f;
+	for (int i = 0; i < contacts.size(); i++)
+	{
+
+		// 1. 속도 변경
+
+		float separatingVelocity;
+		Vector3 relativeVelocity = contacts[i].object1->rigidbody.GetVelocity() - contacts[i].object2->rigidbody.GetVelocity();
+		separatingVelocity = Vector3::Dot(relativeVelocity, contacts[i].normal);
+
+		// 멀어지고 있는거라면
+		if (separatingVelocity > 0)
+			continue;
+
+		float newSepVelocity = -separatingVelocity * restitution;
+
+		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass() - contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass();
+		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contacts[i].normal) * deltaTime;
+		if (accCausedSepVelocity < 0)
+		{
+			// ? 속도를 음수니까 빼야지 더해지는거 아닌강..
+			newSepVelocity += restitution * accCausedSepVelocity;
+			if (newSepVelocity < 0) newSepVelocity = 0;
+		}
+		float deltaVelocity = newSepVelocity - separatingVelocity;
+		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
+
+		if (totalInverseMass <= 0)
+			continue;
+
+		float impulse = deltaVelocity / totalInverseMass;
+		Vector3 impulsePerIMess = contacts[i].normal * impulse;
+		contacts[i].object1->rigidbody.AddVelocity(impulsePerIMess / contacts[i].object1->rigidbody.GetMass());
+		contacts[i].object2->rigidbody.AddVelocity(impulsePerIMess / -contacts[i].object2->rigidbody.GetMass());
+
+
+		// 2. 겹친 위치 조정
+		if (contacts[i].depth <= 0)
+			continue;
+
+		totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
+		// 질량에 비례해서 떨궈놓는건 수식 유도를 못하겠음.. 아ㅏㅏㅏㅏㅏㅏㅏㅏㅏ
+		Vector3 movePerIMass = contacts[i].normal * (contacts[i].depth / totalInverseMass);
+		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
+		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());
+
+	}
 }

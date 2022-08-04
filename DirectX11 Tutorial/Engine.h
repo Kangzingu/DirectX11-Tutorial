@@ -31,6 +31,7 @@ class Engine
 public:
 	void Initialize(HINSTANCE hInstance);
 	void InitializeWindow(HINSTANCE hInstance);
+	void InitializePhysics();
 	void InitializeDirectX();
 	void InitializeShaders();
 	void InitializeScene();
@@ -50,7 +51,7 @@ private:
 	Light* light;
 	Camera* camera;
 	vector<Actor*> actors;
-	vector<pair<Vector3, Vector3>> aabb;
+	vector<Vector3> lineForDebug[2];
 
 	Timer fpsTimer;
 	Timer sceneTimer;
@@ -58,8 +59,8 @@ private:
 	int fpsCount = 0;
 	float deltaTime = 0;
 
-	WindowManager windowManager;
-	PhysicsManager physicsManager;
+	WindowManager* windowManager;
+	PhysicsManager* physicsManager;
 
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> deviceContext;// 그리기를 전담하는 넘인듯

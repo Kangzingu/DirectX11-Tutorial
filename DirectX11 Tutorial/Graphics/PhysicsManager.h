@@ -7,18 +7,21 @@ class Actor;
 class PhysicsManager
 {
 private:
-	bool isGravityOn = false;
-	Vector3 gravity = Vector3(0, -5.8f, 0);
+	Vector3 gravity = Vector3(0, -1.8f, 0);
+	vector<Contact> contacts;
+
+	vector<Actor*>* actors;
+	float& deltaTime;
+	vector<Vector3>* lineForDebug;
 
 public:
-	void Update(vector<Actor*> actors, float deltaTime, vector<pair<Vector3, Vector3>>& aabb);
-	
-	void DetectBroadPhaseCollision();
-	void DetectNarrowPhaseCollision();
-	void ResolveCollision(vector<Contact>& contacts, float deltaTime);
+	PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug);
 
-	void UpdateTransform(Rigidbody* rigidbody, float deltaTime);
+	void Update();
+	void GenerateGravity();
+	void UpdateTransform();
+	void DetectCollision();
+	void ResolveCollision();
 
-	void SetGravityOn(bool isGravityOn);
 public:
 };
