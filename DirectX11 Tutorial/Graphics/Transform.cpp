@@ -13,22 +13,10 @@ void Transform::SetPosition(Vector3 position)
 	this->translationMatrix = Matrix4x4::Translation(this->position);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
 }
-void Transform::SetRotation(Vector3 rotation)
+void Transform::SetRotation(Quaternion orientation)
 {
-	this->rotation = rotation;
-	this->rotationQuaternion = Vector4::Quaternion(Vector3::Normalize(rotation), Vector3::Magnitude(rotation));
-	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);
-	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
-	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
-	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
-	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
-	this->forward = Vector3::Normalize(this->rotationMatrix * Vector3::Forward());
-}
-void Transform::SetRotationQuaternion(Vector4 rotationQuaternion)
-{
-	this->rotationQuaternion = rotationQuaternion;
-	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);
-	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
+	this->orientation = Quaternion::Normalize(orientation);
+	this->rotationMatrix = Matrix4x4::Quaternion(this->orientation);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
 	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
 	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
@@ -48,34 +36,19 @@ void Transform::Translate(Vector3 position)
 }
 void Transform::Rotate(Vector3 rotation)
 {
-	//Vector3 radRotation = Vector3(General::DegreeToRadian(rotation.x), General::DegreeToRadian(rotation.y), General::DegreeToRadian(rotation.z));
-	Vector4 addQuaternion = Vector4(rotation, 0);
-	addQuaternion = (Vector4::CombineQuaternionVersion2(addQuaternion, this->rotationQuaternion)) / 2.0f;
-	this->rotationQuaternion += addQuaternion;
-	this->rotationQuaternion = Vector4::Normalize(this->rotationQuaternion);
-	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
+	this->orientation += rotation;
+	this->orientation = Quaternion::Normalize(this->orientation);
+	this->rotationMatrix = Matrix4x4::Quaternion(this->orientation);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
 	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
 	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
 	this->forward = Vector3::Normalize(this->rotationMatrix * Vector3::Forward());
 }
-void Transform::Rotate(Vector3 axis, float angle)
+void Transform::Rotate(Quaternion rotation)
 {
-	Vector4 addQuaternion = Vector4::Quaternion(axis, angle);
-	addQuaternion = Vector4::CombineQuaternion(addQuaternion, this->rotationQuaternion);
-	this->rotationQuaternion = Vector4::Normalize(addQuaternion);
-	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
-	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
-	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
-	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
-	this->forward = Vector3::Normalize(this->rotationMatrix * Vector3::Forward());
-}
-void Transform::Rotate(Vector4 rotationQuaternion)
-{
-	Vector4 addQuaternion = rotationQuaternion;
-	addQuaternion = Vector4::CombineQuaternion(addQuaternion, this->rotationQuaternion);
-	this->rotationQuaternion = Vector4::Normalize(addQuaternion);
-	this->rotationMatrix = Matrix4x4::RotationQuaternion(this->rotationQuaternion);
+	this->orientation *= rotation;
+	this->orientation = Quaternion::Normalize(this->orientation);
+	this->rotationMatrix = Matrix4x4::Quaternion(this->orientation);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
 	this->right = Vector3::Normalize(this->rotationMatrix * Vector3::Right());
 	this->up = Vector3::Normalize(this->rotationMatrix * Vector3::Up());
@@ -94,23 +67,24 @@ Matrix4x4 Transform::GetScalingMatrix() { return scalingMatrix; }
 Vector3 Transform::GetPosition() { return position; }
 Vector3 Transform::GetRotation()
 {
-	float t0 = 2.0f * (rotationQuaternion.w * rotationQuaternion.x + rotationQuaternion.y * rotationQuaternion.z);
-	float t1 = 1.0f - 2.0f * (rotationQuaternion.x * rotationQuaternion.x + rotationQuaternion.y * rotationQuaternion.y);
+	Vector3 rotation;
+	float t0 = 2.0f * (orientation.r * orientation.i + orientation.j * orientation.k);
+	float t1 = 1.0f - 2.0f * (orientation.i * orientation.i + orientation.j * orientation.j);
 	rotation.x = General::RadianToDegree(atan2(t0, t1));
 
-	float t2 = 2.0f * (rotationQuaternion.w * rotationQuaternion.y - rotationQuaternion.z * rotationQuaternion.x);
+	float t2 = 2.0f * (orientation.r * orientation.j - orientation.k * orientation.i);
 	if (t2 > +1.0f)
 		t2 = +1.0f;
 	if (t2 < -1.0f)
 		t2 = -1.0f;
 	rotation.y = General::RadianToDegree(asin(t2));
 
-	float t3 = 2.0f * (rotationQuaternion.w * rotationQuaternion.z + rotationQuaternion.x * rotationQuaternion.y);
-	float t4 = +1.0f - 2.0f * (rotationQuaternion.y * rotationQuaternion.y + rotationQuaternion.z * rotationQuaternion.z);
+	float t3 = 2.0f * (orientation.r * orientation.k + orientation.i * orientation.j);
+	float t4 = +1.0f - 2.0f * (orientation.j * orientation.j + orientation.k * orientation.k);
 	rotation.z = General::RadianToDegree(atan2(t3, t4));
 	return rotation;
 }
-Vector4 Transform::GetRotationQuaternion() { return rotationQuaternion; }
+Quaternion Transform::GetOrientation() { return orientation; }
 Vector3 Transform::GetScale() { return scale; }
 Vector3 Transform::GetRight() { return right; }
 Vector3 Transform::GetUp() { return up; }

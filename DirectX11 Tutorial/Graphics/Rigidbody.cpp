@@ -1,15 +1,14 @@
 #include "Object.h"
 #include "Rigidbody.h"
 
-void Rigidbody::Initialize(bool isKinematic, float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 momentOfInertia)
+void Rigidbody::Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensor)
 {
-	this->isKinematic = isKinematic;
-	this->mass = mass;
+	this->inverseMass = inverseMass;
 	this->damping = damping;
 	this->angularDamping = angularDamping;
 	this->velocity = velocity;
 	this->angularVelocity = rotationVelocity;
-	this->inertiaTensor = momentOfInertia;
+	this->inertiaTensor = inertiaTensor;
 	this->ClearAccumulatedForce();
 }
 void Rigidbody::AddForce(Vector3 force)
@@ -27,8 +26,7 @@ void Rigidbody::AddTorqueAt(Vector3 force, Vector3 worldPoint)
 }
 void Rigidbody::Update(float deltaTime)
 {
-	if (isKinematic) return;
-	velocity = (velocity + (accumulatedForce / mass) * deltaTime) * pow(damping, deltaTime);
+	velocity = (velocity + (accumulatedForce * inverseMass) * deltaTime) * pow(damping, deltaTime);
 	object->transform.Translate(velocity * deltaTime);
 	
 	angularVelocity = (angularVelocity + (object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
@@ -40,13 +38,9 @@ void Rigidbody::SetEnabled(bool isEnabled)
 {
 	this->isEnabled = isEnabled;
 }
-void Rigidbody::SetKinematic(bool isKinematic)
+void Rigidbody::SetInverseMass(float inverseMass)
 {
-	this->isKinematic = isKinematic;
-}
-void Rigidbody::SetMass(float mass)
-{
-	this->mass = mass;
+	this->inverseMass = inverseMass;
 }
 void Rigidbody::SetDamping(float damping)
 {
@@ -90,8 +84,7 @@ void Rigidbody::ClearAccumulatedForce()
 	accumulatedTorque = Vector3::Zero();
 }
 bool Rigidbody::IsEnabled(){return isEnabled;}
-bool Rigidbody::IsKinematic(){return isKinematic;}
-float Rigidbody::GetMass(){return mass;}
+float Rigidbody::GetInverseMass(){return inverseMass;}
 float Rigidbody::GetDamping(){return damping;}
 float Rigidbody::GetangularDamping(){return angularDamping;}
 Vector3 Rigidbody::GetVelocity(){return velocity;}

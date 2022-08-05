@@ -8,9 +8,8 @@ class Rigidbody
 {
 private:
 	bool isEnabled = true;
-	bool isKinematic = false;
 	
-	float mass = 1.0f;// kg단위
+	float inverseMass;
 	float damping = 0.95f;
 	float angularDamping = 0.95f;
 	Vector3 velocity = Vector3::Zero();// m/s 단위
@@ -25,9 +24,8 @@ public:
 	Object* object;
 
 	bool IsEnabled();
-	bool IsKinematic();
 
-	float GetMass();
+	float GetInverseMass();
 	float GetDamping();
 	float GetangularDamping();
 
@@ -39,13 +37,12 @@ public:
 	Matrix4x4 GetInertiaTensor();
 
 public:
-	void Initialize(bool isKinematic, float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 momentOfInertia);
+	void Initialize(float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensor);
 	void Update(float deltaTime);
 	
 	void SetEnabled(bool isEnabled);
-	void SetKinematic(bool isKinematic);
 
-	void SetMass(float mass);
+	void SetInverseMass(float mass);
 	void SetDamping(float damping);
 	void SetAngularDamping(float angularDamping);
 

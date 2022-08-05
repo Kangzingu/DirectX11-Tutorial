@@ -87,13 +87,40 @@ public:
 	Vector3 XYZ() { return Vector3(x, y, z); }
 	static Vector4 Zero() { return Vector4(0.0f, 0.0f, 0.0f, 0.0f); }
 	static Vector4 One() { return Vector4(1.0f, 1.0f, 1.0f, 1.0f); }
-	static Vector4 Normalize(Vector4 v) { float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); return Vector4(v.x / length, v.y / length, v.z / length, v.w / length); }
+	static Vector4 Normalize(Vector4 v)
+	{
+		float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+		if (length == 0)
+		{
+			return Vector4();
+		}
+		else
+		{
+			return Vector4(v.x / length, v.y / length, v.z / length, v.w / length);
+		}
+	}
 	static float Magnitude(Vector4 v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w); }
 	static float SquareMagnitude(Vector4 v) { return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w; }
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
-	static Vector4 Quaternion(Vector3 axis, float angle) { angle = General::DegreeToRadian(angle); return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); }
-	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2) { return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y, q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x, q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z); }
-	static Vector4 CombineQuaternionVersion2(Vector4 q1, Vector4 q2) { return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y, q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x, q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z); }
+	static Vector4 Quaternion(Vector3 axis, float angle)
+	{
+		angle = General::DegreeToRadian(angle); 
+		return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); 
+	}
+	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2) 
+	{
+		return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,
+					   q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,
+					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, 
+					   q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
+	}
+	static Vector4 CombineQuaternionBookVersion(Vector4 q1, Vector4 q2)
+	{
+		return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
+					   q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
+					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
+					   q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
+	}
 	Vector4 operator+(Vector4 v) { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
 	Vector4& operator+=(Vector4 v) { x += v.x; y += v.y; z += v.z; w += v.w;  return *this; }
 	Vector4 operator+(float a) { return Vector4(x + a, y + a, z + a, w + a); }
@@ -112,6 +139,69 @@ public:
 	DirectX::XMVECTOR ToXMVECTOR() { DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, w); return v; };
 	DirectX::XMFLOAT4 ToXMFLOAT4() { DirectX::XMFLOAT4 v = DirectX::XMFLOAT4(x, y, z, w); return v; };
 };
+
+struct Quaternion
+{
+public:
+	float r;
+	float i;
+	float j;
+	float k;
+
+public:
+	Quaternion() : r(1), i(0), j(0), k(0) {}
+	Quaternion(float r, float i, float j, float k) : r(r), i(i), j(j), k(k) {}
+	static Quaternion Identity() { return Quaternion(1.0f, 0.0f, 0.0f, 0.0f); }
+	static Quaternion Normalize(Quaternion q)
+	{
+		float length = sqrt(q.r * q.r + q.i * q.i + q.j * q.j + q.k * q.k); 
+		return Quaternion(q.r / length, q.i / length, q.j / length, q.k / length);
+	}
+	Quaternion operator*(Quaternion q)
+	{
+		return Quaternion(r * q.r - i * q.i -
+						  j * q.j - k * q.k, 
+						  r * q.i + i * q.r +
+						  j * q.k - k * q.j,
+						  r * q.j + j * q.r +
+						  k * q.i - i * q.k,
+						  r * q.k + k * q.r +
+						  i * q.j - j * q.i);
+	}
+	Quaternion& operator*=(Quaternion q)
+	{
+		Quaternion me = *this;
+		r = me.r * q.r - me.i * q.i -
+			me.j * q.j - me.k * q.k;
+		i = me.r * q.i + me.i * q.r +
+			me.j * q.k - me.k * q.j;
+		j = me.r * q.j + me.j * q.r +
+			me.k * q.i - me.i * q.k;
+		k = me.r * q.k + me.k * q.r +
+			me.i * q.j - me.j * q.i;
+		return *this;
+	}
+	Quaternion operator+(Vector3 rotation)
+	{
+		Quaternion q(0, rotation.x, rotation.y, rotation.z);
+		q *= *this;
+		return Quaternion(q.r + q.r / 2.0f,
+						  q.i + q.i / 2.0f,
+						  q.j + q.j / 2.0f,
+						  q.k + q.k / 2.0f);
+	}
+	Quaternion& operator+=(Vector3 rotation)
+	{
+		Quaternion q(0, rotation.x, rotation.y, rotation.z);
+		q *= *this;
+		r += q.r / 2.0f;
+		i += q.i / 2.0f;
+		j += q.j / 2.0f;
+		k += q.k / 2.0f;
+		return *this;
+	}
+};
+
 struct LineSegment
 {
 public:
@@ -146,7 +236,12 @@ public:
 	Matrix3x3() :m00(1), m01(0), m02(0), m10(0), m11(1), m12(0), m20(0), m21(0), m22(1) {}
 	Matrix3x3(float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22) :m00(m00), m01(m01), m02(m02), m10(m10), m11(m11), m12(m12), m20(m20), m21(m21), m22(m22) {}
 	float Determinant() { return(m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m02 * m11 * m20 - m01 * m10 * m22 - m00 * m12 * m21); }
-	Matrix3x3 Inverse() { float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse; }
+	static Matrix3x3 Zero() { return Matrix3x3(0, 0, 0, 0, 0, 0, 0, 0, 0); }
+	Matrix3x3 Inverse() {
+		float determinant = Determinant();
+		if (determinant == 0)
+			return Matrix3x3::Zero();
+		float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse; }
 	Matrix3x3 operator*(float a) { return Matrix3x3(m00 * a, m01 * a, m02 * a, m10 * a, m11 * a, m12 * a, m20 * a, m21 * a, m22 * a); }
 	Matrix3x3& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m10 *= a; m11 *= a; m12 *= a; m20 *= a; m21 *= a; m22 *= a; return *this; }
 	//Matrix3x3 Quaternion(Vector4 quaternion) { return Matrix3x3(1 - (2 * pow(quaternion.z, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.y * quaternion.z + 2 * quaternion.w * quaternion.x, 2 * quaternion.y * quaternion.w - 2 * quaternion.z * quaternion.x, 2 * quaternion.y * quaternion.z - 2 * quaternion.w * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.z * quaternion.w + 2 * quaternion.y + quaternion.x, 2 * quaternion.y * quaternion.w + 2 * quaternion.z * quaternion.x, 2 * quaternion.z * quaternion.w - 2 * quaternion.y * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.z, 2))); }
@@ -167,8 +262,15 @@ public:
 	Matrix4x4(Vector4 v1, Vector4 v2, Vector4 v3, Vector4 v4) :m00(v1.x), m01(v2.x), m02(v3.x), m03(v4.x), m10(v1.y), m11(v2.y), m12(v3.y), m13(v4.y), m20(v1.z), m21(v2.z), m22(v3.z), m23(v4.z), m30(v1.w), m31(v2.w), m32(v3.w), m33(v4.w) {}
 	Matrix4x4 Transpose() { Matrix4x4 m; m.m01 = m10; m.m02 = m20; m.m03 = m30; m.m10 = m01; m.m12 = m21; m.m13 = m31; m.m20 = m02; m.m21 = m12; m.m23 = m32; m.m30 = m03; m.m31 = m13; m.m32 = m23; return m; }
 	float Determinant() { return(m00 * m11 * m22 * m33 + m00 * m12 * m23 * m31 + m00 * m13 * m21 * m32 + m01 * m10 * m23 * m32 + m01 * m12 * m20 * m33 + m01 * m13 * m22 * m30 + m02 * m10 * m21 * m33 + m02 * m11 * m23 * m30 + m02 * m13 * m20 * m31 + m03 * m10 * m22 * m31 + m03 * m11 * m20 * m32 + m03 * m12 * m21 * m30 - m00 * m11 * m23 * m32 - m00 * m12 * m21 * m33 - m00 * m13 * m22 * m31 - m01 * m10 * m22 * m33 - m01 * m12 * m23 * m30 - m01 * m13 * m20 * m32 - m02 * m10 * m23 * m31 - m02 * m11 * m20 * m33 - m02 * m13 * m21 * m30 - m03 * m10 * m21 * m32 - m03 * m11 * m22 * m30 - m03 * m12 * m20 * m31); }
-	Matrix4x4 Inverse() { float determinantInverse = 1.0f / Determinant(); return Matrix4x4(m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31, m01 * m23 * m32 + m02 * m21 * m33 + m03 * m22 * m31 - m01 * m22 * m33 - m02 * m23 * m31 - m03 * m21 * m32, m01 * m12 * m33 + m02 * m13 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 - m03 * m12 * m31, m01 * m13 * m22 + m02 * m11 * m23 + m03 * m12 * m21 - m01 * m12 * m23 - m02 * m13 * m21 - m03 * m11 * m22, m10 * m23 * m32 + m12 * m20 * m33 + m13 * m22 * m30 - m10 * m22 * m33 - m12 * m23 * m30 - m13 * m20 * m32, m00 * m22 * m33 + m02 * m23 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 - m03 * m22 * m30, m00 * m13 * m32 + m02 * m10 * m33 + m03 * m12 * m30 - m00 * m12 * m33 - m02 * m13 * m30 - m03 * m10 * m32, m00 * m12 * m23 + m02 * m13 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 - m03 * m12 * m20, m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 - m13 * m21 * m30, m00 * m23 * m31 + m01 * m20 * m33 + m03 * m21 * m30 - m00 * m21 * m33 - m01 * m23 * m30 - m03 * m20 * m31, m00 * m11 * m33 + m01 * m13 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 - m03 * m11 * m30, m00 * m13 * m21 + m01 * m10 * m23 + m03 * m11 * m20 - m00 * m11 * m23 - m01 * m13 * m20 - m03 * m10 * m21, m10 * m22 * m31 + m11 * m20 * m32 + m12 * m21 * m30 - m10 * m21 * m32 - m11 * m22 * m30 - m12 * m20 * m31, m00 * m21 * m32 + m01 * m22 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 - m02 * m21 * m30, m00 * m12 * m31 + m01 * m10 * m32 + m02 * m11 * m30 - m00 * m11 * m32 - m01 * m12 * m30 - m02 * m10 * m31, m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 - m02 * m11 * m20) * determinantInverse; }
-	static Matrix4x4 Zero() { return Matrix4x4(); }
+	Matrix4x4 Inverse()
+	{
+		float determinant = Determinant();
+		if (determinant == 0)
+			return Matrix4x4::Zero();
+		float determinantInverse = 1.0f / Determinant();
+		return Matrix4x4(m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31, m01 * m23 * m32 + m02 * m21 * m33 + m03 * m22 * m31 - m01 * m22 * m33 - m02 * m23 * m31 - m03 * m21 * m32, m01 * m12 * m33 + m02 * m13 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 - m03 * m12 * m31, m01 * m13 * m22 + m02 * m11 * m23 + m03 * m12 * m21 - m01 * m12 * m23 - m02 * m13 * m21 - m03 * m11 * m22, m10 * m23 * m32 + m12 * m20 * m33 + m13 * m22 * m30 - m10 * m22 * m33 - m12 * m23 * m30 - m13 * m20 * m32, m00 * m22 * m33 + m02 * m23 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 - m03 * m22 * m30, m00 * m13 * m32 + m02 * m10 * m33 + m03 * m12 * m30 - m00 * m12 * m33 - m02 * m13 * m30 - m03 * m10 * m32, m00 * m12 * m23 + m02 * m13 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 - m03 * m12 * m20, m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 - m13 * m21 * m30, m00 * m23 * m31 + m01 * m20 * m33 + m03 * m21 * m30 - m00 * m21 * m33 - m01 * m23 * m30 - m03 * m20 * m31, m00 * m11 * m33 + m01 * m13 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 - m03 * m11 * m30, m00 * m13 * m21 + m01 * m10 * m23 + m03 * m11 * m20 - m00 * m11 * m23 - m01 * m13 * m20 - m03 * m10 * m21, m10 * m22 * m31 + m11 * m20 * m32 + m12 * m21 * m30 - m10 * m21 * m32 - m11 * m22 * m30 - m12 * m20 * m31, m00 * m21 * m32 + m01 * m22 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 - m02 * m21 * m30, m00 * m12 * m31 + m01 * m10 * m32 + m02 * m11 * m30 - m00 * m11 * m32 - m01 * m12 * m30 - m02 * m10 * m31, m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 - m02 * m11 * m20) * determinantInverse;
+	}
+	static Matrix4x4 Zero() { return Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); }
 	static Matrix4x4 Identity() { Matrix4x4 m; m.m00 = 1.0f; m.m11 = 1.0f; m.m22 = 1.0f; m.m33 = 1.0f; return m; }
 	static Matrix4x4 Translation(Vector3 v) { Matrix4x4 m; m = Matrix4x4::Identity(); m.m03 = v.x; m.m13 = v.y; m.m23 = v.z; return m; }
 	static Matrix4x4 Translation(Vector4 v) { Matrix4x4 m; m = Matrix4x4::Identity(); m.m03 = v.x; m.m13 = v.y; m.m23 = v.z; return m; }
@@ -179,9 +281,25 @@ public:
 	//static Matrix4x4 RotationQuaternion(Vector3 eulerAngle) { Vector4 quaternion(cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2) + sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2), cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * sin(eulerAngle.x / 2), sin(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) + cos(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2), cos(eulerAngle.z / 2) * cos(eulerAngle.y / 2) * cos(eulerAngle.x / 2) - sin(eulerAngle.z / 2) * sin(eulerAngle.y / 2) * sin(eulerAngle.x / 2)); Matrix4x4 m; m.m00 = quaternion.w * quaternion.w + quaternion.x * quaternion.x - quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m01 = 2 * (quaternion.x * quaternion.y - quaternion.w * quaternion.z); m.m02 = 2 * (quaternion.x * quaternion.z + quaternion.w * quaternion.y); m.m10 = 2 * (quaternion.x * quaternion.y + quaternion.w * quaternion.z); m.m11 = quaternion.w * quaternion.w - quaternion.x * quaternion.x + quaternion.y * quaternion.y - quaternion.z * quaternion.z; m.m12 = 2 * (quaternion.y * quaternion.z - quaternion.w * quaternion.x); m.m20 = 2 * (quaternion.x * quaternion.z - quaternion.w * quaternion.y); m.m21 = 2 * (quaternion.y * quaternion.z + quaternion.w * quaternion.x); m.m22 = quaternion.w * quaternion.w - quaternion.x * quaternion.x - quaternion.y * quaternion.y + quaternion.z * quaternion.z; return m; }
 	static Matrix4x4 RotationQuaternion(Vector3 axis, float angle) { axis = Vector3::Normalize(axis); Vector4 quaternion(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); Matrix4x4 m; m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m02 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m10 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m20 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m21 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
 	static Matrix4x4 RotationQuaternion(Vector4 quaternion) { Matrix4x4 m; m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m02 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m10 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m20 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m21 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
-	static Matrix4x4 InertiaTensorSphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 5.0f; m.m11 = 2.0f * mass * radius * radius / 5.0f; m.m22 = 2.0f * mass * radius * radius / 5.0f; return m; }
-	static Matrix4x4 InertiaTensorEmptySphere(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 3.0f; m.m11 = 2.0f * mass * radius * radius / 3.0f; m.m22 = 2.0f * mass * radius * radius / 3.0f; return m; }
-	static Matrix4x4 InertiaTensorCube(float mass, Vector3 scale) { Matrix4x4 m; m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m; }
+	static Matrix4x4 SphereInertiaTensor(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 5.0f; m.m11 = 2.0f * mass * radius * radius / 5.0f; m.m22 = 2.0f * mass * radius * radius / 5.0f; return m; }
+	static Matrix4x4 EmptySphereInertiaTensor(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 3.0f; m.m11 = 2.0f * mass * radius * radius / 3.0f; m.m22 = 2.0f * mass * radius * radius / 3.0f; return m; }
+	static Matrix4x4 CubeInertiaTensor(float mass, Vector3 scale) { Matrix4x4 m; m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m; }
+	static Matrix4x4 Quaternion(Quaternion q)
+	{
+		Matrix4x4 m;
+		m.m00 = 1.0f - 2.0f * (q.j * q.j + q.k * q.k);
+		m.m01 = 2.0f * (q.i * q.j - q.r * q.k);
+		m.m02 = 2.0f * (q.i * q.k + q.r * q.j);
+
+		m.m10 = 2.0f * (q.i * q.j + q.r * q.k);
+		m.m11 = 1.0f - 2.0f * (q.i * q.i + q.k * q.k);
+		m.m12 = 2.0f * (q.j * q.k - q.r * q.i);
+
+		m.m20 = 2.0f * (q.i * q.k - q.r * q.j);
+		m.m21 = 2.0f * (q.j * q.k + q.r * q.i);
+		m.m22 = 1.0f - 2.0f * (q.i * q.i + q.j * q.j);
+		return m;
+	}
 	Matrix4x4 operator+(Matrix4x4 m) { return Matrix4x4(m00 + m.m00, m01 + m.m01, m02 + m.m02, m03 + m.m03, m10 + m.m10, m11 + m.m11, m12 + m.m12, m13 + m.m13, m20 + m.m20, m21 + m.m21, m22 + m.m22, m23 + m.m23, m30 + m.m30, m31 + m.m31, m32 + m.m32, m33 + m.m33); }
 	Matrix4x4& operator+=(Matrix4x4 m) { m00 += m.m00; m01 += m.m01; m02 += m.m02; m03 += m.m03; m10 += m.m10; m11 += m.m11; m12 += m.m12; m13 += m.m13; m20 += m.m20; m21 += m.m21; m22 += m.m22; m23 += m.m23; m30 += m.m30; m31 += m.m31; m32 += m.m32; m33 += m.m33; return*this; }
 	Matrix4x4 operator+(float a) { return Matrix4x4(m00 + a, m01 + a, m02 + a, m03 + a, m10 + a, m11 + a, m12 + a, m13 + a, m20 + a, m21 + a, m22 + a, m23 + a, m30 + a, m31 + a, m32 + a, m33 + a); }

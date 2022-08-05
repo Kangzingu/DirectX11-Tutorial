@@ -238,21 +238,21 @@ void Engine::InitializeScene()
 	// 액터
 	model.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(false, 1.0f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::InertiaTensorCube(1.0f, transform.GetScale()));
+	rigidbody.Initialize(1.0f, 1.0f, 1.0f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(1.0f, transform.GetScale()));
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->transform.SetPosition(Vector3(0, 0, 0));
 	//actor->transform.SetRotation(Vector3(1, 0, 0));
 	actor->transform.SetScale(Vector3(10, 1, 10));
-	actor->rigidbody.SetKinematic(true);
-	actor->rigidbody.SetMass(100000);
+	actor->rigidbody.SetInverseMass(0);
+	actor->rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(0, actor->transform.GetScale()));
 	actors.push_back(actor);
 	for (int i = 1; i < 5; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i*1.1f, 5, 0));
+		actor->transform.SetPosition(Vector3(0, i * 5, 0));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -272,7 +272,7 @@ void Engine::InitializeScene()
 	// 카메라
 	model.isEnabled = false;
 	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
-	transform.Rotate(Vector3(1, 0, 0), -40);
+	transform.Rotate(Vector3(0, 0, 0));
 	rigidbody.SetEnabled(false);
 	collider.SetEnabled(false);
 	camera = new Camera();
@@ -289,11 +289,11 @@ void Engine::InitializeScene()
 	backgroundColor[2] = 0;
 	backgroundColor[3] = 1;
 
-	//actors[0]->transform.SetRotation(Vector3(1, 0, 0));
-	actors[1]->transform.SetRotation(Vector3(0, 45, 0));
+	actors[0]->transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
+	/*actors[1]->transform.SetRotation(Vector3(0, 45, 0));
 	actors[2]->transform.SetRotation(Vector3(0, 0, 45));
 	actors[3]->transform.SetRotation(Vector3(1, 0, 0));
-	actors[4]->transform.SetRotation(Vector3(1, 0, 0));
+	actors[4]->transform.SetRotation(Vector3(1, 0, 0));*/
 }
 bool Engine::IsRenderWindowExist()
 {
@@ -323,8 +323,9 @@ void Engine::HandleEvent()
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			this->camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.0005f);
-			this->camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.0005f );
+			camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.0005f);
+			camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.0005f );
+			Vector3 cameraRotation = camera->transform.GetRotation();
 			camera->UpdateMatrix();
 		}
 	}
@@ -367,6 +368,7 @@ void Engine::HandleEvent()
 	}
 	if (windowManager->keyboard.KeyIsPressed('G'))
 	{
+		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f), actors[1]->transform.GetPosition() + Vector3(1, -1, 0));
 	}
 	if (windowManager->keyboard.KeyIsPressed(VK_SPACE))
 	{
@@ -378,8 +380,7 @@ void Engine::HandleEvent()
 	{
 		for (int i = 0; i < actors.size(); i++)
 		{
-			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[i]->transform.GetPosition() + Vector3(0.1f *i, 0, 1));
-			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1), actors[i]->transform.GetPosition() + Vector3(0, -0.1f * i, 1));
+			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f * i), actors[i]->transform.GetPosition() + Vector3(1, 1, 0));
 		}
 	}
 }
@@ -637,11 +638,11 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
-	Vector3 actor1Position = actors[1]->transform.GetPosition();// *180.0f / PI;
-	string actor1PositionString = "Object Position: " + to_string((int)actor1Position.x) + ", " + to_string((int)actor1Position.y) + ", " + to_string((int)actor1Position.z);
+	Vector3 actor1Position = camera->transform.GetPosition();// *180.0f / PI;
+	string actor1PositionString = "Camera Position: " + to_string((int)actor1Position.x) + ", " + to_string((int)actor1Position.y) + ", " + to_string((int)actor1Position.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1PositionString).c_str(), DirectX::XMFLOAT2(5, 45), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	Vector3 actor1Velocity= actors[1]->rigidbody.GetVelocity();// *180.0f / PI;
-	string actor1VelocityString = "Object Position: " + to_string((int)actor1Velocity.x) + ", " + to_string((int)actor1Velocity.y) + ", " + to_string((int)actor1Velocity.z);
+	Vector3 actor1Velocity= actors[0]->transform.GetRotation();// *180.0f / PI;
+	string actor1VelocityString = "Camera Rotation: " + to_string((int)actor1Velocity.x) + ", " + to_string((int)actor1Velocity.y) + ", " + to_string((int)actor1Velocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1VelocityString).c_str(), DirectX::XMFLOAT2(5, 85), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*
 	angularVelocity = actors[2]->rigidbody.GetAngularVelocity() * 180.0f / PI;

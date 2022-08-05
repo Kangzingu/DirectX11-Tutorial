@@ -146,8 +146,8 @@ void Collision::NarrowPhaseSphereAndSphere(Object* object1, Object* object2, vec
 	if (centerDistance < object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius())
 	{
 		Contact contact;
-		contact.object1 = object1;
-		contact.object2 = object2;
+		contact.objects[0] = object1;
+		contact.objects[1] = object2;
 		contact.point = object2->transform.GetPosition() + (centerDiff / 2.0f);
 		contact.normal = Vector3::Normalize(centerDiff);
 		contact.depth = object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius() - centerDistance;
@@ -191,8 +191,8 @@ void Collision::NarrowPhaseSphereAndCube(Object* object1, Object* object2, vecto
 		{
 			Vector3 worldCoordClosestPoint = object2->transform.GetWorldMatrix() * closestPoint;
 			Contact contact;
-			contact.object1= object1;
-			contact.object2 = object2;
+			contact.objects[0]= object1;
+			contact.objects[1] = object2;
 			contact.point = worldCoordClosestPoint;
 			// 이거 중점을 넘어서 더 겹쳐버리면 계산이 아예 반대로 될듯, 관통해버린걸 해결하는거에 포함해서 해결해야하는 느낌?
 			contact.normal = Vector3::Normalize(object1->transform.GetPosition() - worldCoordClosestPoint);
@@ -264,8 +264,8 @@ bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, Contact* cont
 	
 	if (minDepth > contact->depth)
 	{
-		contact->object1 = &object1;
-		contact->object2 = &object2;
+		contact->objects[0] = &object1;
+		contact->objects[1] = &object2;
 		contact->point = point;
 		contact->normal = normal;
 		contact->depth = minDepth;
@@ -365,8 +365,8 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, Contact* co
 	{
 		lineForDebug[0].push_back(contactPointOnCubeEdge);
 		lineForDebug[1].push_back(contactPointOnEdge);
-		contact->object1 = &object1;
-		contact->object2 = &object2;
+		contact->objects[0] = &object1;
+		contact->objects[1] = &object2;
 		contact->point = contactPointOnEdge;
 		contact->normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
 		contact->depth = minDepth;

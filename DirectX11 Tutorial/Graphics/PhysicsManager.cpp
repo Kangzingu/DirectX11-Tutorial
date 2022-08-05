@@ -9,16 +9,19 @@ void PhysicsManager::Update()
 	GenerateGravity();
 	UpdateTransform();
 
-	contacts.clear();
 	DetectCollision();
 	ResolveCollision();
+	contacts.clear();
 }
 
 void PhysicsManager::GenerateGravity()
 {
 	for (int i = 0; i < (*actors).size(); i++)
 	{
-		(*actors)[i]->rigidbody.AddForce(gravity * (*actors)[i]->rigidbody.GetMass());
+		if ((*actors)[i]->rigidbody.GetInverseMass() != 0)
+		{
+			(*actors)[i]->rigidbody.AddForce(gravity / (*actors)[i]->rigidbody.GetInverseMass());
+		}
 	}
 }
 
@@ -58,240 +61,222 @@ void MakeOrthonormalBasis(const Vector3& x, Vector3* y, Vector3* z)
 void PhysicsManager::ResolveCollision()
 {
 	// 1. 준비
-	Vector3 contactTangent[2];
-	Matrix4x4 contactToWorld; 
-	Vector3 relativeContactPosition[2];
-	Vector3 contactVelocity;
-	Vector3 velocity;
-	Vector3 contactVelocity;
-	Vector3 accVelocity;
-	float velocityFromAcc;
-	float thisRestitution;
-	float desiredDeltaVelocity;
-	for (int i = 0; i < contacts.size(); i++)
 	{
-		// Contact Basis 계산
-		if (abs(contacts[i].normal.x) > abs(contacts[i].normal.y))
+		for (int i = 0; i < contacts.size(); i++)
 		{
-			float s = 1.0f / sqrt(contacts[i].normal.z * contacts[i].normal.z + contacts[i].normal.x * contacts[i].normal.x);
-
-			contactTangent[0].x = contacts[i].normal.z * s;
-			contactTangent[0].y = 0;
-			contactTangent[0].z = -contacts[i].normal.x * s;
-
-			contactTangent[1].x = contacts[i].normal.y * contactTangent[0].x;
-			contactTangent[1].y = contacts[i].normal.z * contactTangent[0].x - contacts[i].normal.x * contactTangent[0].z;
-			contactTangent[1].z = -contacts[i].normal.y * contactTangent[0].x;
+			contacts[i].CalculateInternals(deltaTime);
 		}
-		else
-		{
-			float s = 1.0f / sqrt(contacts[i].normal.z * contacts[i].normal.z + contacts[i].normal.y * contacts[i].normal.y);
-
-			contactTangent[0].x = 0;
-			contactTangent[0].y = -contacts[i].normal.z * s;
-			contactTangent[0].z = contacts[i].normal.y * s;
-
-			contactTangent[1].x = contacts[i].normal.y * contactTangent[0].z - contacts[i].normal.z * contactTangent[0].y;
-			contactTangent[1].y = -contacts[i].normal.x * contactTangent[0].z;
-			contactTangent[1].z = contacts[i].normal.x * contactTangent[0].y;
-		}
-
-		contactToWorld = Matrix4x4(contacts[i].normal, contactTangent[0], contactTangent[1]);
-
-		relativeContactPosition[0] = contacts[i].point - contacts[i].object1->transform.GetPosition();
-		if (contacts[i].object2 != nullptr)
-		{
-			relativeContactPosition[1] = contacts[i].point - contacts[i].object2->transform.GetPosition();
-		}
-
-		// Local Velocity 계산
-		velocity = Vector3::Cross(contacts[i].object1->rigidbody.GetAngularVelocity(), relativeContactPosition[0]);
-		velocity += contacts[i].object1->rigidbody.GetVelocity();
-
-		 contactVelocity = contactToWorld.Transpose() * velocity;
-		accVelocity = (contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass()) * deltaTime;
-		accVelocity = contactToWorld.Transpose() * accVelocity;
-		accVelocity.x = 0;
-		contactVelocity += accVelocity;
-		if (contacts[i].object2 != nullptr)
-		{
-			velocity = Vector3::Cross(contacts[i].object2->rigidbody.GetAngularVelocity(), relativeContactPosition[1]);
-			velocity += contacts[i].object1->rigidbody.GetVelocity();
-
-			contactVelocity -= contactToWorld.Transpose() * velocity;
-			accVelocity = (contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass()) * deltaTime;
-			accVelocity = contactToWorld.Transpose() * accVelocity;
-			accVelocity.x = 0;
-			contactVelocity -= accVelocity;
-		}
-
-		// 필요한 Delta Velocity 계산
-		const static float velocityLimit = 0.25f;
-		velocityFromAcc = 0;
-		if (contacts[i].object1->rigidbody.IsKinematic() == false)// 여기서 확인하는게 무슨 의미가 있겠냐만..
-		{
-			velocityFromAcc += Vector3::Dot((contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass()) * deltaTime, contacts[i].normal);
-		}
-		
-		if (contacts[i].object2 != nullptr && contacts[i].object2->rigidbody.IsKinematic() == false)
-		{
-			velocityFromAcc -= Vector3::Dot((contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass()) * deltaTime, contacts[i].normal);
-		}
-		
-		thisRestitution = 0.4f;
-		if (abs(contactVelocity.x) < velocityLimit)
-		{
-			thisRestitution = 0.0f;
-		}
-
-		desiredDeltaVelocity = -contactVelocity.x - thisRestitution * (contactVelocity.x - velocityFromAcc);
 	}
 
 	// 2. 겹친 위치 조정
-	int iter, index;
-	Vector3 linearChange[2], angularChange[2];
-	float max;
-	float positionEpsilon = 0.01f;// 너무 작은 contact depth의 불안정성을 해소하기 위한 값..?
-	Vector3 deltaPosition;
-
-	int positionIterationsUsed = 0;
-	int positionIterations = contacts.size() * 2;// 왜 2배인지는..
-	while (positionIterationsUsed < positionIterations)
 	{
-		// 가장 심각한(depth가 깊은)걸 찾음
-		max = positionEpsilon;
-		index = contacts.size();
-		for (int i = 0; i < contacts.size(); i++)
+		int iter, index;
+		Vector3 linearChange[2], angularChange[2];
+		float max;
+		Vector3 deltaPosition;
+
+		int positionIterationsUsed = 0;
+		int positionIterations = contacts.size() * 4;// 왜 2배인지는..
+		while (positionIterationsUsed < positionIterations)
 		{
-			if (contacts[i].depth > max)
+			// 가장 심각한(depth가 깊은)걸 찾음
+			max = epsilon;
+			index = contacts.size();
+			for (int i = 0; i < contacts.size(); i++)
 			{
-				max = contacts[i].depth;
-				index = i;
+				if (contacts[i].depth > max)
+				{
+					max = contacts[i].depth;
+					index = i;
+				}
 			}
-		}
-		if (index == contacts.size())
-			break;
+			if (index == contacts.size())
+				break;
 
-		// 원래 c[index].matchAwakeState();라는 비활성화된 리지드바디 깨우는듯한?거 함
+			// 원래 c[index].matchAwakeState();라는 비활성화된 리지드바디 깨우는듯한?거 함
 
-		// 포지션 변경 할거임
-		const float angularLimit = 0.2f;
-		float angularMove[2];
-		float linearMove[2];
+			// 포지션 변경 할거임
+			const float angularLimit = 0.2f;
+			float angularMove[2];
+			float linearMove[2];
 
-		float totalInertia = 0;
-		float linearInertia[2];
-		float angularInertia[2];
-		
-		// 일단 contact 좌표계의 관성 텐서 계산좀 하고
-		Matrix4x4 inverseInertiaTensor = contacts[index].object1->transform.GetWorldMatrix() * contacts[index].object1->rigidbody.GetInertiaTensor();
+			float totalInertia = 0;
+			float linearInertia[2];
+			float angularInertia[2];
 
-		Vector3 angularInertiaWorld = Vector3::Cross(relativeContactPosition[0], contacts[index].normal);
-		angularInertiaWorld = inverseInertiaTensor * angularInertiaWorld;
-		angularInertiaWorld = Vector3::Cross(angularInertiaWorld, relativeContactPosition[0]);
-		angularInertia[0] = Vector3::Dot(angularInertiaWorld, contacts[index].normal);
+			// 일단 contact 좌표계의 관성 텐서 계산좀 하고
+			for (int i = 0; i < 2; i++) if (contacts[index].objects[i] != nullptr)
+			{
+				Matrix4x4 inverseInertiaTensor = contacts[index].objects[i]->transform.GetWorldMatrix() * contacts[index].objects[i]->rigidbody.GetInertiaTensor().Inverse() * contacts[index].objects[i]->transform.GetWorldMatrix().Inverse();
 
-		linearInertia[0] = 1.0f / contacts[index].object1->rigidbody.GetMass();
+				Vector3 angularInertiaWorld = Vector3::Cross(contacts[index].relativeContactPosition[i], contacts[index].normal);
+				angularInertiaWorld = inverseInertiaTensor * angularInertiaWorld;
+				angularInertiaWorld = Vector3::Cross(angularInertiaWorld, contacts[index].relativeContactPosition[i]);
+				angularInertia[i] = Vector3::Dot(angularInertiaWorld, contacts[index].normal);
 
-		totalInertia += linearInertia[0] + angularInertia[0];
-		if (contacts[index].object2 != nullptr)
-		{
-			inverseInertiaTensor = contacts[index].object2->transform.GetWorldMatrix() * contacts[index].object2->rigidbody.GetInertiaTensor();
+				linearInertia[i] = contacts[index].objects[i]->rigidbody.GetInverseMass();
 
-			angularInertiaWorld = Vector3::Cross(relativeContactPosition[1], contacts[index].normal);
-			angularInertiaWorld = inverseInertiaTensor * angularInertiaWorld;
-			angularInertiaWorld = Vector3::Cross(angularInertiaWorld, relativeContactPosition[1]);
-			angularInertia[1] = Vector3::Dot(angularInertiaWorld, contacts[index].normal);
+				totalInertia += linearInertia[i] + angularInertia[i];
+			}
 
-			linearInertia[1] = 1.0f / contacts[index].object2->rigidbody.GetMass();
+			// 계산하고 적용할거임
+			for (int i = 0; i < 2; i++) if (contacts[index].objects[i] != nullptr)
+			{
+				float sign = (i == 0) ? 1 : -1;
+				angularMove[i] = sign * contacts[index].depth * (angularInertia[i] / totalInertia);
+				linearMove[i] = sign * contacts[index].depth * (linearInertia[i] / totalInertia);
 
-			totalInertia += linearInertia[1] + angularInertia[1];
-		}
+				Vector3 projection = contacts[index].relativeContactPosition[i];
+				projection += contacts[index].normal * Vector3::Dot(-contacts[index].relativeContactPosition[i], contacts[index].normal);
 
-		// 계산하고 적용할거임
-		float sign = 1;
-		angularMove[0] = sign * contacts[index].depth * (angularInertia[0] / totalInertia);
-		linearMove[0] = sign * contacts[index].depth * (linearInertia[0] / totalInertia);
+				float maxMagnitude = angularLimit * Vector3::Magnitude(projection);
 
-		Vector3 projection = relativeContactPosition[0];
-		projection += contacts[index].normal * Vector3::Dot(-relativeContactPosition[0], contacts[index].normal);
+				if (angularMove[i] < -maxMagnitude)
+				{
+					float totalMove = angularMove[i] + linearMove[i];
+					angularMove[i] = -maxMagnitude;
+					linearMove[i] = totalMove - angularMove[i];
+				}
+				else if (angularMove[i] > maxMagnitude)
+				{
+					float totalMove = angularMove[i] + linearMove[i];
+					angularMove[i] = maxMagnitude;
+					linearMove[i] = totalMove - angularMove[i];
+				}
 
-		float maxMagnitude = angularLimit * Vector3::Magnitude(projection);
+				if (angularMove[i] == 0)
+				{
+					angularChange[i] = Vector3::Zero();
+				}
+				else
+				{
+					Vector3 targetAngularDirection = Vector3::Cross(contacts[index].relativeContactPosition[i], contacts[index].normal);
+					Matrix4x4 inverseInertiaTensor = contacts[index].objects[i]->transform.GetWorldMatrix() * contacts[index].objects[i]->rigidbody.GetInertiaTensor().Inverse() * contacts[index].objects[i]->transform.GetWorldMatrix().Inverse();
+					angularChange[i] = inverseInertiaTensor * targetAngularDirection * (angularMove[i] / angularInertia[i]);
+				}
 
-		if (angularMove[0] < -maxMagnitude)
-		{
-			float totalMove = angularMove[0] + linearMove[0];
-			angularMove[0] = -maxMagnitude;
-			linearMove[0] = totalMove - angularMove[0];
-		}
-		else if (angularMove[0] > maxMagnitude)
-		{
-			float totalMove = angularMove[0] + linearMove[0];
-			angularMove[0] = maxMagnitude;
-			linearMove[0] = totalMove - angularMove[0];
-		}
-
-		if (angularMove[0] == 0)
-		{
-			angularChange[0] = Vector3::Zero();
-		}
-		else
-		{
-			Vector3 targetAngularDirection = ;
+				linearChange[i] = contacts[index].normal * linearMove[i];
+				contacts[index].objects[i]->transform.Translate(contacts[index].normal * linearMove[i]);
+				contacts[index].objects[i]->transform.Rotate(angularChange[i]);
+			}
+			for (int i = 0; i < contacts.size(); i++)
+			{
+				for (int a = 0; a < 2; a++) if (contacts[i].objects[a] != nullptr)
+				{
+					for (int b = 0; b < 2; b++)
+					{
+						if (contacts[i].objects[a] == contacts[index].objects[b])
+						{
+							deltaPosition = linearChange[b] + Vector3::Cross(angularChange[b], contacts[i].relativeContactPosition[a]);
+							contacts[i].depth += Vector3::Dot(deltaPosition, contacts[i].normal) * (a ? 1 : -1);
+						}
+					}
+				}
+			}
+			positionIterationsUsed++;
 		}
 	}
 
 	// 3. 속도 조정
+	//
+	//{
+	//	Vector3 velocityChange[2], rotationChange[2];
+	//	Vector3 deltaVel;
 
+	//	int velocityIterationsUsed = 0;
+	//	int velocityIterations = contacts.size() * 4;// 왜 2배인지는..
+	//	while (velocityIterationsUsed < velocityIterations)
+	//	{
+	//		// 가장 심각한(해결에 필요한 속도가 높은)걸 찾음
+	//		float max = epsilon;
+	//		int index = contacts.size();
+	//		for (int i = 0; i < contacts.size(); i++)
+	//		{
+	//			if (contacts[i].resolveSpeed > max)
+	//			{
+	//				max = contacts[i].resolveSpeed;
+	//				index = i;
+	//			}
+	//		}
+	//		if (index == contacts.size())
+	//			break;
 
-	// 반발계수(일단 임의로 지정함)
-	float restitution = 0.3f;
-	for (int i = 0; i < contacts.size(); i++)
-	{
+	//		// 원래 c[index].matchAwakeState();라는 비활성화된 리지드바디 깨우는듯한?거 함
 
-		// 1. 속도 변경
+	//		// 속도 변경 할거임
+	//		Matrix4x4 inverseInertiaTensor[2];
+	//		inverseInertiaTensor[0] = contacts[index].objects[0]->transform.GetWorldMatrix() * contacts[index].objects[0]->rigidbody.GetInertiaTensor().Inverse() * contacts[index].objects[0]->transform.GetWorldMatrix().Inverse();
+	//		if (contacts[index].objects[1] != nullptr)
+	//		{
+	//			inverseInertiaTensor[1] = contacts[index].objects[1]->transform.GetWorldMatrix() * contacts[index].objects[1]->rigidbody.GetInertiaTensor().Inverse() * contacts[index].objects[1]->transform.GetWorldMatrix().Inverse();
+	//		}
 
-		float separatingVelocity;
-		Vector3 relativeVelocity = contacts[i].object1->rigidbody.GetVelocity() - contacts[i].object2->rigidbody.GetVelocity();
-		separatingVelocity = Vector3::Dot(relativeVelocity, contacts[i].normal);
+	//		Vector3 impulseContact;
+	//		float friction = 0;
+	//		if (friction == 0)
+	//		{
+	//			// 마찰력이 없는 경우
+	//			Vector3 deltaVelWorld = Vector3::Cross(contacts[index].relativeContactPosition[0], contacts[index].normal);
+	//			deltaVelWorld = inverseInertiaTensor[0] * deltaVelWorld;
+	//			deltaVelWorld = Vector3::Cross(deltaVelWorld, contacts[index].relativeContactPosition[0]);
 
-		// 멀어지고 있는거라면
-		if (separatingVelocity > 0)
-			continue;
+	//			float deltaVelocity = Vector3::Dot(deltaVelWorld, contacts[index].normal);
 
-		float newSepVelocity = -separatingVelocity * restitution;
+	//			deltaVelocity +=  contacts[index].objects[0]->rigidbody.GetInverseMass();
+	//			if (contacts[index].objects[1] != nullptr)
+	//			{
+	//				deltaVelWorld = Vector3::Cross(contacts[index].relativeContactPosition[1], contacts[index].normal);
+	//				deltaVelWorld = inverseInertiaTensor[1] * deltaVelWorld;
+	//				deltaVelWorld = Vector3::Cross(deltaVelWorld, contacts[index].relativeContactPosition[1]);
 
-		Vector3 accCausedVelocity = contacts[i].object1->rigidbody.GetAccumulatedForce() / contacts[i].object1->rigidbody.GetMass() - contacts[i].object2->rigidbody.GetAccumulatedForce() / contacts[i].object2->rigidbody.GetMass();
-		float accCausedSepVelocity = Vector3::Dot(accCausedVelocity, contacts[i].normal) * deltaTime;
-		if (accCausedSepVelocity < 0)
-		{
-			// ? 속도를 음수니까 빼야지 더해지는거 아닌강..
-			newSepVelocity += restitution * accCausedSepVelocity;
-			if (newSepVelocity < 0) newSepVelocity = 0;
-		}
-		float deltaVelocity = newSepVelocity - separatingVelocity;
-		float totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
+	//				deltaVelocity += Vector3::Dot(deltaVelWorld, contacts[index].normal);
 
-		if (totalInverseMass <= 0)
-			continue;
+	//				deltaVelocity += contacts[index].objects[1]->rigidbody.GetInverseMass();
+	//			}
+	//			impulseContact.x = contacts[index].resolveSpeed / deltaVelocity;
+	//		}
+	//		else
+	//		{
+	//			// 마찰력이 있는 경우
+	//			// 나중에 구현하자
+	//		}
+	//		Vector3 impulse = contacts[index].contactToWorld * impulseContact;
 
-		float impulse = deltaVelocity / totalInverseMass;
-		Vector3 impulsePerIMess = contacts[i].normal * impulse;
-		contacts[i].object1->rigidbody.AddVelocity(impulsePerIMess / contacts[i].object1->rigidbody.GetMass());
-		contacts[i].object2->rigidbody.AddVelocity(impulsePerIMess / -contacts[i].object2->rigidbody.GetMass());
+	//		Vector3 impulsiveTorque = Vector3::Cross(contacts[index].relativeContactPosition[0], impulse);
+	//		rotationChange[0] = inverseInertiaTensor[0] * impulsiveTorque;
+	//		velocityChange[0] = impulse * contacts[index].objects[0]->rigidbody.GetInverseMass();
 
+	//		contacts[index].objects[0]->transform.Translate(velocityChange[0]);
+	//		contacts[index].objects[0]->transform.Rotate(rotationChange[0]);
+	//		if (contacts[index].objects[1] != nullptr)
+	//		{
+	//			impulsiveTorque = Vector3::Cross(impulse, contacts[index].relativeContactPosition[1]);
+	//			rotationChange[1] = inverseInertiaTensor[1] * impulsiveTorque;
+	//			velocityChange[1] = -impulse * contacts[index].objects[1]->rigidbody.GetInverseMass();
 
-		// 2. 겹친 위치 조정
-		if (contacts[i].depth <= 0)
-			continue;
+	//			contacts[index].objects[1]->transform.Translate(velocityChange[1]);
+	//			contacts[index].objects[1]->transform.Rotate(rotationChange[1]);
+	//		}
 
-		totalInverseMass = 1.0f / contacts[i].object1->rigidbody.GetMass() + 1.0f / contacts[i].object2->rigidbody.GetMass();
-		// 질량에 비례해서 떨궈놓는건 수식 유도를 못하겠음.. 아ㅏㅏㅏㅏㅏㅏㅏㅏㅏ
-		Vector3 movePerIMass = contacts[i].normal * (contacts[i].depth / totalInverseMass);
-		contacts[i].object1->transform.Translate(movePerIMass / contacts[i].object1->rigidbody.GetMass());
-		contacts[i].object2->transform.Translate(movePerIMass / -contacts[i].object2->rigidbody.GetMass());
+	//		for (int i = 0; i < contacts.size(); i++)
+	//		{
+	//			for (int a = 0; a < 2; a++) if (contacts[index].objects[a] != nullptr)
+	//			{
+	//				for (int b = 0; b < 2; b++)
+	//				{
+	//					if (contacts[i].objects[a] == contacts[index].objects[b])
+	//					{
+	//						deltaVel = velocityChange[b] + Vector3::Cross(rotationChange[b], contacts[i].relativeContactPosition[a]);
+	//						contacts[i].localContactVelocity += contacts[i].contactToWorld.Transpose() * deltaVel * (a ? 1 : -1);
+	//						contacts[i].CalculateResolveSpeed(deltaTime);
+	//					}
 
-	}
+	//				}
+	//			}
+	//		}
+	//		velocityIterationsUsed++;
+	//	}
+	//}
 }
 
 //void PhysicsManager::ResolveCollision()

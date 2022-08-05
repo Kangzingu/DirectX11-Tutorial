@@ -7,6 +7,7 @@ class Actor;
 class PhysicsManager
 {
 private:
+	const float epsilon = 0.00001f;
 	Vector3 gravity = Vector3(0, -1.8f, 0);
 	vector<Contact> contacts;
 

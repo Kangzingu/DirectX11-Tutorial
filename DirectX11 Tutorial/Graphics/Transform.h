@@ -6,8 +6,7 @@ class Transform
 {
 private:
 	Vector3 position = Vector3::Zero();
-	Vector3 rotation = Vector3::Zero();
-	Vector4 rotationQuaternion = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+	Quaternion orientation = Quaternion::Identity();
 	Vector3 scale = Vector3::One();
 
 	Vector3 right = Vector3::Right();
@@ -29,7 +28,7 @@ public:
 
 	Vector3 GetPosition();
 	Vector3 GetRotation();
-	Vector4 GetRotationQuaternion();
+	Quaternion GetOrientation();
 	Vector3 GetScale();
 
 	Vector3 GetRight();
@@ -40,13 +39,11 @@ public:
 	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
 
 	void SetPosition(Vector3 position);
-	void SetRotation(Vector3 rotation);
-	void SetRotationQuaternion(Vector4 rotationQuaternion);
+	void SetRotation(Quaternion orientation);
 	void SetScale(Vector3 scale);
 
 	void Translate(Vector3 position);
 	void Rotate(Vector3 rotation);
-	void Rotate(Vector3 axis, float angle);
-	void Rotate(Vector4 rotationQuaternion);
+	void Rotate(Quaternion orientation);
 	void Scale(Vector3 scale);
 };
