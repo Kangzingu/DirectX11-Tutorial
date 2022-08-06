@@ -146,11 +146,11 @@ void Collision::NarrowPhaseSphereAndSphere(Object* object1, Object* object2, vec
 	if (centerDistance < object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius())
 	{
 		Contact contact;
-		contact.objects[0] = object1;
-		contact.objects[1] = object2;
-		contact.point = object2->transform.GetPosition() + (centerDiff / 2.0f);
-		contact.normal = Vector3::Normalize(centerDiff);
-		contact.depth = object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius() - centerDistance;
+		contact.m_objects[0] = object1;
+		contact.m_objects[1] = object2;
+		contact.m_point = object2->transform.GetPosition() + (centerDiff / 2.0f);
+		contact.m_normal = Vector3::Normalize(centerDiff);
+		contact.m_penetration = object1->sphereCollider.GetRadius() + object2->sphereCollider.GetRadius() - centerDistance;
 		contacts.push_back(contact);
 	}
 }
@@ -191,12 +191,12 @@ void Collision::NarrowPhaseSphereAndCube(Object* object1, Object* object2, vecto
 		{
 			Vector3 worldCoordClosestPoint = object2->transform.GetWorldMatrix() * closestPoint;
 			Contact contact;
-			contact.objects[0]= object1;
-			contact.objects[1] = object2;
-			contact.point = worldCoordClosestPoint;
+			contact.m_objects[0]= object1;
+			contact.m_objects[1] = object2;
+			contact.m_point = worldCoordClosestPoint;
 			// 이거 중점을 넘어서 더 겹쳐버리면 계산이 아예 반대로 될듯, 관통해버린걸 해결하는거에 포함해서 해결해야하는 느낌?
-			contact.normal = Vector3::Normalize(object1->transform.GetPosition() - worldCoordClosestPoint);
-			contact.depth = object1->sphereCollider.GetRadius() - Vector3::Magnitude(object1->transform.GetPosition() - worldCoordClosestPoint);
+			contact.m_normal = Vector3::Normalize(object1->transform.GetPosition() - worldCoordClosestPoint);
+			contact.m_penetration = object1->sphereCollider.GetRadius() - Vector3::Magnitude(object1->transform.GetPosition() - worldCoordClosestPoint);
 			contacts.push_back(contact);
 		}
 	}
@@ -262,13 +262,13 @@ bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, Contact* cont
 	// contact.object1 = nullptr;
 	// contact.object2 = &object1;
 	
-	if (minDepth > contact->depth)
+	if (minDepth > contact->m_penetration)
 	{
-		contact->objects[0] = &object1;
-		contact->objects[1] = &object2;
-		contact->point = point;
-		contact->normal = normal;
-		contact->depth = minDepth;
+		contact->m_objects[0] = &object1;
+		contact->m_objects[1] = nullptr;
+		contact->m_point = point+ (Vector3::Normalize(normal) * minDepth/2);
+		contact->m_normal = Vector3::Normalize(normal);
+		contact->m_penetration = minDepth;
 	}
 }
 // 큐브 간 상세 충돌 데이터 확인에 사용
@@ -361,15 +361,15 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, Contact* co
 	if (contactPointOnCubeEdge - contactPointOnEdge == Vector3::Zero())
 		return;
 
-	if (minDepth > contact->depth)
+	if (minDepth > contact->m_penetration)
 	{
 		lineForDebug[0].push_back(contactPointOnCubeEdge);
 		lineForDebug[1].push_back(contactPointOnEdge);
-		contact->objects[0] = &object1;
-		contact->objects[1] = &object2;
-		contact->point = contactPointOnEdge;
-		contact->normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
-		contact->depth = minDepth;
+		contact->m_objects[0] = &object1;
+		contact->m_objects[1] = nullptr;
+		contact->m_point = contactPointOnEdge + Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge) * minDepth/2;
+		contact->m_normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
+		contact->m_penetration = minDepth;
 	}
 }
 bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
@@ -380,7 +380,7 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 	// Cbue1의 x, y, z 축과 Cube2의 x, y, z 축을 각각 조합 후 외적으로 만든 Cross(xx), Cross(xy), Cross(xz), Cross(yx), Cross(yy), Cross(yz), Cross(zx), Cross(zy), Cross(zz) 축 9개	
 	vector<Vector3> axes;
 	Contact contact;
-	contact.depth = -1;
+	contact.m_penetration = -1;
 
 	axes.push_back(object1->transform.GetRight());
 	axes.push_back(object1->transform.GetUp());
@@ -446,7 +446,7 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 	}
 
 	// 점에 우선순위를 둬볼거임 점 충돌이 있으면 엣지는 검사 안하도록
-	if (contact.depth == -1)
+	if (contact.m_penetration == -1)
 	{
 		vector<LineSegment> cube1Edges;
 		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetRight(), object1->transform.GetScale().x));
@@ -484,7 +484,7 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 		}
 	}
 
-	if (contact.depth != -1)
+	if (contact.m_penetration != -1)
 	{
 		contacts.push_back(contact);
 	}

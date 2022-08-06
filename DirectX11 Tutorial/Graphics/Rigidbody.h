@@ -35,6 +35,7 @@ public:
 	Vector3 GetAccumulatedTorque();
 
 	Matrix4x4 GetInertiaTensor();
+	Matrix4x4 GetWorldInertiaTensorInverse();
 
 public:
 	void Initialize(float mass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensor);

@@ -29,7 +29,7 @@ void Rigidbody::Update(float deltaTime)
 	velocity = (velocity + (accumulatedForce * inverseMass) * deltaTime) * pow(damping, deltaTime);
 	object->transform.Translate(velocity * deltaTime);
 	
-	angularVelocity = (angularVelocity + (object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Inverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
+	angularVelocity = (angularVelocity + (GetWorldInertiaTensorInverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
 	object->transform.Rotate(angularVelocity * deltaTime);
 
 	ClearAccumulatedForce();
@@ -92,6 +92,11 @@ Vector3 Rigidbody::GetAngularVelocity(){return angularVelocity;}
 Vector3 Rigidbody::GetAccumulatedForce(){return accumulatedForce;}
 Vector3 Rigidbody::GetAccumulatedTorque(){return accumulatedTorque;}
 Matrix4x4 Rigidbody::GetInertiaTensor(){return inertiaTensor;}
+
+Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
+{
+	return Matrix4x4((object->transform.GetRotationMatrix() * inertiaTensor) * object->transform.GetRotationMatrix().Inverse());
+}
 
 // 힘 = 질량 * 가속도
 // 임펄스 힘 = 질량 * 속도

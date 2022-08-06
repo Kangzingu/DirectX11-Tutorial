@@ -308,7 +308,7 @@ void Engine::UpdateTimer()
 		fpsCount = 0;
 		fpsTimer.Restart();
 	}
-	deltaTime = sceneTimer.GetElapsedMiliseconds() / 1000.0f;
+	deltaTime = (sceneTimer.GetElapsedMiliseconds() / 1000.0f);
 	sceneTimer.Restart();
 }
 void Engine::HandleEvent()
@@ -380,7 +380,7 @@ void Engine::HandleEvent()
 	{
 		for (int i = 0; i < actors.size(); i++)
 		{
-			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f * i), actors[i]->transform.GetPosition() + Vector3(1, 1, 0));
+			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1.0f * i), actors[i]->transform.GetPosition() + Vector3(1, 1, 0));
 		}
 	}
 }
@@ -644,6 +644,8 @@ void Engine::UpdateUI()
 	Vector3 actor1Velocity= actors[0]->transform.GetRotation();// *180.0f / PI;
 	string actor1VelocityString = "Camera Rotation: " + to_string((int)actor1Velocity.x) + ", " + to_string((int)actor1Velocity.y) + ", " + to_string((int)actor1Velocity.z);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1VelocityString).c_str(), DirectX::XMFLOAT2(5, 85), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	string deltaTimeString = "DeltaTime: " + to_string(deltaTime);
+	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(deltaTimeString).c_str(), DirectX::XMFLOAT2(5, 125), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*
 	angularVelocity = actors[2]->rigidbody.GetAngularVelocity() * 180.0f / PI;
 	string actor2AngularVelocity = "Center Object Angular Velocity: " + to_string((int)angularVelocity.x) + ", " + to_string((int)angularVelocity.y) + ", " + to_string((int)angularVelocity.z);
