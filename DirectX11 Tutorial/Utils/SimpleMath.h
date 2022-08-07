@@ -22,6 +22,7 @@ public:
 public:
 	Vector3() : x(0), y(0), z(0) {}
 	Vector3(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)) {}
+	Vector3(DirectX::XMFLOAT3 v) : x(v.x), y(v.y), z(v.z) {}
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 	static Vector3 Zero() { return Vector3(0.0f, 0.0f, 0.0); }
 	static Vector3 One() { return Vector3(1.0f, 1.0f, 1.0f); }

@@ -52,6 +52,7 @@ private:
 	Camera* camera;
 	vector<Actor*> actors;
 	vector<Vector3> lineForDebug[2];
+	Vector3 lineColor=Vector3(1, 0, 0);
 
 	Timer fpsTimer;
 	Timer sceneTimer;

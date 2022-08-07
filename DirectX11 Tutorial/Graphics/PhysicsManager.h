@@ -8,15 +8,16 @@ class PhysicsManager
 {
 private:
 	const float epsilon = 0.00001f;
-	Vector3 gravity = Vector3(0, -9.8f, 0);
+	Vector3 gravity = Vector3(0, -2.8, 0);
 	vector<Contact> contacts;
 
 	vector<Actor*>* actors;
 	float& deltaTime;
 	vector<Vector3>* lineForDebug;
+	Vector3* lineColor;
 
 public:
-	PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug);
+	PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug, Vector3* lineColor);
 
 	void Update();
 	void GenerateGravity();

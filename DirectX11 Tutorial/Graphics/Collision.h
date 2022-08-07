@@ -16,4 +16,6 @@ public:
 	static void NarrowPhaseSphereAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts);
 	static void NarrowPhaseSphereAndPlane(Object* object1, Object* object2, vector<Contact>& contacts);
 	static void NarrowPhaseCubeAndPlaneSpace(Object* object1, Object* object2, vector<Contact>& contacts);
+
+	static bool SATTest(Object& object1, Object& object2, vector<Vector3>* lineForDebug);
 };

@@ -1,7 +1,7 @@
 #include "Actor.h"
 #include "PhysicsManager.h"
 
-PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug) : actors(actors), deltaTime(deltaTime), lineForDebug(lineForDebug) {}
+PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug, Vector3* lineColor) : actors(actors), deltaTime(deltaTime), lineForDebug(lineForDebug), lineColor(lineColor) {}
 
 void PhysicsManager::Update()
 {
@@ -39,8 +39,18 @@ void PhysicsManager::DetectCollision()
 	{
 		for (int j = i + 1; j < (*actors).size(); j++)
 		{
-			if (Collision::BroadPhaseBoundingSphere(*(*actors)[i], *(*actors)[j], lineForDebug))
+			if (Collision::BroadPhaseBoundingSphere(*(*actors)[i], *(*actors)[j], lineForDebug) == true)
+			//{
 				Collision::NarrowPhaseCubeAndCube((*actors)[i], (*actors)[j], contacts, lineForDebug);
+				/*if (Collision::SATTest(*(*actors)[i], *(*actors)[j], lineForDebug) == true)
+				{
+					*lineColor = Vector3(1, 0, 0);
+				}
+				else
+				{
+					*lineColor = Vector3(0, 1, 0);
+				}*/
+			//}
 		}
 	}
 }

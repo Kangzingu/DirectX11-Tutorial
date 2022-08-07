@@ -491,7 +491,6 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 	return true;
 	// 303pg 읽으면 댐
 }
-
 /*
 void Collision::NarrowPhaseLayAndSphere(Vector3& layPosition, Vector3& layDirection, Object* object)
 {
@@ -594,3 +593,182 @@ void Collision::NarrowPhaseCubeAndPlaneSpace(Object* object1, Object* object2, v
 	}
 }
 */
+
+
+
+struct Projection
+{
+	float min;
+	float max;
+};
+float GetOverlappedAmount(Projection p1, Projection p2)
+{
+	//	p1	p2	p1	p2
+	if (p2.min < p1.max && p2.max > p1.max)
+	{
+		return p1.max - p2.min;
+	}
+	//	p2	p1	p2	p1
+	else if (p1.min < p2.max && p1.max > p2.max)
+	{
+		return p2.max - p1.min;
+	}
+	//	p1	p2	p2	p1
+	else if (p1.min <= p2.min && p1.max >= p2.max)
+	{
+		return min(p1.max - p2.min, p2.max - p1.min);
+	}
+	//	p2	p1	p1	p2
+	else if (p2.min <= p1.min && p2.max >= p1.max)
+	{
+		return min(p2.max - p1.min, p1.max - p2.min);
+	}
+	// 겹치지 않음
+	else
+	{
+		return 0;
+	}
+}
+
+Projection ProjectToAxis(Object& object, Vector3& axis)
+{
+	float point;
+	Projection result;
+	for (int i = 0; i < object.model.meshes.size(); i++)
+	{
+		Mesh mesh = object.model.meshes[i];
+		for (int j = 0; j < mesh.vertices.size(); j++)
+		{
+			point = Vector3::Dot(axis, object.transform.GetWorldMatrix() * mesh.vertices[j].pos);
+			if (i == 0 && j == 0)
+			{
+				result.min = point;
+				result.max = point;
+			}
+			else
+			{
+				if (point < result.min)
+				{
+					result.min = point;
+				}
+				else if (point > result.max)
+				{
+					result.max = point;
+				}
+			}
+		}
+	}
+	return result;
+}
+bool SAT(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
+{
+	vector<Vector3> axes;
+	
+	// 1. Projection 축 뽑아내기
+	{
+		vector<Vector3> object1Edges;
+		vector<Vector3> object2Edges;
+		Vector3 edge[3];
+		Vector3 vertex[3];
+		Vector3 normal;
+		// 첫 물체의 face normal
+		for (int i = 0; i < object1.model.meshes.size(); i++)
+		{
+			Mesh mesh = object1.model.meshes[i];
+			for (int j = 0; j < mesh.indices.size(); j += 3)
+			{
+				vertex[0] = object1.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j]].pos);
+				vertex[1] = object1.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j+1]].pos);
+				vertex[2] = object1.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j+2]].pos);
+				edge[0] = vertex[1] - vertex[0];
+				edge[1] = vertex[2] - vertex[0];
+				normal = Vector3::Normalize(Vector3::Cross(edge[0], edge[1]));
+				axes.push_back(normal);
+				edge[2] = vertex[2] - vertex[1];
+				for (int k = 0; k < 3; k++)
+				{
+					object1Edges.push_back(edge[k]);
+				}
+				lineForDebug[0].push_back(vertex[0]);
+				lineForDebug[1].push_back(vertex[1]);
+				lineForDebug[0].push_back(vertex[1]);
+				lineForDebug[1].push_back(vertex[2]);
+				lineForDebug[0].push_back(vertex[2]);
+				lineForDebug[1].push_back(vertex[0]);
+
+			}
+		}
+		// 두번째 물체의 face normal
+		for (int i = 0; i < object2.model.meshes.size(); i++)
+		{
+			Mesh mesh = object2.model.meshes[i];
+			for (int j = 0; j < mesh.indices.size(); j += 3)
+			{
+				vertex[0] = object2.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j]].pos);
+				vertex[1] = object2.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j + 1]].pos);
+				vertex[2] = object2.transform.GetWorldMatrix() * Vector3(mesh.vertices[mesh.indices[j + 2]].pos);
+				edge[0] = vertex[1] - vertex[0];
+				edge[1] = vertex[2] - vertex[0];
+				normal = Vector3::Normalize(Vector3::Cross(edge[0], edge[1]));
+				axes.push_back(normal);
+				edge[2] = vertex[2] - vertex[1];
+				for (int k = 0; k < 3; k++)
+				{
+					object2Edges.push_back(edge[k]);
+				}
+				lineForDebug[0].push_back(vertex[0]);
+				lineForDebug[1].push_back(vertex[1]);
+				lineForDebug[0].push_back(vertex[1]);
+				lineForDebug[1].push_back(vertex[2]);
+				lineForDebug[0].push_back(vertex[2]);
+				lineForDebug[1].push_back(vertex[0]);
+			}
+		}
+		// 두 물체의 edge cross
+		for (int i = 0; i < object1Edges.size(); i++)
+		{
+			for (int j = 0; j < object2Edges.size(); j++)
+			{
+				normal = Vector3::Cross(object1Edges[i], object2Edges[j]);
+				if (normal == Vector3::Zero())
+				{
+					continue;
+				}
+				normal = Vector3::Normalize(normal);
+				axes.push_back(normal);
+				//HashMap<float, pair<float ,float>> 
+				// 중복 제거, x를 키값으로서 해시 테이블 생성
+				
+
+			}
+		}
+	}
+
+	// 2. Projection
+	{
+		Projection result1;
+		Projection result2;
+		for (int i = 0; i < axes.size(); i++)
+		{
+			result1 = ProjectToAxis(object1, axes[i]);
+			result2 = ProjectToAxis(object2, axes[i]);
+			float penetration = GetOverlappedAmount(result1, result2);
+			// Proj p1 = projectToAxis(object1, axes[i]);
+			// Proj p2 = projectToAxis(object2, axes[i]);
+			// 
+			// if(!p1.overlap(p2)){
+			//     return false;
+			// }
+			// 각 물체의 모든 점을? 플젝 해서 
+			if (penetration == 0)
+				return false;
+
+		}
+	}
+	//return true;
+	return true;
+}
+bool Collision::SATTest(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
+{
+	return SAT(object1, object2, lineForDebug);
+}

@@ -60,12 +60,12 @@ void Transform::Scale(Vector3 scale)
 	this->scalingMatrix = Matrix4x4::Scaling(this->scale);
 	this->worldMatrix = this->translationMatrix * this->rotationMatrix * this->scalingMatrix;
 }
-Matrix4x4 Transform::GetWorldMatrix() { return worldMatrix; }
-Matrix4x4 Transform::GetTranslationMatrix() { return translationMatrix; }
-Matrix4x4 Transform::GetRotationMatrix() { return rotationMatrix; }
-Matrix4x4 Transform::GetScalingMatrix() { return scalingMatrix; }
-Vector3 Transform::GetPosition() { return position; }
-Vector3 Transform::GetRotation()
+Matrix4x4& Transform::GetWorldMatrix() { return worldMatrix; }
+Matrix4x4& Transform::GetTranslationMatrix() { return translationMatrix; }
+Matrix4x4& Transform::GetRotationMatrix() { return rotationMatrix; }
+Matrix4x4& Transform::GetScalingMatrix() { return scalingMatrix; }
+Vector3& Transform::GetPosition() { return position; }
+Vector3& Transform::GetRotation()
 {
 	Vector3 rotation;
 	float t0 = 2.0f * (orientation.r * orientation.i + orientation.j * orientation.k);
@@ -84,8 +84,8 @@ Vector3 Transform::GetRotation()
 	rotation.z = General::RadianToDegree(atan2(t3, t4));
 	return rotation;
 }
-Quaternion Transform::GetOrientation() { return orientation; }
-Vector3 Transform::GetScale() { return scale; }
-Vector3 Transform::GetRight() { return right; }
-Vector3 Transform::GetUp() { return up; }
-Vector3 Transform::GetForward() { return forward; }
+Quaternion& Transform::GetOrientation() { return orientation; }
+Vector3& Transform::GetScale() { return scale; }
+Vector3& Transform::GetRight() { return right; }
+Vector3& Transform::GetUp() { return up; }
+Vector3& Transform::GetForward() { return forward; }

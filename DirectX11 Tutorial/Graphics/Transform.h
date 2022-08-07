@@ -21,19 +21,19 @@ private:
 public:
 	Object* object;
 
-	Matrix4x4 GetWorldMatrix();
-	Matrix4x4 GetTranslationMatrix();
-	Matrix4x4 GetRotationMatrix();
-	Matrix4x4 GetScalingMatrix();
+	Matrix4x4& GetWorldMatrix();
+	Matrix4x4& GetTranslationMatrix();
+	Matrix4x4& GetRotationMatrix();
+	Matrix4x4& GetScalingMatrix();
 
-	Vector3 GetPosition();
-	Vector3 GetRotation();
-	Quaternion GetOrientation();
-	Vector3 GetScale();
+	Vector3& GetPosition();
+	Vector3& GetRotation();
+	Quaternion& GetOrientation();
+	Vector3& GetScale();
 
-	Vector3 GetRight();
-	Vector3 GetUp();
-	Vector3 GetForward();
+	Vector3& GetRight();
+	Vector3& GetUp();
+	Vector3& GetForward();
 
 public:
 	void Initialize(Vector3 position, Vector3 rotation, Vector3 scale);
