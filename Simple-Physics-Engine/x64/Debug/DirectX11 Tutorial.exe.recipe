@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\DirectX11 Tutorial.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\pixelshader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\pixelshader_2d.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\pixelshader_2d_discard.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\vertexshader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\vertexshader_2d.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
