@@ -139,3 +139,4 @@ https://user-images.githubusercontent.com/34128052/183497865-1b2e9d79-1eff-418b-
 
 https://user-images.githubusercontent.com/34128052/183500947-9297f521-521f-4717-8c25-2912650d09e3.mp4
 
+Penetration이 작은 충돌을 우선 처리했기 때문에 나왔던 문제점
