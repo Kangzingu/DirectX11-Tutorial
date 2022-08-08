@@ -4,6 +4,64 @@
 /* 물체-1 이 물체-2 에 가서 박는것! */
 /************************************/
 
+struct Projection
+{
+	float min;
+	float max;
+};
+Projection ProjectVerticesToAxis(Object& object, Vector3& axis)
+{
+	float point;
+	Projection result;
+	for (int i = 0; i < object.model.meshes.size(); i++)
+	{
+		Mesh mesh = object.model.meshes[i];
+		for (int j = 0; j < mesh.vertices.size(); j++)
+		{
+			point = Vector3::Dot(axis, object.transform.GetWorldMatrix() * mesh.vertices[j].pos);
+			if (i == 0 && j == 0)
+			{
+				result.min = point;
+				result.max = point;
+				continue;
+			}
+
+			if (point < result.min)
+				result.min = point;
+			else if (point > result.max)
+				result.max = point;
+		}
+	}
+	return result;
+}
+float GetOverlappedAmount(Projection p1, Projection p2)
+{
+	//	p1	p2	p1	p2
+	if (p2.min < p1.max && p2.max > p1.max)
+	{
+		return p1.max - p2.min;
+	}
+	//	p2	p1	p2	p1
+	else if (p1.min < p2.max && p1.max > p2.max)
+	{
+		return p2.max - p1.min;
+	}
+	//	p1	p2	p2	p1
+	else if (p1.min <= p2.min && p1.max >= p2.max)
+	{
+		return min(p1.max - p2.min, p2.max - p1.min);
+	}
+	//	p2	p1	p1	p2
+	else if (p2.min <= p1.min && p2.max >= p1.max)
+	{
+		return min(p2.max - p1.min, p1.max - p2.min);
+	}
+	// 겹치지 않음
+	else
+	{
+		return 0;
+	}
+}
 bool Collision::BroadPhaseBoundingSphere(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
 {
 	// 구 충돌체 만들기
@@ -202,78 +260,79 @@ void Collision::NarrowPhaseSphereAndCube(Object* object1, Object* object2, vecto
 	}
 	// 287pg 읽으면 댐
 }
-// 큐브 간 단순 충돌여부 확인에 사용
-float ProjectObjectToAxis(Object& object, Vector3 axis)
-{
-	return abs(Vector3::Dot(object.transform.GetRight() * object.transform.GetScale().x, axis)) +
-		abs(Vector3::Dot(object.transform.GetUp() * object.transform.GetScale().y, axis)) +
-		abs(Vector3::Dot(object.transform.GetForward() * object.transform.GetScale().z, axis));
-}
 // 큐브 간 상세 충돌 데이터 확인에 사용
-bool CubeAndPoint(Object& object1, Object& object2, Vector3 point, Contact* contact)
+bool CubeAndVertex(Object& object1, Object& object2, Contact* contact)
 {
-	Vector3 cubeCoordPoint = object2.transform.GetRotationMatrix().Inverse() * object2.transform.GetTranslationMatrix().Inverse() * point;
+	vector<Vector3> vertices;
+	vector<Vector3> cubeCoordVertices;
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f));
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		cubeCoordVertices.push_back(object2.transform.GetRotationMatrix().Inverse() * object2.transform.GetTranslationMatrix().Inverse() * vertices[i]);
+	}
+
 	Vector3 cubeHalfScale = object2.transform.GetScale() / 2.0f;
 	Vector3 normal;
-	float depth;
-	float minDepth;
+	float penetration;
+	float minPenetration = Vector3::Magnitude(object1.transform.GetScale()) + Vector3::Magnitude(object2.transform.GetScale());
+	Vector3 minPenetrationVertex;
 
-	depth = cubeHalfScale.x - abs(cubeCoordPoint.x);
-	// 만나지 않는다면
-	if (depth < 0)
-		return false;
-	// 만난다면
-	minDepth = depth;
-	if (cubeCoordPoint.x >= 0)
-		normal = object2.transform.GetRight();
-	else
-		normal = -object2.transform.GetRight();
-
-	depth = cubeHalfScale.y - abs(cubeCoordPoint.y);
-	// 만나지 않는다면
-	if (depth < 0)
-		return false;
-	// 만난다면
-	if (minDepth > depth)
+	for (int i = 0; i < cubeCoordVertices.size(); i++)
 	{
-		minDepth = depth;
-		if (cubeCoordPoint.y >= 0)
-			normal = object2.transform.GetUp();
-		else
-			normal = -object2.transform.GetUp();
-	}
+		penetration = cubeHalfScale.x - abs(cubeCoordVertices[i].x);
+		if (penetration > 0 && penetration < minPenetration)
+		{
+			minPenetration = penetration;
+			minPenetrationVertex = vertices[i];
+			if (cubeCoordVertices[i].x >= 0)
+				normal = object2.transform.GetRight();
+			else
+				normal = -object2.transform.GetRight();
+		}
 
-	depth = cubeHalfScale.z - abs(cubeCoordPoint.z);
-	// 만나지 않는다면
-	if (depth < 0)
-		return false;
-	// 만난다면
-	if (minDepth > depth)
-	{
-		minDepth = depth;
-		if (cubeCoordPoint.z >= 0)
-			normal = object2.transform.GetForward();
-		else
-			normal = -object2.transform.GetForward();
-	}
+		penetration = cubeHalfScale.y - abs(cubeCoordVertices[i].y);
+		if (penetration > 0 && penetration < minPenetration)
+		{
+			minPenetration = penetration;
+			minPenetrationVertex = vertices[i];
+			if (cubeCoordVertices[i].y >= 0)
+				normal = object2.transform.GetUp();
+			else
+				normal = -object2.transform.GetUp();
+		}
 
-	// 이거 살짝 이상함.. 반대편 물체가 없다는겡..
-	// 20220728_일단 반대편 물체 있는걸로 잠시 고쳐서 실험중.. 원래 코드 이거임
-	// contact.object1 = nullptr;
-	// contact.object2 = &object1;
-	
-	if (minDepth > contact->m_penetration)
-	{
-		contact->m_objects[0] = &object1;
-		contact->m_objects[1] = nullptr;
-		contact->m_point = point+ (Vector3::Normalize(normal) * minDepth/2);
-		contact->m_normal = Vector3::Normalize(normal);
-		contact->m_penetration = minDepth;
+		penetration = cubeHalfScale.z - abs(cubeCoordVertices[i].z);
+		if (penetration > 0 && penetration < minPenetration)
+		{
+			minPenetration = penetration;
+			minPenetrationVertex = vertices[i];
+			if (cubeCoordVertices[i].z >= 0)
+				normal = object2.transform.GetForward();
+			else
+				normal = -object2.transform.GetForward();
+		}
+
 	}
+	contact->m_objects[0] = &object1;
+	contact->m_objects[1] = &object2;
+	contact->m_point = minPenetrationVertex + (Vector3::Normalize(normal) * minPenetration / 2);
+	contact->m_normal = Vector3::Normalize(normal);
+	contact->m_penetration = minPenetration;
+	return true;
 }
 // 큐브 간 상세 충돌 데이터 확인에 사용
-void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, Contact* contact, vector<Vector3>* lineForDebug)
+void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vector3>* lineForDebug)
 {
+	// TODO: Object1, 2 바껴있다 수정하자
+
 	//    2 ------- 3
 	//   /|        /|
 	//  1 ------- 0 7
@@ -292,204 +351,199 @@ void CubeAndEdge(Object& object1, Object& object2, LineSegment edge, Contact* co
 	//	5	6
 	//	6	7
 	//	7	4
-	vector<LineSegment> cubeEdges;
+	vector<LineSegment> cube1Edges;
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetRight(), object1.transform.GetScale().x));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetForward(), object1.transform.GetScale().z));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, object1.transform.GetRight(), object1.transform.GetScale().x));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, object1.transform.GetForward(), object1.transform.GetScale().z));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetUp(), object1.transform.GetScale().y));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetUp(), object1.transform.GetScale().y));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetUp(), object1.transform.GetScale().y));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x + object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetUp(), object1.transform.GetScale().y));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetRight(), object1.transform.GetScale().x));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y + object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, -object1.transform.GetForward(), object1.transform.GetScale().z));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (-object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, object1.transform.GetRight(), object1.transform.GetScale().x));
+	cube1Edges.push_back(LineSegment(object1.transform.GetPosition() + (object1.transform.GetRight() * object1.transform.GetScale().x - object1.transform.GetUp() * object1.transform.GetScale().y - object1.transform.GetForward() * object1.transform.GetScale().z) / 2.0f, object1.transform.GetForward(), object1.transform.GetScale().z));
+
+	vector<LineSegment> cube2Edges;
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetRight(), object2.transform.GetScale().x));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetForward(), object2.transform.GetScale().z));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetRight(), object2.transform.GetScale().x));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetForward(), object2.transform.GetScale().z));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetRight(), object2.transform.GetScale().x));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetForward(), object2.transform.GetScale().z));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetRight(), object2.transform.GetScale().x));
+	cube2Edges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetForward(), object2.transform.GetScale().z));
+
 	Vector3 closestPointOnCubeEdge;
 	Vector3 closestPointOnEdge;
-	float depth;
+	float penetration;
 
 	Vector3 contactPointOnCubeEdge;
 	Vector3 contactPointOnEdge;
-	float minDepth = 1000;
+	float minPenetration = Vector3::Magnitude(object1.transform.GetScale()) + Vector3::Magnitude(object2.transform.GetScale());
 
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetRight(), object2.transform.GetScale().x));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetForward(), object2.transform.GetScale().z));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetRight(), object2.transform.GetScale().x));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetForward(), object2.transform.GetScale().z));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x + object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetUp(), object2.transform.GetScale().y));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetRight(), object2.transform.GetScale().x));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y + object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, -object2.transform.GetForward(), object2.transform.GetScale().z));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (-object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetRight(), object2.transform.GetScale().x));
-	cubeEdges.push_back(LineSegment(object2.transform.GetPosition() + (object2.transform.GetRight() * object2.transform.GetScale().x - object2.transform.GetUp() * object2.transform.GetScale().y - object2.transform.GetForward() * object2.transform.GetScale().z) / 2.0f, object2.transform.GetForward(), object2.transform.GetScale().z));
-	for (int i = 0; i < cubeEdges.size(); i++)
+	for (int i = 0; i < cube1Edges.size(); i++)
 	{
-		// 큐브의 한 선분과 비교하려는 선분 간 최단거리 계산(Real Time Rendering 2 675pg)
-		// Line Segment1 = o1 + s * d1
-		// Line Segment2 = o2 + t + d2
-		Vector3 o1 = cubeEdges[i].origin;
-		Vector3 o2 = edge.origin;
-		Vector3 d1 = cubeEdges[i].direction;
-		Vector3 d2 = edge.direction;
-		float s, t;
-		if (Vector3::Cross(d1, d2) == Vector3::Zero())
+		for (int j = 0; j < cube2Edges.size(); j++)
 		{
-			// 이 경우 두 직선이 평행인 것
-			continue;
-		}
-		s = Vector3::Dot(Vector3::Cross((o2 - o1), d2), Vector3::Cross(d1, d2)) / Vector3::Dot(Vector3::Cross(d1, d2), Vector3::Cross(d1, d2));
-		t = Vector3::Dot(Vector3::Cross((o1 - o2), d1), Vector3::Cross(d2, d1)) / Vector3::Dot(Vector3::Cross(d2, d1), Vector3::Cross(d2, d1));
-		if (s<0 || s>cubeEdges[i].length ||
-			t<0 || t>edge.length)
-		{
-			continue;
-			// 이 경우 교차하지 않음
-		}
-		closestPointOnCubeEdge = cubeEdges[i].origin + cubeEdges[i].direction * s;
-		closestPointOnEdge = edge.origin + edge.direction * t;
-
-		// 이게 박스가 한없이 넓은거(사이즈가 좀 한쪽에 치우친거)로 하면 결과가 넘 이상해짐.. 다른 방법 없을깡
-		// 쨋든 이거 고쳐야함 closestPointOnCubeEdge - closestPointOnEdge 가 아니고 object2.transform.GetPosition() - closestPointOnEdge 이런식으로 하던가
-		// 이런식이라면 결국 점 충돌검사 방식보다 우선순위가 낮아질 듯. 불안불안한 부분이 많은거같음
-
-		depth = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
-		// 이 경우 큐브 중점에서 큐브의 엣지보다 다른 엣지가 더 가까우므로 충돌이 맞음
-		if (Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnEdge) &&
-			Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnEdge) > Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnCubeEdge))
-		{
-			// 그렇다면 사실상 큐브의 모든 엣지가 다 충돌된걸로 나올거라 가장 얇게 충돌된 넘을 골라낼거임
-			// 
-			if (depth < minDepth)
+			Vector3 o1 = cube1Edges[i].origin;
+			Vector3 o2 = cube2Edges[j].origin;
+			Vector3 d1 = cube1Edges[i].direction;
+			Vector3 d2 = cube2Edges[j].direction;
+			float s, t;
+			if (Vector3::Cross(d1, d2) == Vector3::Zero())
 			{
-				minDepth = depth;
-				contactPointOnCubeEdge = closestPointOnCubeEdge;
-				contactPointOnEdge = closestPointOnEdge;
+				// 이 경우 두 직선이 평행인 것
+				continue;
 			}
+			s = Vector3::Dot(Vector3::Cross((o2 - o1), d2), Vector3::Cross(d1, d2)) / Vector3::Dot(Vector3::Cross(d1, d2), Vector3::Cross(d1, d2));
+			t = Vector3::Dot(Vector3::Cross((o1 - o2), d1), Vector3::Cross(d2, d1)) / Vector3::Dot(Vector3::Cross(d2, d1), Vector3::Cross(d2, d1));
+			if (s<0 || s>cube1Edges[i].length ||
+				t<0 || t>cube2Edges[j].length)
+			{
+				continue;
+				// 이 경우 교차하지 않음
+			}
+			closestPointOnCubeEdge = cube1Edges[i].origin + cube1Edges[i].direction * s;
+			closestPointOnEdge = cube2Edges[j].origin + cube2Edges[j].direction * t;
+
+			// 이게 박스가 한없이 넓은거(사이즈가 좀 한쪽에 치우친거)로 하면 결과가 넘 이상해짐.. 다른 방법 없을깡
+			// 쨋든 이거 고쳐야함 closestPointOnCubeEdge - closestPointOnEdge 가 아니고 object2.transform.GetPosition() - closestPointOnEdge 이런식으로 하던가
+			// 이런식이라면 결국 점 충돌검사 방식보다 우선순위가 낮아질 듯. 불안불안한 부분이 많은거같음
+
+			penetration = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
+			if (penetration == 0)
+				continue;
+
+			// 이 경우 큐브 중점에서 큐브의 엣지보다 다른 엣지가 더 가까우므로 충돌이 맞음
+			if (Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.transform.GetPosition() - closestPointOnEdge) &&
+				Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnEdge) > Vector3::SquareMagnitude(object1.transform.GetPosition() - closestPointOnCubeEdge))
+			{
+				// 그렇다면 사실상 큐브의 모든 엣지가 다 충돌된걸로 나올거라 가장 얇게 충돌된 넘을 골라낼거임
+				// 
+				if (penetration < minPenetration)
+				{
+					minPenetration = penetration;
+					contactPointOnCubeEdge = closestPointOnCubeEdge;
+					contactPointOnEdge = closestPointOnEdge;
+				}
+			}
+
 		}
 	}
-	if (contactPointOnCubeEdge - contactPointOnEdge == Vector3::Zero())
-		return;
+	lineForDebug[0].push_back(contactPointOnCubeEdge);
+	lineForDebug[1].push_back(contactPointOnEdge);
+	contact->m_objects[0] = &object2;
+	contact->m_objects[1] = &object1;
+	contact->m_point = contactPointOnEdge + Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge) * minPenetration / 2;
+	contact->m_normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
+	contact->m_penetration = minPenetration;
+}
 
-	if (minDepth > contact->m_penetration)
+// 큐브 간 단순 충돌여부 확인에 사용
+Projection ProjectCubeToAxis(Object& object, Vector3& axis)
+{
+	vector<Vector3> vertices;
+	Projection result;
+	float point;
+
+	vertices.push_back(Vector3(object.transform.GetPosition() + (object.transform.GetRight() * object.transform.GetScale().x + object.transform.GetUp() * object.transform.GetScale().y + object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (-object.transform.GetRight() * object.transform.GetScale().x + object.transform.GetUp() * object.transform.GetScale().y + object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (-object.transform.GetRight() * object.transform.GetScale().x + object.transform.GetUp() * object.transform.GetScale().y - object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (object.transform.GetRight() * object.transform.GetScale().x + object.transform.GetUp() * object.transform.GetScale().y - object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (object.transform.GetRight() * object.transform.GetScale().x - object.transform.GetUp() * object.transform.GetScale().y + object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (-object.transform.GetRight() * object.transform.GetScale().x - object.transform.GetUp() * object.transform.GetScale().y + object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (-object.transform.GetRight() * object.transform.GetScale().x - object.transform.GetUp() * object.transform.GetScale().y - object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	vertices.push_back(Vector3(object.transform.GetPosition() + (object.transform.GetRight() * object.transform.GetScale().x - object.transform.GetUp() * object.transform.GetScale().y - object.transform.GetForward() * object.transform.GetScale().z) / 2.0f));
+	for (int i = 0; i < vertices.size(); i++)
 	{
-		lineForDebug[0].push_back(contactPointOnCubeEdge);
-		lineForDebug[1].push_back(contactPointOnEdge);
-		contact->m_objects[0] = &object1;
-		contact->m_objects[1] = nullptr;
-		contact->m_point = contactPointOnEdge + Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge) * minDepth/2;
-		contact->m_normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
-		contact->m_penetration = minDepth;
+		point = Vector3::Dot(axis, vertices[i]);
+		if (i == 0)
+		{
+			result.min = point;
+			result.max = point;
+			continue;
+		}
+
+		if (point < result.min)
+			result.min = point;
+		else if (point > result.max)
+			result.max = point;
 	}
+	return result;
 }
 bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
 {
-	// 투영하고 체크해봐야 하는 축은 총 15개로 다음과 같음
-	// Cube1의 x, y, z 축 3개
-	// Cube2의 x, y, z 축 3개
-	// Cbue1의 x, y, z 축과 Cube2의 x, y, z 축을 각각 조합 후 외적으로 만든 Cross(xx), Cross(xy), Cross(xz), Cross(yx), Cross(yy), Cross(yz), Cross(zx), Cross(zy), Cross(zz) 축 9개	
-	vector<Vector3> axes;
 	Contact contact;
-	contact.m_penetration = -1;
+	vector<Vector3> axes;
 
+	// 첫번째 Cube의 Face Normal
 	axes.push_back(object1->transform.GetRight());
 	axes.push_back(object1->transform.GetUp());
 	axes.push_back(object1->transform.GetForward());
+	// 두번째 Cube의 Face Normal
 	axes.push_back(object2->transform.GetRight());
 	axes.push_back(object2->transform.GetUp());
 	axes.push_back(object2->transform.GetForward());
-	if (Vector3::Cross(object1->transform.GetRight(), object2->transform.GetRight()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetRight())));
-	if (Vector3::Cross(object1->transform.GetRight(), object2->transform.GetUp()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetUp())));
-	if (Vector3::Cross(object1->transform.GetRight(), object2->transform.GetForward()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetForward())));
-	if (Vector3::Cross(object1->transform.GetUp(), object2->transform.GetRight()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetRight())));
-	if (Vector3::Cross(object1->transform.GetUp(), object2->transform.GetUp()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetUp())));
-	if (Vector3::Cross(object1->transform.GetUp(), object2->transform.GetForward()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetForward())));
-	if (Vector3::Cross(object1->transform.GetForward(), object2->transform.GetRight()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetRight())));
-	if (Vector3::Cross(object1->transform.GetForward(), object2->transform.GetUp()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetUp())));
-	if (Vector3::Cross(object1->transform.GetForward(), object2->transform.GetForward()) != Vector3::Zero())
-		axes.push_back(Vector3::Normalize(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetForward())));
+	// 두 Cube의 Edge Cross
+	axes.push_back(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetRight()));
+	axes.push_back(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetUp()));
+	axes.push_back(Vector3::Cross(object1->transform.GetRight(), object2->transform.GetForward()));
+	axes.push_back(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetRight()));
+	axes.push_back(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetUp()));
+	axes.push_back(Vector3::Cross(object1->transform.GetUp(), object2->transform.GetForward()));
+	axes.push_back(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetRight()));
+	axes.push_back(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetUp()));
+	axes.push_back(Vector3::Cross(object1->transform.GetForward(), object2->transform.GetForward()));
+
+	Projection result1;
+	Projection result2;
+	float penetration;
+	float minPenetration = 0;
+	int minPenetrationAxisIndex;
 	for (int i = 0; i < axes.size(); i++)
 	{
-		float object1LengthOnAxis = ProjectObjectToAxis(*object1, axes[i]);
-		float object2LengthOnAxis = ProjectObjectToAxis(*object2, axes[i]);
-		float objectCenterDistanceOnAxis = abs(Vector3::Dot(object1->transform.GetPosition() - object2->transform.GetPosition(), axes[i]));
-		if (object1LengthOnAxis + object2LengthOnAxis < objectCenterDistanceOnAxis * 2)
-		{
+		if (axes[i] == Vector3::Zero())// Edge간 Cross 했을 때 평행한 경우는 제외
+			continue;
+
+		axes[i] = Vector3::Normalize(axes[i]);
+		result1 = ProjectCubeToAxis(*object1, axes[i]);
+		result2 = ProjectCubeToAxis(*object2, axes[i]);
+		penetration = GetOverlappedAmount(result1, result2);
+
+		if (penetration == 0)// 겹치지 않은 경우이므로 충돌 자체가 성립하지 않음
 			return false;
-		}
-	}
-	// 1차 검사 통과! 여기까지 왔다는건 접촉하고 있다는 것임(눈으로 확인함), 이제 상세하게 어디서 얼만큼 충돌했는지 찾는것임
 
-	vector<Vector3> cube1Vertices;
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	cube1Vertices.push_back(Vector3(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f));
-	for (int i = 0; i < cube1Vertices.size(); i++)
-	{
-		CubeAndPoint(*object1, *object2, cube1Vertices[i], &contact);
-	}
-	vector<Vector3> cube2Vertices;
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	cube2Vertices.push_back(Vector3(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f));
-	for (int i = 0; i < cube2Vertices.size(); i++)
-	{
-		CubeAndPoint(*object2, *object1, cube2Vertices[i], &contact);
-	}
-
-	// 점에 우선순위를 둬볼거임 점 충돌이 있으면 엣지는 검사 안하도록
-	if (contact.m_penetration == -1)
-	{
-		vector<LineSegment> cube1Edges;
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetRight(), object1->transform.GetScale().x));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetForward(), object1->transform.GetScale().z));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetRight(), object1->transform.GetScale().x));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetForward(), object1->transform.GetScale().z));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetUp(), object1->transform.GetScale().y));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetUp(), object1->transform.GetScale().y));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetUp(), object1->transform.GetScale().y));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x + object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetUp(), object1->transform.GetScale().y));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetRight(), object1->transform.GetScale().x));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y + object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, -object1->transform.GetForward(), object1->transform.GetScale().z));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (-object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetRight(), object1->transform.GetScale().x));
-		cube1Edges.push_back(LineSegment(object1->transform.GetPosition() + (object1->transform.GetRight() * object1->transform.GetScale().x - object1->transform.GetUp() * object1->transform.GetScale().y - object1->transform.GetForward() * object1->transform.GetScale().z) / 2.0f, object1->transform.GetForward(), object1->transform.GetScale().z));
-		for (int i = 0; i < cube1Edges.size(); i++)
+		if (minPenetration == 0 || penetration < minPenetration)// 아직 minPenetration이 초기화 되지 않았거나 최근 결과가 더 작은 경우
 		{
-			CubeAndEdge(*object1, *object2, cube1Edges[i], &contact, lineForDebug);
-		}
-		vector<LineSegment> cube2Edges;
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetRight(), object2->transform.GetScale().x));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetForward(), object2->transform.GetScale().z));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, object2->transform.GetRight(), object2->transform.GetScale().x));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, object2->transform.GetForward(), object2->transform.GetScale().z));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetUp(), object2->transform.GetScale().y));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetUp(), object2->transform.GetScale().y));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetUp(), object2->transform.GetScale().y));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x + object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetUp(), object2->transform.GetScale().y));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetRight(), object2->transform.GetScale().x));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y + object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, -object2->transform.GetForward(), object2->transform.GetScale().z));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (-object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, object2->transform.GetRight(), object2->transform.GetScale().x));
-		cube2Edges.push_back(LineSegment(object2->transform.GetPosition() + (object2->transform.GetRight() * object2->transform.GetScale().x - object2->transform.GetUp() * object2->transform.GetScale().y - object2->transform.GetForward() * object2->transform.GetScale().z) / 2.0f, object2->transform.GetForward(), object2->transform.GetScale().z));
-		for (int i = 0; i < cube2Edges.size(); i++)
-		{
-			CubeAndEdge(*object2, *object1, cube2Edges[i], &contact, lineForDebug);
+			minPenetration = penetration;
+			minPenetrationAxisIndex = i;
 		}
 	}
-
-	if (contact.m_penetration != -1)
+	// 1차 검사 통과
+	if (minPenetrationAxisIndex >= 0 && minPenetrationAxisIndex <= 2)
 	{
-		contacts.push_back(contact);
+		CubeAndVertex(*object2 , *object1, &contact);
 	}
+	else if (minPenetrationAxisIndex >= 3 && minPenetrationAxisIndex <= 5)
+	{
+		CubeAndVertex(*object1, *object2, &contact);
+	}
+	else if (minPenetrationAxisIndex >= 6 && minPenetrationAxisIndex <= 14)
+	{
+		CubeAndEdge(*object1, *object2, &contact, lineForDebug);
+	}
+	else
+	{
+		ErrorLogger::Log("Box의 SAT 검사가 15개 이상의 축을 검사함..");
+	}
+	contacts.push_back(contact);
 	return true;
-	// 303pg 읽으면 댐
 }
 /*
 void Collision::NarrowPhaseLayAndSphere(Vector3& layPosition, Vector3& layDirection, Object* object)
@@ -594,72 +648,6 @@ void Collision::NarrowPhaseCubeAndPlaneSpace(Object* object1, Object* object2, v
 }
 */
 
-
-
-struct Projection
-{
-	float min;
-	float max;
-};
-float GetOverlappedAmount(Projection p1, Projection p2)
-{
-	//	p1	p2	p1	p2
-	if (p2.min < p1.max && p2.max > p1.max)
-	{
-		return p1.max - p2.min;
-	}
-	//	p2	p1	p2	p1
-	else if (p1.min < p2.max && p1.max > p2.max)
-	{
-		return p2.max - p1.min;
-	}
-	//	p1	p2	p2	p1
-	else if (p1.min <= p2.min && p1.max >= p2.max)
-	{
-		return min(p1.max - p2.min, p2.max - p1.min);
-	}
-	//	p2	p1	p1	p2
-	else if (p2.min <= p1.min && p2.max >= p1.max)
-	{
-		return min(p2.max - p1.min, p1.max - p2.min);
-	}
-	// 겹치지 않음
-	else
-	{
-		return 0;
-	}
-}
-
-Projection ProjectToAxis(Object& object, Vector3& axis)
-{
-	float point;
-	Projection result;
-	for (int i = 0; i < object.model.meshes.size(); i++)
-	{
-		Mesh mesh = object.model.meshes[i];
-		for (int j = 0; j < mesh.vertices.size(); j++)
-		{
-			point = Vector3::Dot(axis, object.transform.GetWorldMatrix() * mesh.vertices[j].pos);
-			if (i == 0 && j == 0)
-			{
-				result.min = point;
-				result.max = point;
-			}
-			else
-			{
-				if (point < result.min)
-				{
-					result.min = point;
-				}
-				else if (point > result.max)
-				{
-					result.max = point;
-				}
-			}
-		}
-	}
-	return result;
-}
 bool SAT(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
 {
 	vector<Vector3> axes;
@@ -750,8 +738,8 @@ bool SAT(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
 		Projection result2;
 		for (int i = 0; i < axes.size(); i++)
 		{
-			result1 = ProjectToAxis(object1, axes[i]);
-			result2 = ProjectToAxis(object2, axes[i]);
+			result1 = ProjectVerticesToAxis(object1, axes[i]);
+			result2 = ProjectVerticesToAxis(object2, axes[i]);
 			float penetration = GetOverlappedAmount(result1, result2);
 			// Proj p1 = projectToAxis(object1, axes[i]);
 			// Proj p2 = projectToAxis(object2, axes[i]);

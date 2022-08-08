@@ -291,7 +291,7 @@ void Engine::InitializeScene()
 	backgroundColor[2] = 0;
 	backgroundColor[3] = 1;
 
-	actors[0]->transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
+	//actors[0]->transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
 	/*actors[1]->transform.SetRotation(Vector3(0, 45, 0));
 	actors[2]->transform.SetRotation(Vector3(0, 0, 45));
 	actors[3]->transform.SetRotation(Vector3(1, 0, 0));
