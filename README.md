@@ -125,8 +125,5 @@ https://user-images.githubusercontent.com/34128052/183495430-53070aaf-de9b-491b-
  - 물리 : 충돌 해결 구현 중, SAT 알고리즘으로 convex 충돌 검출(단순 여부만 확인) 구현
   * 충돌 해결만 붙잡고 있을 수 없으니 일단 조금씩 하는 중, convex는 면이랑 엣지로 얻어내는 노말들 중복제거를 해야하는데 일단 기능만 만들자 싶어서 중복제거는 못했음.  엄청느림 
 ```
-
+https://user-images.githubusercontent.com/34128052/183498618-22ae9475-b099-47ff-9fbf-38cd63554884.mp4
 https://user-images.githubusercontent.com/34128052/183497865-1b2e9d79-1eff-418b-a01a-04bd1e9ff266.mp4
-
-
-
