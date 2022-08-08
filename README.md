@@ -139,4 +139,11 @@ https://user-images.githubusercontent.com/34128052/183497865-1b2e9d79-1eff-418b-
 
 https://user-images.githubusercontent.com/34128052/183500947-9297f521-521f-4717-8c25-2912650d09e3.mp4
 
-Penetration이 작은 충돌을 우선 처리했기 때문에 나왔던 문제점
+Penetration이 작은 충돌을 우선 처리했기 때문에(+ 코드 자체도 잘 못 짰기에) 나왔던 문제점
+
+
+
+
+https://user-images.githubusercontent.com/34128052/183501688-3e596071-0702-44df-aaac-e252fccdb3ae.mp4
+
+Penetration이 큰 충돌을 우선 처리하도록 바꾼 후 맞이한 문제점
