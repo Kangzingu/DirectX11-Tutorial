@@ -1,5 +1,5 @@
-#include "Object.h"
 #include "Transform.h"
+#include "../Object.h"
 #include "../Utils/SimpleMath.h"
 
 void Transform::Initialize(Vector3 position, Vector3 rotation, Vector3 scale)

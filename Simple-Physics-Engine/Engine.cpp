@@ -202,8 +202,6 @@ void Engine::InitializeScene()
 	collider.SetEnabled(false);
 	m_light = new Light();
 	m_light->Initialize(lightModel, transform, rigidbody, collider);
-	m_light->SetAmbientLight(m_psConstantBuffer, Vector3::One(), 0.5f);
-	m_light->SetDynamicLight(m_psConstantBuffer, Vector3::One(), 7.0f, 1.0f, 0.1, 0.1f);
 
 	// Ä«¸Þ¶ó
 	model.m_isEnabled = false;
@@ -338,7 +336,7 @@ void Engine::UpdateScene()
 	m_deviceContext->VSSetShader(m_vertexShader.GetShader(), NULL, 0);
 	m_deviceContext->PSSetShader(m_pixelShader.GetShader(), NULL, 0);
 	m_deviceContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
-	m_light->SetContantBuffer(m_psConstantBuffer);
+	m_light->SetContantBuffer(m_psConstantBuffer, m_camera->m_transform.GetPosition());
 	m_psConstantBuffer.ApplyChanges();
 	m_deviceContext->PSSetConstantBuffers(0, 1, m_psConstantBuffer.GetAddressOf());
 	m_deviceContext->RSSetState(m_rasterizerState.Get());

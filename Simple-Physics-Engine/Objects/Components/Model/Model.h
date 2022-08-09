@@ -1,7 +1,7 @@
 #pragma once
 #include "Mesh.h"
+#include "../Components.h"
 #include "../Utils/SimpleMath.h"
-#include "Components.h"
 
 class Model:public Components
 {

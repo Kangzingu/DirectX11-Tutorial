@@ -1,8 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
-#include "../Utils/SimpleMath.h"
 #include "Transform.h"
 #include "Components.h"
+#include "../Utils/SimpleMath.h"
 
 class Rigidbody : public Components
 {

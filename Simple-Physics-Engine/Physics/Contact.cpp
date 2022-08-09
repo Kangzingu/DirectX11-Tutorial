@@ -1,5 +1,5 @@
 #include "Contact.h"
-#include "Object.h"
+#include "../Objects/Object.h"
 
 void Contact::CalculateInternals(float deltaTime)
 {

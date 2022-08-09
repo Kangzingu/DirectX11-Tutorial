@@ -1,7 +1,7 @@
-#include "Texture.h"
-#include "../Utils/ErrorLogger.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
+#include "Texture.h"
+#include "../Utils/ErrorLogger.h"
 
 Texture::Texture(ID3D11Device* device, const Color& color, aiTextureType type)
 {

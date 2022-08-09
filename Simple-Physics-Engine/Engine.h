@@ -1,16 +1,4 @@
 #pragma once
-#include "DirectXHelpers.h"
-#include "Graphics/Actor.h"
-#include "Graphics/Camera.h"
-#include "Graphics/Collision.h"
-#include "Graphics/ImGui/imgui.h"
-#include "Graphics/ImGui/imgui_impl_win32.h"
-#include "Graphics/ImGui/imgui_impl_dx11.h"
-#include "Graphics/Light.h"
-#include "Graphics/PhysicsManager.h"
-#include "Graphics/Shaders.h"
-#include "Utils/Timer.h"
-#include "Utils/WIndow/WindowManager.h"
 #include <CommonStates.h>
 #include <d3d11.h>
 #include <Effects.h>
@@ -22,6 +10,18 @@
 #include <VertexTypes.h>
 #include <WICTextureLoader.h>
 #include <wrl.h>
+#include "Graphics/Shaders/Shaders.h"
+#include "Physics/Collision.h"
+#include "Physics/PhysicsManager.h"
+#include "Objects/Actor.h"
+#include "Objects/Camera.h"
+#include "Objects/Light.h"
+#include "Utils/ImGui/imgui.h"
+#include "Utils/ImGui/imgui_impl_win32.h"
+#include "Utils/ImGui/imgui_impl_dx11.h"
+#include "Utils/Timer.h"
+#include "Utils/WIndow/WindowManager.h"
+#include "DirectXHelpers.h"
 
 using namespace std;
 using namespace Microsoft::WRL;

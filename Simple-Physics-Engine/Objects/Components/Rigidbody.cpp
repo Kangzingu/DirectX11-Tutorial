@@ -1,5 +1,5 @@
-#include "Object.h"
 #include "Rigidbody.h"
+#include "../Object.h"
 
 void Rigidbody::Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensor)
 {
@@ -102,7 +102,7 @@ Matrix4x4 Rigidbody::GetInertiaTensor(){return m_inertiaTensor;}
 
 Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 {
-	Matrix4x4 iitBody = m_inertiaTensor;
+	/*Matrix4x4 iitBody = m_inertiaTensor.Inverse();
 	Matrix4x4 iitWorld = Matrix4x4::Identity();
 	Matrix4x4 rotmat = m_object->m_transform.GetRotationMatrix();
 	float t4 = rotmat.m00 * iitBody.m00 +
@@ -160,8 +160,8 @@ Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 		t57 * rotmat.m21 +
 		t62 * rotmat.m22;
 
-	return iitWorld;
-	//return Matrix4x4(object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Transpose());
+	return iitWorld;*/
+	return Matrix4x4((m_object->m_transform.GetRotationMatrix() * m_inertiaTensor.Inverse()) * m_object->m_transform.GetRotationMatrix().Transpose());
 }
 
 // 힘 = 질량 * 가속도

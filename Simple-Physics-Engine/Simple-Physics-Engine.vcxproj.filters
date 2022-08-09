@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="pixelshader.hlsl">
+    <FxCompile Include="Graphics\Shaders\pixelshader.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="pixelshader_nolight.hlsl">
+    <FxCompile Include="Graphics\Shaders\pixelshader_nolight.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="vertexshader.hlsl">
+    <FxCompile Include="Graphics\Shaders\vertexshader.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

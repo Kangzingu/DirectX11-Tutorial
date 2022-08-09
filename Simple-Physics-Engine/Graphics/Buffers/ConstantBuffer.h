@@ -4,27 +4,19 @@
 #include <wrl/client.h>
 #include <DirectXMath.h>
 #include "../../Utils/ErrorLogger.h"
+#include "../../Utils/SimpleMath.h"
 
 struct VSConstantBuffer
 {
-	// 이거 16byte 단위로 뭐 패딩 넣어줘야하고 그렇거 있었는데.. 작동 이상하게 된다면 유튜브 "C++ DirectX 11 Engine Tutorial 26 - Constant Buffer Packing Alignment" 참고
-	DirectX::XMMATRIX wvpMatrix;
-	DirectX::XMMATRIX worldMatrix;
+	Matrix4x4 wvpMatrix;
+	Matrix4x4 worldMatrix;
 };
 
 struct PSConstantBuffer
 {
-	// 16byte
-	DirectX::XMFLOAT3 ambientLightColor;
-	float ambientLightStrength;
-	// 16byte
-	DirectX::XMFLOAT3 dynamicLightColor;
-	float dynamicLightStrength;
-	// 16byte
-	DirectX::XMFLOAT3 dynamicLightPosition;
-	float dynamicLightAttenA;
-	float dynamicLightAttenB;
-	float dynamicLightAttenC;
+	Vector3 lightPosition;
+	float lightStrength;
+	Vector3 cameraPosition;
 };
 
 template<class T>

@@ -1,4 +1,4 @@
-#include "Actor.h"
+#include "../Objects/Actor.h"
 #include "PhysicsManager.h"
 
 PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug) : m_actors(actors), m_deltaTime(deltaTime), m_lineForDebug(lineForDebug) {}
@@ -50,9 +50,9 @@ void PhysicsManager::ResolveCollision()
 	ResolvePenetration();
 
 
-	Vector3 closingVelocity;
 	for (int i = 0; i < m_contacts.size(); i++)
 	{
+		Vector3 closingVelocity;
 		for (int j = 0; j < 2; j++)
 		{
 			float sign = (j == 0) ? 1 : -1;
@@ -119,4 +119,4 @@ void PhysicsManager::ResolvePenetration()
 	//	positionIterationsUsed++;
 	//}
 }
-	
+

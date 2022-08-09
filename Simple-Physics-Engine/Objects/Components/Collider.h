@@ -1,6 +1,6 @@
 #pragma once
-#include "../Utils/SimpleMath.h"
 #include "Components.h"
+#include "../Utils/SimpleMath.h"
 
 class Collider : public Components
 {

@@ -1,5 +1,5 @@
-#include "Object.h"
 #include "Model.h"
+#include "../../Object.h"
 
 void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor)
 {
@@ -14,8 +14,8 @@ void Model::Draw(Matrix4x4 worldMatrix, Matrix4x4& viewProjectionMatrix)
 	m_deviceContext->VSSetConstantBuffers(0, 1, m_vsConstantBuffer->GetAddressOf());
 	for (int i = 0; i < m_meshes.size(); i++)
 	{
-		m_vsConstantBuffer->data.wvpMatrix =  (viewProjectionMatrix * (worldMatrix * m_meshes[i].m_worldMatrix)).ToXMMATRIX();
-		m_vsConstantBuffer->data.worldMatrix = (worldMatrix * m_meshes[i].m_worldMatrix).ToXMMATRIX();
+		m_vsConstantBuffer->data.wvpMatrix =  viewProjectionMatrix * (worldMatrix * m_meshes[i].m_worldMatrix);
+		m_vsConstantBuffer->data.worldMatrix = worldMatrix * m_meshes[i].m_worldMatrix;
 		m_vsConstantBuffer->ApplyChanges();
 		m_meshes[i].Draw();
 	}

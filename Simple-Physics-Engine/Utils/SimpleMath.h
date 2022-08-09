@@ -256,6 +256,7 @@ public:
 	float m10, m11, m12, m13;
 	float m20, m21, m22, m23;
 	float m30, m31, m32, m33;
+
 public:
 	Matrix4x4() :m00(1), m01(0), m02(0), m03(0), m10(0), m11(1), m12(0), m13(0), m20(0), m21(0), m22(1), m23(0), m30(0), m31(0), m32(0), m33(1) {}
 	Matrix4x4(DirectX::XMMATRIX m) :m00(DirectX::XMVectorGetX(m.r[0])), m01(DirectX::XMVectorGetX(m.r[1])), m02(DirectX::XMVectorGetX(m.r[2])), m03(DirectX::XMVectorGetX(m.r[3])), m10(DirectX::XMVectorGetY(m.r[0])), m11(DirectX::XMVectorGetY(m.r[1])), m12(DirectX::XMVectorGetY(m.r[2])), m13(DirectX::XMVectorGetY(m.r[3])), m20(DirectX::XMVectorGetZ(m.r[0])), m21(DirectX::XMVectorGetZ(m.r[1])), m22(DirectX::XMVectorGetZ(m.r[2])), m23(DirectX::XMVectorGetZ(m.r[3])), m30(DirectX::XMVectorGetW(m.r[0])), m31(DirectX::XMVectorGetW(m.r[1])), m32(DirectX::XMVectorGetW(m.r[2])), m33(DirectX::XMVectorGetW(m.r[3])) {}

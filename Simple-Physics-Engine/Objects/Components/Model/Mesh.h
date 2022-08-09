@@ -5,11 +5,11 @@
 #include <assimp/scene.h>
 #include <vector>
 #include "Texture.h"
-#include "../../../Utils/SimpleMath.h"
 #include "../../../Graphics/Buffers/ConstantBuffer.h"
 #include "../../../Graphics/Buffers/IndexBuffer.h"
 #include "../../../Graphics/Buffers/VertexBuffer.h"
 #include "../../../Graphics/Shaders/Vertex.h"
+#include "../../../Utils/SimpleMath.h"
 
 class Mesh
 {
