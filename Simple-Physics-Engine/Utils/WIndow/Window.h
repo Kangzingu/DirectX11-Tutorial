@@ -2,25 +2,30 @@
 #include "../ErrorLogger.h"
 
 class WindowManager;
+class Window
+{
+private:
+	HINSTANCE m_hInstance = NULL;
+	std::string m_title = "";
+	std::wstring m_titleWString = L"";
+	std::string m_class = "";
+	std::wstring m_classWString = L"";
+	int m_width = 0;
+	int m_height = 0;
 
-class Window {
+	HWND m_handle = NULL;
+
+	bool m_isEnable;
+
 public:
-	bool Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
+	void Initialize(WindowManager* pWindowContainer, HINSTANCE hInstance, const std::string& windowTitle, const std::string& windowClass, int windowWidth, int windowHeight);
 	void HandleMessage();
+
+	bool IsEnable();
+
 	HWND GetHWND() const;
-	~Window();
 	int GetWidth();
 	int GetHeight();
-	bool IsEnable();
-private:
-	bool isEnable;
-	void RegisterWindowClass();
-	HWND handle = NULL;
-	HINSTANCE hInstance = NULL;
-	int windowWidth = 0;
-	int windowHeight = 0;
-	std::string windowTitle = "";
-	std::string windowClass = "";
-	std::wstring windowTitleWString = L"";
-	std::wstring windowClassWString = L"";
+
+	~Window();
 };

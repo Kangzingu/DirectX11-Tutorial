@@ -2,42 +2,42 @@
 
 void Light::Draw(Matrix4x4 viewProjectionMatrix)
 {
-	model.Draw(this->transform.GetWorldMatrix(), viewProjectionMatrix);
+	m_model.Draw(m_transform.GetWorldMatrix(), viewProjectionMatrix);
 }
 
 void Light::SetAmbientLight(ConstantBuffer<PSConstantBuffer>& psConstantBuffer, Vector3 ambientColor, float ambientStrength)
 {
-	this->ambientColor = ambientColor;
-	this->ambientStrength = ambientStrength;
+	m_ambientColor = ambientColor;
+	m_ambientStrength = ambientStrength;
 
-	psConstantBuffer.data.ambientLightColor = this->ambientColor.ToXMFLOAT3();
-	psConstantBuffer.data.ambientLightStrength = this->ambientStrength;
+	psConstantBuffer.data.ambientLightColor = m_ambientColor.ToXMFLOAT3();
+	psConstantBuffer.data.ambientLightStrength = m_ambientStrength;
 }
 
 void Light::SetDynamicLight(ConstantBuffer<PSConstantBuffer>& psConstantBuffer, Vector3 dynamicColor, float dynamicStrength, float dynamicAttenA, float dynamicAttenB, float dynamicAttenC)
 {
-	this->dynamicColor = dynamicColor;
-	this->dynamicStrength = dynamicStrength;
-	this->dynamicAttenA = dynamicAttenA;
-	this->dynamicAttenB = dynamicAttenB;
-	this->dynamicAttenC = dynamicAttenC;
+	m_dynamicColor = dynamicColor;
+	m_dynamicStrength = dynamicStrength;
+	m_dynamicAttenA = dynamicAttenA;
+	m_dynamicAttenB = dynamicAttenB;
+	m_dynamicAttenC = dynamicAttenC;
 
-	psConstantBuffer.data.dynamicLightColor = this->dynamicColor.ToXMFLOAT3();
-	psConstantBuffer.data.dynamicLightPosition = this->transform.GetPosition().ToXMFLOAT3();
-	psConstantBuffer.data.dynamicLightStrength = this->dynamicStrength;
-	psConstantBuffer.data.dynamicLightAttenA = this->dynamicAttenA;
-	psConstantBuffer.data.dynamicLightAttenB = this->dynamicAttenB;
-	psConstantBuffer.data.dynamicLightAttenC = this->dynamicAttenC;
+	psConstantBuffer.data.dynamicLightColor = m_dynamicColor.ToXMFLOAT3();
+	psConstantBuffer.data.dynamicLightPosition = m_transform.GetPosition().ToXMFLOAT3();
+	psConstantBuffer.data.dynamicLightStrength = m_dynamicStrength;
+	psConstantBuffer.data.dynamicLightAttenA = m_dynamicAttenA;
+	psConstantBuffer.data.dynamicLightAttenB = m_dynamicAttenB;
+	psConstantBuffer.data.dynamicLightAttenC = m_dynamicAttenC;
 }
 
 void Light::SetContantBuffer(ConstantBuffer<PSConstantBuffer>& psConstantBuffer)
 {
-	psConstantBuffer.data.ambientLightColor = this->ambientColor.ToXMFLOAT3();
-	psConstantBuffer.data.ambientLightStrength = this->ambientStrength;
-	psConstantBuffer.data.dynamicLightColor = this->dynamicColor.ToXMFLOAT3();
-	psConstantBuffer.data.dynamicLightPosition = this->transform.GetPosition().ToXMFLOAT3();
-	psConstantBuffer.data.dynamicLightStrength = this->dynamicStrength;
-	psConstantBuffer.data.dynamicLightAttenA = this->dynamicAttenA;
-	psConstantBuffer.data.dynamicLightAttenB = this->dynamicAttenB;
-	psConstantBuffer.data.dynamicLightAttenC = this->dynamicAttenC;
+	psConstantBuffer.data.ambientLightColor = m_ambientColor.ToXMFLOAT3();
+	psConstantBuffer.data.ambientLightStrength = m_ambientStrength;
+	psConstantBuffer.data.dynamicLightColor = m_dynamicColor.ToXMFLOAT3();
+	psConstantBuffer.data.dynamicLightPosition = m_transform.GetPosition().ToXMFLOAT3();
+	psConstantBuffer.data.dynamicLightStrength = m_dynamicStrength;
+	psConstantBuffer.data.dynamicLightAttenA = m_dynamicAttenA;
+	psConstantBuffer.data.dynamicLightAttenB = m_dynamicAttenB;
+	psConstantBuffer.data.dynamicLightAttenC = m_dynamicAttenC;
 }

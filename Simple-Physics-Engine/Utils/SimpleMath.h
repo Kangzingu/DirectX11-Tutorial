@@ -18,7 +18,7 @@ public:
 	float x;
 	float y;
 	float z;
-	
+
 public:
 	Vector3() : x(0), y(0), z(0) {}
 	Vector3(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)) {}
@@ -105,14 +105,14 @@ public:
 	static float Dot(Vector4 v1, Vector4 v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w; }
 	static Vector4 Quaternion(Vector3 axis, float angle)
 	{
-		angle = General::DegreeToRadian(angle); 
-		return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f)); 
+		angle = General::DegreeToRadian(angle);
+		return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f));
 	}
-	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2) 
+	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2)
 	{
 		return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,
 					   q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,
-					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w, 
+					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
 					   q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
 	}
 	static Vector4 CombineQuaternionBookVersion(Vector4 q1, Vector4 q2)
@@ -155,13 +155,13 @@ public:
 	static Quaternion Identity() { return Quaternion(1.0f, 0.0f, 0.0f, 0.0f); }
 	static Quaternion Normalize(Quaternion q)
 	{
-		float length = sqrt(q.r * q.r + q.i * q.i + q.j * q.j + q.k * q.k); 
+		float length = sqrt(q.r * q.r + q.i * q.i + q.j * q.j + q.k * q.k);
 		return Quaternion(q.r / length, q.i / length, q.j / length, q.k / length);
 	}
 	Quaternion operator*(Quaternion q)
 	{
 		return Quaternion(r * q.r - i * q.i -
-						  j * q.j - k * q.k, 
+						  j * q.j - k * q.k,
 						  r * q.i + i * q.r +
 						  j * q.k - k * q.j,
 						  r * q.j + j * q.r +
@@ -238,11 +238,13 @@ public:
 	Matrix3x3(float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22) :m00(m00), m01(m01), m02(m02), m10(m10), m11(m11), m12(m12), m20(m20), m21(m21), m22(m22) {}
 	float Determinant() { return(m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m02 * m11 * m20 - m01 * m10 * m22 - m00 * m12 * m21); }
 	static Matrix3x3 Zero() { return Matrix3x3(0, 0, 0, 0, 0, 0, 0, 0, 0); }
-	Matrix3x3 Inverse() {
+	Matrix3x3 Inverse()
+	{
 		float determinant = Determinant();
 		if (determinant == 0)
 			return Matrix3x3::Zero();
-		float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse; }
+		float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse;
+	}
 	Matrix3x3 operator*(float a) { return Matrix3x3(m00 * a, m01 * a, m02 * a, m10 * a, m11 * a, m12 * a, m20 * a, m21 * a, m22 * a); }
 	Matrix3x3& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m10 *= a; m11 *= a; m12 *= a; m20 *= a; m21 *= a; m22 *= a; return *this; }
 	//Matrix3x3 Quaternion(Vector4 quaternion) { return Matrix3x3(1 - (2 * pow(quaternion.z, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.y * quaternion.z + 2 * quaternion.w * quaternion.x, 2 * quaternion.y * quaternion.w - 2 * quaternion.z * quaternion.x, 2 * quaternion.y * quaternion.z - 2 * quaternion.w * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.z * quaternion.w + 2 * quaternion.y + quaternion.x, 2 * quaternion.y * quaternion.w + 2 * quaternion.z * quaternion.x, 2 * quaternion.z * quaternion.w - 2 * quaternion.y * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.z, 2))); }

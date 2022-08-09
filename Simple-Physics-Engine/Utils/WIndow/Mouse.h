@@ -3,34 +3,38 @@
 #include <queue>
 
 class Mouse {
+private:
+	int m_x = 0;
+	int m_y = 0;
+
+	bool m_isLeftDown = false;
+	bool m_isRightDown = false;
+	bool m_isWheelButtonDown = false;
+
+	std::queue<MouseEvent> m_eventBuffer;
+
 public:
 	void OnLeftPressed(int x, int y);
 	void OnLeftReleased(int x, int y);
 	void OnRightPressed(int x, int y);
 	void OnRightReleased(int x, int y);
-	void OnMiddlePressed(int x, int y);
-	void OnMiddleReleased(int x, int y);
 	void OnWheelUp(int x, int y);
 	void OnWheelDown(int x, int y);
+	void OnWheelButtonPressed(int x, int y);
+	void OnWheelButtonReleased(int x, int y);
+	
 	void OnMouseMove(int x, int y);
 	void OnMouseMoveRaw(int x, int y);
+	
+	MouseEvent ReadEvent();
+	bool IsEventBufferEmpty();
 
 	bool IsLeftDown();
-	bool IsMiddleDown();
+	bool IsWheelButtonDown();
 	bool IsRightDown();
 
-	int GetPosX();
-	int GetPosY();
-	MousePoint GetPos();
+	int GetPositionX();
+	int GetPositionY();
+	MousePoint GetPosition();
 
-	bool IsEventBufferEmpty();
-	MouseEvent ReadEvent();
-
-private:
-	std::queue<MouseEvent> eventBuffer;
-	bool leftIsDown = false;
-	bool rightIsDown = false;
-	bool mbuttonDown = false;
-	int x = 0;
-	int y = 0;
 };

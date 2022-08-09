@@ -1,37 +1,29 @@
 #include "StringHelper.h"
-#include <algorithm>
 
 // wstring은 유니코드
-std::wstring StringHelper::StringToWide(std::string str) {
-	std::wstring wide_string(str.begin(), str.end());
-	return wide_string;
-}
-
-std::string StringHelper::GetDirectoryFromPath(const std::string& filepath)
+std::wstring StringHelper::StringToWString(const std::string& str)
 {
-	size_t off1 = filepath.find_last_of('\\');
-	size_t off2 = filepath.find_last_of('/');
-	if (off1 == std::string::npos && off2 == std::string::npos)
-	{
+	std::wstring wString(str.begin(), str.end());
+	return wString;
+}
+std::string StringHelper::GetDirectoryFromPath(const std::string& path)
+{
+	size_t offset1 = path.find_last_of('\\');
+	size_t offset2 = path.find_last_of('/');
+	if (offset1 == std::string::npos && offset2 == std::string::npos)
 		return "";
-	}
-	if (off1 == std::string::npos)
-	{
-		return filepath.substr(0, off2);
-	}
-	if (off2 == std::string::npos)
-	{
-		return filepath.substr(0, off1);
-	}
-	return filepath.substr(0, std::max(off1, off2) - 1);
+	else if (offset1 == std::string::npos)
+		return path.substr(0, offset2);
+	else if (offset2 == std::string::npos)
+		return path.substr(0, offset1);
+	else
+		return path.substr(0, std::max(offset1, offset2) - 1);
 }
-
-std::string StringHelper::GetFileExtension(const std::string& filename)
+std::string StringHelper::GetFileExtension(const std::string& name)
 {
-	size_t off = filename.find_last_of('.');
-	if (off == std::string::npos)
-	{
+	size_t offset = name.find_last_of('.');
+	if (offset == std::string::npos)
 		return {};
-	}
-	return std::string(filename.substr(off+1));
+
+	return std::string(name.substr(offset + 1));
 }

@@ -9,31 +9,31 @@ void Collider::Update(float deltaTime)
 }
 void Collider::SetEnabled(bool isEnabled)
 {
-	this->isEnabled = isEnabled;
+	m_isEnabled = isEnabled;
 }
 void Collider::SetCenter(Vector3 center)
 {
-	this->center = center;
+	m_center = center;
 }
 void SphereCollider::SetRadius(float radius)
 {
-	this->radius = radius;
+	m_radius = radius;
 }
 void CubeCollider::SetSize(Vector3 size)
 {
-	this->size = size;
+	m_size = size;
 }
 void PlaneCollider::SetNormal(Vector3 normal)
 {
-	this->normal = normal;
+	m_normal = normal;
 }
 void PlaneCollider::SetOffset(float offset)
 {
-	this->offset = offset;
+	m_offset = offset;
 }
-bool Collider::IsEnabled(){return isEnabled;}
-Vector3 Collider::GetCenter(){return center;}
-float SphereCollider::GetRadius(){return radius;}
-Vector3 CubeCollider::GetSize(){return size;}
-Vector3 PlaneCollider::GetNormal(){return normal;}
-float PlaneCollider::GetOffset(){return offset;}
+bool Collider::IsEnabled(){return m_isEnabled;}
+Vector3 Collider::GetCenter(){return m_center;}
+float SphereCollider::GetRadius(){return m_radius;}
+Vector3 CubeCollider::GetSize(){return m_size;}
+Vector3 PlaneCollider::GetNormal(){return m_normal;}
+float PlaneCollider::GetOffset(){return m_offset;}

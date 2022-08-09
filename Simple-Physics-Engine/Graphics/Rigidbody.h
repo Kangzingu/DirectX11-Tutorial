@@ -2,28 +2,26 @@
 #include <DirectXMath.h>
 #include "../Utils/SimpleMath.h"
 #include "Transform.h"
+#include "Components.h"
 
-class Object;
-class Rigidbody
+class Rigidbody : public Components
 {
 private:
-	bool isEnabled = true;
-	bool isKinematic = false;
+	bool m_isEnabled = true;
+	bool m_isKinematic = false;
 	
-	float inverseMass;
-	float damping = 0.95f;
-	float angularDamping = 0.95f;
-	Vector3 velocity = Vector3::Zero();// m/s 단위
-	Vector3 angularVelocity = Vector3::Zero();
+	float m_inverseMass;
+	float m_damping = 0.95f;
+	float m_angularDamping = 0.95f;
+	Vector3 m_velocity = Vector3::Zero();// m/s 단위
+	Vector3 m_angularVelocity = Vector3::Zero();
 	
-	Vector3 accumulatedForce = Vector3::Zero();
-	Vector3 accumulatedTorque = Vector3::Zero();
+	Vector3 m_accumulatedForce = Vector3::Zero();
+	Vector3 m_accumulatedTorque = Vector3::Zero();
 	
-	Matrix4x4 inertiaTensor = Matrix4x4::Identity();
+	Matrix4x4 m_inertiaTensor = Matrix4x4::Identity();
 
 public:
-	Object* object;
-
 	bool IsEnabled();
 	bool IsKinematic();
 

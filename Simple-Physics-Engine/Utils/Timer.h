@@ -3,20 +3,21 @@
 
 class Timer
 {
+private:
+	bool m_isRunning = false;
+
 public:
 	Timer();
-	double GetElapsedMiliseconds();
-	void Restart();
-	bool Stop();
 	bool Start();
+	bool Stop();
+	void Restart();
+	double GetElapsedMiliseconds();
 
-private:
-	bool isrunning = false;
-#ifdef _WIN32
-	std::chrono::time_point<std::chrono::steady_clock> curStartTime;
-	std::chrono::time_point<std::chrono::steady_clock> curStoppedTime;
-#else
-	std::chrono::time_point<std::chrono::system_clock> curStartTime;
-	std::chrono::time_point<std::chrono::system_clock> curStoppedTime;
-#endif
+	#ifdef _WIN32
+	std::chrono::time_point<std::chrono::steady_clock> m_curStartTime;
+	std::chrono::time_point<std::chrono::steady_clock> m_curStoppedTime;
+	#else
+	std::chrono::time_point<std::chrono::system_clock> m_curStartTime;
+	std::chrono::time_point<std::chrono::system_clock> m_curStoppedTime;
+	#endif
 };

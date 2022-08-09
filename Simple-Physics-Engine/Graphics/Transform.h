@@ -1,26 +1,24 @@
 #pragma once
 #include "Model.h"
+#include "Components.h"
 
-class Object;
-class Transform
+class Transform : public Components
 {
 private:
-	Vector3 position = Vector3::Zero();
-	Quaternion orientation = Quaternion::Identity();
-	Vector3 scale = Vector3::One();
+	Vector3 m_position = Vector3::Zero();
+	Quaternion m_orientation = Quaternion::Identity();
+	Vector3 m_scale = Vector3::One();
 
-	Vector3 right = Vector3::Right();
-	Vector3 up = Vector3::Up();
-	Vector3 forward = Vector3::Forward();
+	Vector3 m_right = Vector3::Right();
+	Vector3 m_up = Vector3::Up();
+	Vector3 m_forward = Vector3::Forward();
 
-	Matrix4x4 worldMatrix = Matrix4x4::Identity();
-	Matrix4x4 translationMatrix = Matrix4x4::Identity();
-	Matrix4x4 rotationMatrix = Matrix4x4::Identity();
-	Matrix4x4 scalingMatrix = Matrix4x4::Identity();
+	Matrix4x4 m_worldMatrix = Matrix4x4::Identity();
+	Matrix4x4 m_translationMatrix = Matrix4x4::Identity();
+	Matrix4x4 m_rotationMatrix = Matrix4x4::Identity();
+	Matrix4x4 m_scalingMatrix = Matrix4x4::Identity();
 
 public:
-	Object* object;
-
 	Matrix4x4& GetWorldMatrix();
 	Matrix4x4& GetTranslationMatrix();
 	Matrix4x4& GetRotationMatrix();

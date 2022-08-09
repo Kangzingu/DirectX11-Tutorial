@@ -3,165 +3,165 @@
 
 void Rigidbody::Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensor)
 {
-	this->inverseMass = inverseMass;
-	this->damping = damping;
-	this->angularDamping = angularDamping;
-	this->velocity = velocity;
-	this->angularVelocity = rotationVelocity;
-	this->inertiaTensor = inertiaTensor;
-	this->ClearAccumulatedForce();
+	m_inverseMass = inverseMass;
+	m_damping = damping;
+	m_angularDamping = angularDamping;
+	m_velocity = velocity;
+	m_angularVelocity = rotationVelocity;
+	m_inertiaTensor = inertiaTensor;
+	ClearAccumulatedForce();
 }
 void Rigidbody::AddForce(Vector3 force)
 {
-	accumulatedForce += force;
+	m_accumulatedForce += force;
 }
 void Rigidbody::AddForceAt(Vector3 force, Vector3 worldPoint)
 {
-	accumulatedForce += force;
-	accumulatedTorque +=  (Vector3::Cross(worldPoint - object->transform.GetPosition(), force));
+	m_accumulatedForce += force;
+	m_accumulatedTorque +=  (Vector3::Cross(worldPoint - m_object->m_transform.GetPosition(), force));
 }
 void Rigidbody::AddTorqueAt(Vector3 force, Vector3 worldPoint)
 {
-	accumulatedTorque += (Vector3::Cross(worldPoint - object->transform.GetPosition(), force));
+	m_accumulatedTorque += (Vector3::Cross(worldPoint - m_object->m_transform.GetPosition(), force));
 }
 void Rigidbody::Update(float deltaTime)
 {
-	if (isKinematic == false)
+	if (m_isKinematic == false)
 	{
-		velocity = (velocity + (accumulatedForce * inverseMass) * deltaTime) * pow(damping, deltaTime);
-		object->transform.Translate(velocity * deltaTime);
+		m_velocity = (m_velocity + (m_accumulatedForce * m_inverseMass) * deltaTime) * pow(m_damping, deltaTime);
+		m_object->m_transform.Translate(m_velocity * deltaTime);
 
-		angularVelocity = (angularVelocity + (GetWorldInertiaTensorInverse() * accumulatedTorque) * deltaTime) * pow(angularDamping, deltaTime);
-		object->transform.Rotate(angularVelocity * deltaTime);
+		m_angularVelocity = (m_angularVelocity + (GetWorldInertiaTensorInverse() * m_accumulatedTorque) * deltaTime) * pow(m_angularDamping, deltaTime);
+		m_object->m_transform.Rotate(m_angularVelocity * deltaTime);
 	}
 	ClearAccumulatedForce();
 }
 void Rigidbody::SetKinematic(bool isKinematic)
 {
-	this->isKinematic = isKinematic;
+	m_isKinematic = isKinematic;
 }
 void Rigidbody::SetEnabled(bool isEnabled)
 {
-	this->isEnabled = isEnabled;
+	m_isEnabled = isEnabled;
 }
 void Rigidbody::SetInverseMass(float inverseMass)
 {
-	this->inverseMass = inverseMass;
+	m_inverseMass = inverseMass;
 }
 void Rigidbody::SetDamping(float damping)
 {
-	this->damping = damping;
+	m_damping = damping;
 }
 void Rigidbody::SetAngularDamping(float angularDamping)
 {
-	this->angularDamping = angularDamping;
+	m_angularDamping = angularDamping;
 }
 void Rigidbody::SetVelocity(Vector3 velocity)
 {
-	this->velocity = velocity;
+	m_velocity = velocity;
 }
 void Rigidbody::AddVelocity(Vector3 velocity)
 {
-	this->velocity += velocity;
+	m_velocity += velocity;
 }
 void Rigidbody::SetAngularVelocity(Vector3 angularVelocity)
 {
-	this->angularVelocity = angularVelocity;
+	m_angularVelocity = angularVelocity;
 }
 void Rigidbody::AddAngularVelocity(Vector3 angularVelocity)
 {
-	this->angularVelocity += angularVelocity;
+	m_angularVelocity += angularVelocity;
 }
 void Rigidbody::SetAccumulatedForce(Vector3 accumulatedForce)
 {
-	this->accumulatedForce = accumulatedForce;
+	m_accumulatedForce = accumulatedForce;
 }
 void Rigidbody::SetAccumulatedTorque(Vector3 accumulatedTorque)
 {
-	this->accumulatedTorque = accumulatedTorque;
+	m_accumulatedTorque = accumulatedTorque;
 }
 void Rigidbody::SetInertiaTensor(Matrix4x4 inertiaTensor)
 {
-	this->inertiaTensor = inertiaTensor;
+	m_inertiaTensor = inertiaTensor;
 }
 void Rigidbody::ClearAccumulatedForce()
 {
-	accumulatedForce = Vector3::Zero();
-	accumulatedTorque = Vector3::Zero();
+	m_accumulatedForce = Vector3::Zero();
+	m_accumulatedTorque = Vector3::Zero();
 }
-bool Rigidbody::IsKinematic() { return isKinematic; }
-bool Rigidbody::IsEnabled() { return isEnabled; }
-float Rigidbody::GetInverseMass(){return inverseMass;}
-float Rigidbody::GetDamping(){return damping;}
-float Rigidbody::GetangularDamping(){return angularDamping;}
-Vector3 Rigidbody::GetVelocity(){return velocity;}
-Vector3 Rigidbody::GetAngularVelocity(){return angularVelocity;}
-Vector3 Rigidbody::GetAccumulatedForce(){return accumulatedForce;}
-Vector3 Rigidbody::GetAccumulatedTorque(){return accumulatedTorque;}
-Matrix4x4 Rigidbody::GetInertiaTensor(){return inertiaTensor;}
+bool Rigidbody::IsKinematic() { return m_isKinematic; }
+bool Rigidbody::IsEnabled() { return m_isEnabled; }
+float Rigidbody::GetInverseMass(){return m_inverseMass;}
+float Rigidbody::GetDamping(){return m_damping;}
+float Rigidbody::GetangularDamping(){return m_angularDamping;}
+Vector3 Rigidbody::GetVelocity(){return m_velocity;}
+Vector3 Rigidbody::GetAngularVelocity(){return m_angularVelocity;}
+Vector3 Rigidbody::GetAccumulatedForce(){return m_accumulatedForce;}
+Vector3 Rigidbody::GetAccumulatedTorque(){return m_accumulatedTorque;}
+Matrix4x4 Rigidbody::GetInertiaTensor(){return m_inertiaTensor;}
 
 Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 {
-	//Matrix4x4 iitBody = inertiaTensor;
-	//Matrix4x4 iitWorld = Matrix4x4::Identity();
-	//Matrix4x4 rotmat = object->transform.GetRotationMatrix();
-	//float t4 = rotmat.m00 * iitBody.m00 +
-	//	rotmat.m01 * iitBody.m10 +
-	//	rotmat.m02 * iitBody.m20;
-	//float t9 = rotmat.m00 * iitBody.m01 +
-	//	rotmat.m01 * iitBody.m11 +
-	//	rotmat.m02 * iitBody.m21;
-	//float t14 = rotmat.m00 * iitBody.m02 +
-	//	rotmat.m01 * iitBody.m12 +
-	//	rotmat.m02 * iitBody.m22;
-	//float t28 = rotmat.m10 * iitBody.m00 +
-	//	rotmat.m11 * iitBody.m10 +
-	//	rotmat.m12 * iitBody.m20;
-	//float t33 = rotmat.m10 * iitBody.m01 +
-	//	rotmat.m11 * iitBody.m11 +
-	//	rotmat.m12 * iitBody.m21;
-	//float t38 = rotmat.m10 * iitBody.m02 +
-	//	rotmat.m11 * iitBody.m12 +
-	//	rotmat.m12 * iitBody.m22;
-	//float t52 = rotmat.m20 * iitBody.m00 +
-	//	rotmat.m21 * iitBody.m10 +
-	//	rotmat.m22 * iitBody.m20;
-	//float t57 = rotmat.m20 * iitBody.m01 +
-	//	rotmat.m21 * iitBody.m11 +
-	//	rotmat.m22 * iitBody.m21;
-	//float t62 = rotmat.m20 * iitBody.m02 +
-	//	rotmat.m21 * iitBody.m12 +
-	//	rotmat.m22 * iitBody.m22;
-	//iitWorld.m00 = t4 * rotmat.m00 +
-	//	t9 * rotmat.m01 +
-	//	t14 * rotmat.m02;
-	//iitWorld.m01 = t4 * rotmat.m10 +
-	//	t9 * rotmat.m11 +
-	//	t14 * rotmat.m12;
-	//iitWorld.m02 = t4 * rotmat.m20 +
-	//	t9 * rotmat.m21 +
-	//	t14 * rotmat.m22;
-	//iitWorld.m10 = t28 * rotmat.m00 +
-	//	t33 * rotmat.m01 +
-	//	t38 * rotmat.m02;
-	//iitWorld.m11 = t28 * rotmat.m10 +
-	//	t33 * rotmat.m11 +
-	//	t38 * rotmat.m12;
-	//iitWorld.m12 = t28 * rotmat.m20 +
-	//	t33 * rotmat.m21 +
-	//	t38 * rotmat.m22;
-	//iitWorld.m20 = t52 * rotmat.m00 +
-	//	t57 * rotmat.m01 +
-	//	t62 * rotmat.m02;
-	//iitWorld.m21 = t52 * rotmat.m10 +
-	//	t57 * rotmat.m11 +
-	//	t62 * rotmat.m12;
-	//iitWorld.m22 = t52 * rotmat.m20 +
-	//	t57 * rotmat.m21 +
-	//	t62 * rotmat.m22;
+	Matrix4x4 iitBody = m_inertiaTensor;
+	Matrix4x4 iitWorld = Matrix4x4::Identity();
+	Matrix4x4 rotmat = m_object->m_transform.GetRotationMatrix();
+	float t4 = rotmat.m00 * iitBody.m00 +
+		rotmat.m01 * iitBody.m10 +
+		rotmat.m02 * iitBody.m20;
+	float t9 = rotmat.m00 * iitBody.m01 +
+		rotmat.m01 * iitBody.m11 +
+		rotmat.m02 * iitBody.m21;
+	float t14 = rotmat.m00 * iitBody.m02 +
+		rotmat.m01 * iitBody.m12 +
+		rotmat.m02 * iitBody.m22;
+	float t28 = rotmat.m10 * iitBody.m00 +
+		rotmat.m11 * iitBody.m10 +
+		rotmat.m12 * iitBody.m20;
+	float t33 = rotmat.m10 * iitBody.m01 +
+		rotmat.m11 * iitBody.m11 +
+		rotmat.m12 * iitBody.m21;
+	float t38 = rotmat.m10 * iitBody.m02 +
+		rotmat.m11 * iitBody.m12 +
+		rotmat.m12 * iitBody.m22;
+	float t52 = rotmat.m20 * iitBody.m00 +
+		rotmat.m21 * iitBody.m10 +
+		rotmat.m22 * iitBody.m20;
+	float t57 = rotmat.m20 * iitBody.m01 +
+		rotmat.m21 * iitBody.m11 +
+		rotmat.m22 * iitBody.m21;
+	float t62 = rotmat.m20 * iitBody.m02 +
+		rotmat.m21 * iitBody.m12 +
+		rotmat.m22 * iitBody.m22;
+	iitWorld.m00 = t4 * rotmat.m00 +
+		t9 * rotmat.m01 +
+		t14 * rotmat.m02;
+	iitWorld.m01 = t4 * rotmat.m10 +
+		t9 * rotmat.m11 +
+		t14 * rotmat.m12;
+	iitWorld.m02 = t4 * rotmat.m20 +
+		t9 * rotmat.m21 +
+		t14 * rotmat.m22;
+	iitWorld.m10 = t28 * rotmat.m00 +
+		t33 * rotmat.m01 +
+		t38 * rotmat.m02;
+	iitWorld.m11 = t28 * rotmat.m10 +
+		t33 * rotmat.m11 +
+		t38 * rotmat.m12;
+	iitWorld.m12 = t28 * rotmat.m20 +
+		t33 * rotmat.m21 +
+		t38 * rotmat.m22;
+	iitWorld.m20 = t52 * rotmat.m00 +
+		t57 * rotmat.m01 +
+		t62 * rotmat.m02;
+	iitWorld.m21 = t52 * rotmat.m10 +
+		t57 * rotmat.m11 +
+		t62 * rotmat.m12;
+	iitWorld.m22 = t52 * rotmat.m20 +
+		t57 * rotmat.m21 +
+		t62 * rotmat.m22;
 
-	//return iitWorld;
-	return Matrix4x4(object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Transpose());
+	return iitWorld;
+	//return Matrix4x4(object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Transpose());
 }
 
 // 힘 = 질량 * 가속도

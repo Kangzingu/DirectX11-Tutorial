@@ -7,13 +7,13 @@ class Actor;
 class PhysicsManager
 {
 private:
-	const float epsilon = 0.00001f;
-	Vector3 gravity = Vector3(0, -5.5f, 0);
-	vector<Contact> contacts;
+	const float m_epsilon = 0.00001f;
+	Vector3 m_gravity = Vector3(0, -3.5f, 0);
+	vector<Contact> m_contacts;
 
-	vector<Actor*>* actors;
-	float& deltaTime;
-	vector<Vector3>* lineForDebug;
+	vector<Actor*>* m_actors;
+	float& m_deltaTime;
+	vector<Vector3>* m_lineForDebug;
 
 public:
 	PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug);
@@ -24,6 +24,4 @@ public:
 	void DetectCollision();
 	void ResolveCollision();
 	void ResolvePenetration();
-
-public:
 };

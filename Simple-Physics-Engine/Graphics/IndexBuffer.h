@@ -10,15 +10,15 @@ private:
 	IndexBuffer(const IndexBuffer& rhs);
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
-	UINT numofIndex = 0;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
+	UINT m_numofIndex = 0;
 
 public:
 	void Initialize(ID3D11Device* device, DWORD* data, UINT indexCount)
 	{
-		if (buffer.Get() != nullptr)
-			buffer.Reset();
-		this->numofIndex = indexCount;
+		if (m_buffer.Get() != nullptr)
+			m_buffer.Reset();
+		m_numofIndex = indexCount;
 		D3D11_BUFFER_DESC indexBufferDescription;
 		ZeroMemory(&indexBufferDescription, sizeof(indexBufferDescription));
 		indexBufferDescription.Usage = D3D11_USAGE_DEFAULT;
@@ -29,20 +29,20 @@ public:
 		D3D11_SUBRESOURCE_DATA indexBufferData;
 		ZeroMemory(&indexBufferData, sizeof(indexBufferData));
 		indexBufferData.pSysMem = data;
-		ERROR_IF_FAILED(device->CreateBuffer(&indexBufferDescription, &indexBufferData, this->buffer.GetAddressOf()), "인덱스 버퍼 생성에 실패했습니다");
+		ERROR_IF_FAILED(device->CreateBuffer(&indexBufferDescription, &indexBufferData, m_buffer.GetAddressOf()), "인덱스 버퍼 생성에 실패했습니다");
 	}
 	IndexBuffer() {};
 	ID3D11Buffer* Get() const
 	{
-		return buffer.Get();
+		return m_buffer.Get();
 	}
 	ID3D11Buffer* const* GetAddressOf() const
 	{
-		return buffer.GetAddressOf();
+		return m_buffer.GetAddressOf();
 	}
 	UINT IndexCount() const
 	{
-		return this->numofIndex;
+		return m_numofIndex;
 	}
 };
 #endif

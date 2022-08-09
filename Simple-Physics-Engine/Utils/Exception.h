@@ -2,29 +2,30 @@
 #include <comdef.h>
 #include "StringHelper.h"
 
-#define ERROR_IF_FAILED(hr, msg) if (FAILED(hr)) throw Exception (hr, msg, __FILE__, __FUNCTION__, __LINE__)
-#define ERROR_IF(isTrue, msg) if (isTrue) throw Exception (msg)
+#define ERROR_IF_FAILED(hResult, message) if (FAILED(hResult)) throw Exception (hResult, message, __FILE__, __FUNCTION__, __LINE__)
+#define ERROR_IF(isTrue, message) if (isTrue) throw Exception (message)
 //COMException
 class Exception
 {
+private:
+	std::wstring m_message;
+
 public:
-	Exception(HRESULT hr, const std::string& msg, const std::string& file, const std::string& function, int line)
+	Exception(HRESULT hResult, const std::string& message, const std::string& file, const std::string& function, int line)
 	{
-		_com_error error(hr);
-		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";
-		whatmsg += error.ErrorMessage();
-		whatmsg += L"\nFile: " + StringHelper::StringToWide(file);
-		whatmsg += L"\nFunction: " + StringHelper::StringToWide(function);
-		whatmsg += L"\nLine: " + StringHelper::StringToWide(std::to_string(line));
+		_com_error error(hResult);
+		m_message = L"Msg: " + StringHelper::StringToWString(std::string(message)) + L"\n";
+		m_message += error.ErrorMessage();
+		m_message += L"\nFile: " + StringHelper::StringToWString(file);
+		m_message += L"\nFunction: " + StringHelper::StringToWString(function);
+		m_message += L"\nLine: " + StringHelper::StringToWString(std::to_string(line));
 	}
-	Exception(const std::string& msg)
+	Exception(const std::string& message)
 	{
-		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg));
+		m_message = L"Msg: " + StringHelper::StringToWString(std::string(message));
 	}
 	const wchar_t* what() const
 	{
-		return whatmsg.c_str();
+		return m_message.c_str();
 	}
-private:
-	std::wstring whatmsg;
 };

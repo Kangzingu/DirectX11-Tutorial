@@ -4,19 +4,10 @@
     <FxCompile Include="pixelshader.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="pixelshader_2d.hlsl">
-      <Filter>Graphics\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_2d_discard.hlsl">
-      <Filter>Graphics\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="pixelshader_nolight.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="vertexshader.hlsl">
-      <Filter>Graphics\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="vertexshader_2d.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -49,9 +40,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Contact.cpp">
       <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Color.cpp">
-      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\ErrorLogger.cpp">
       <Filter>Utils</Filter>
@@ -113,6 +101,12 @@
     <ClCompile Include="Utils\Timer.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Components.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Color.cpp">
+      <Filter>Objects\Components\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -142,9 +136,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\Contact.h">
       <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Color.h">
-      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\ErrorLogger.h">
       <Filter>Utils</Filter>
@@ -197,9 +188,6 @@
     <ClInclude Include="Graphics\ConstantBuffer.h">
       <Filter>Graphics\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ConstantBufferTypes.h">
-      <Filter>Graphics\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\IndexBuffer.h">
       <Filter>Graphics\Buffers</Filter>
     </ClInclude>
@@ -221,9 +209,6 @@
     <ClInclude Include="Graphics\Texture.h">
       <Filter>Objects\Components\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Vertex.h">
-      <Filter>Objects\Components\Model</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\SimpleMath.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -232,6 +217,15 @@
     </ClInclude>
     <ClInclude Include="Utils\Timer.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Components.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Color.h">
+      <Filter>Objects\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Vertex.h">
+      <Filter>Graphics\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

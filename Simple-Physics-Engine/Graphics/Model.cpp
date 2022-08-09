@@ -3,31 +3,31 @@
 
 void Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<VSConstantBuffer>& vsConstantBuffer, aiColor3D defaultColor)
 {
-	this->device = device;
-	this->deviceContext = deviceContext;
-	this->vsConstantBuffer = &vsConstantBuffer;
-	this->defaultColor = defaultColor;
+	m_device = device;
+	m_deviceContext = deviceContext;
+	m_vsConstantBuffer = &vsConstantBuffer;
+	m_defaultColor = defaultColor;
 	Load(filePath);
 }
 void Model::Draw(Matrix4x4 worldMatrix, Matrix4x4& viewProjectionMatrix)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->vsConstantBuffer->GetAddressOf());
-	for (int i = 0; i < meshes.size(); i++)
+	m_deviceContext->VSSetConstantBuffers(0, 1, m_vsConstantBuffer->GetAddressOf());
+	for (int i = 0; i < m_meshes.size(); i++)
 	{
-		this->vsConstantBuffer->data.wvpMatrix =  (viewProjectionMatrix * (worldMatrix * meshes[i].worldMatrix)).ToXMMATRIX();
-		this->vsConstantBuffer->data.worldMatrix = (worldMatrix * meshes[i].worldMatrix).ToXMMATRIX();
-		this->vsConstantBuffer->ApplyChanges();
-		meshes[i].Draw();
+		m_vsConstantBuffer->data.wvpMatrix =  (viewProjectionMatrix * (worldMatrix * m_meshes[i].m_worldMatrix)).ToXMMATRIX();
+		m_vsConstantBuffer->data.worldMatrix = (worldMatrix * m_meshes[i].m_worldMatrix).ToXMMATRIX();
+		m_vsConstantBuffer->ApplyChanges();
+		m_meshes[i].Draw();
 	}
 }
 void Model::Load(const std::string& filePath)
 {
-	this->directory = StringHelper::GetDirectoryFromPath(filePath);
+	m_directory = StringHelper::GetDirectoryFromPath(filePath);
 	Assimp::Importer importer;
 	const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 	ERROR_IF(pScene == nullptr, filePath + " 경로의 모델을 불러오지 못했습니다");
 	// 일단 인자를 넘겨야 하긴 하니까 Identity Matrix를 넘긴듯 이거 필요한거 맞는지 확인 해보고 없앨 수 있음 없애자
-	this->ProcessNode(pScene->mRootNode, pScene, Matrix4x4::Identity());
+	ProcessNode(pScene->mRootNode, pScene, Matrix4x4::Identity());
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene, Matrix4x4 parentTransformMatrix)
@@ -37,27 +37,27 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, Matrix4x4 parentTran
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
+		m_meshes.push_back(ProcessMesh(mesh, scene, nodeTransformMatrix));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
-		this->ProcessNode(node->mChildren[i], scene, nodeTransformMatrix);
+		ProcessNode(node->mChildren[i], scene, nodeTransformMatrix);
 	}
 }
 
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, Matrix4x4 transformMatrix)
 {
-	std::vector<Vertex3D> vertices;
+	std::vector<Vertex> vertices;
 	std::vector<DWORD> indices;
 
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex3D vertex;
+		Vertex vertex;
 
-		vertex.pos.x = mesh->mVertices[i].x;
-		vertex.pos.y = mesh->mVertices[i].y;
-		vertex.pos.z = mesh->mVertices[i].z;
+		vertex.position.x = mesh->mVertices[i].x;
+		vertex.position.y = mesh->mVertices[i].y;
+		vertex.position.z = mesh->mVertices[i].z;
 
 		vertex.normal.x = mesh->mNormals[i].x;
 		vertex.normal.y = mesh->mNormals[i].y;
@@ -86,7 +86,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, Matrix4x4 transformM
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	return Mesh(this->device, this->deviceContext, vertices, indices, textures, transformMatrix);
+	return Mesh(m_device, m_deviceContext, vertices, indices, textures, transformMatrix);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType)
@@ -139,17 +139,17 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 	if (textureCount == 0)
 	{
 		storetype = TextureStorageType::None;
-		aiColor3D aiColor=this->defaultColor;
+		aiColor3D aiColor=m_defaultColor;
 		switch (textureType)
 		{
 			case aiTextureType_DIFFUSE:
 				//pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 				if (aiColor.IsBlack())
 				{
-					materialTextures.push_back(Texture(this->device, Colors::UnloadedTextureColor, textureType));
+					materialTextures.push_back(Texture(m_device, Colors::UnloadedTextureColor, textureType));
 					return materialTextures;
 				}
-				materialTextures.push_back(Texture(this->device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
+				materialTextures.push_back(Texture(m_device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
 				return materialTextures;
 		}
 	}
@@ -165,21 +165,21 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 				case TextureStorageType::EmbeddedIndexCompressed:
 				{
 					int index = GetTextureIndex(&path);
-					Texture embeddedIndexedTexture(this->device, reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData), pScene->mTextures[index]->mWidth, textureType);
+					Texture embeddedIndexedTexture(m_device, reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData), pScene->mTextures[index]->mWidth, textureType);
 					materialTextures.push_back(embeddedIndexedTexture);
 					break;
 				}
 				case TextureStorageType::EmbeddedCompressed:
 				{
 					const aiTexture* pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-					Texture embeddedTexture(this->device, reinterpret_cast<uint8_t*>(pTexture->pcData), pTexture->mWidth, textureType);
+					Texture embeddedTexture(m_device, reinterpret_cast<uint8_t*>(pTexture->pcData), pTexture->mWidth, textureType);
 					materialTextures.push_back(embeddedTexture);
 					break;
 				}
 				case TextureStorageType::Disk:
 				{
-					std::string filename = this->directory + '\\' + path.C_Str();
-					Texture diskTexture(this->device, filename, textureType);
+					std::string filename = m_directory + '\\' + path.C_Str();
+					Texture diskTexture(m_device, filename, textureType);
 					materialTextures.push_back(diskTexture);
 					break;
 				}
@@ -188,7 +188,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 	}
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(Texture(this->device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(Texture(m_device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
 	}
 	return materialTextures;
 }

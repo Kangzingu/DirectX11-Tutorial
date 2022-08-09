@@ -29,7 +29,7 @@ public:
 private:
 	void Initialize1x1ColorTexture(ID3D11Device* device, const Color& colorData, aiTextureType type);
 	void InitializeColorTexture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
-	Microsoft::WRL::ComPtr<ID3D11Resource> texture = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView = nullptr;
-	aiTextureType type = aiTextureType::aiTextureType_UNKNOWN;
+	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView = nullptr;
+	aiTextureType m_type = aiTextureType::aiTextureType_UNKNOWN;
 };

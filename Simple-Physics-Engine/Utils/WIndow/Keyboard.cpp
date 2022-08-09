@@ -1,78 +1,52 @@
 #include "Keyboard.h"
 
-Keyboard::Keyboard() {
+Keyboard::Keyboard()
+{
 	for (int i = 0; i < 256; i++)
-		this->keyStates[i] = false;
+		m_keyStates[i] = false;
 }
-
-bool Keyboard::KeyIsPressed(const unsigned char keycode) {
-	return this->keyStates[keycode];
+void Keyboard::OnPressed(const unsigned char key)
+{
+	m_keyStates[key] = true;
+	m_keyBuffer.push(KeyboardEvent(KeyboardEvent::Type::Press, key));
 }
-
-bool Keyboard::IsKeyBufferEmpty() {
-	return this->keyBuffer.empty();
+void Keyboard::OnReleased(const unsigned char key)
+{
+	m_keyStates[key] = false;
+	m_keyBuffer.push(KeyboardEvent(KeyboardEvent::Type::Release, key));
 }
-
-bool Keyboard::IsCharBufferEmpty() {
-	return this->charBuffer.empty();
+void Keyboard::OnCharInput(const unsigned char key)
+{
+	m_charBuffer.push(key);
 }
-
-KeyboardEvent Keyboard::ReadKey() {
-	if (this->keyBuffer.empty()) {
+KeyboardEvent Keyboard::ReadKey()
+{
+	if (m_keyBuffer.empty())
+	{
 		return KeyboardEvent();
 	}
-	else {
-		KeyboardEvent e = this->keyBuffer.front();
-		this->keyBuffer.pop();
+	else
+	{
+		KeyboardEvent e = m_keyBuffer.front();
+		m_keyBuffer.pop();
 		return e;
 	}
 }
-
-unsigned char Keyboard::ReadChar() {
-	if (this->charBuffer.empty()) {
+unsigned char Keyboard::ReadChar()
+{
+	if (m_charBuffer.empty())
+	{
 		return 0u;
 	}
-	else {
-		unsigned char e = this->charBuffer.front();
-		this->charBuffer.pop();
+	else
+	{
+		unsigned char e = m_charBuffer.front();
+		m_charBuffer.pop();
 		return e;
 	}
 }
-
-void Keyboard::OnKeyPressed(const unsigned char key) {
-	this->keyStates[key] = true;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::Type::Press, key));
-}
-
-void Keyboard::OnKeyReleased(const unsigned char key) {
-	this->keyStates[key] = false;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::Type::Release, key));
-}
-
-void Keyboard::OnChar(const unsigned char key) {
-	this->charBuffer.push(key);
-}
-
-void Keyboard::EnableAutoRepeatKeys() {
-	this->autoRepeatKeys = true;
-}
-
-void Keyboard::DisableAutoRepeatKeys() {
-	this->autoRepeatKeys = false;
-}
-
-void Keyboard::EnableAutoRepeatChars() {
-	this->autoRepeatChars = true;
-}
-
-void Keyboard::DisableAutoRepeatChars() {
-	this->autoRepeatChars = false;
-}
-
-bool Keyboard::IsKeysAutoRepeat() {
-	return this->autoRepeatKeys;
-}
-
-bool Keyboard::IsCharsAutoRepeat() {
-	return this->autoRepeatChars;
-}
+bool Keyboard::IsPressed(const unsigned char keycode) { return m_keyStates[keycode]; }
+bool Keyboard::IsKeyBufferEmpty() { return m_keyBuffer.empty(); }
+bool Keyboard::IsCharBufferEmpty() { return m_charBuffer.empty(); }
+bool Keyboard::IsKeysAutoRepeat() { return m_isKeyAutoRepeat; }
+bool Keyboard::IsCharsAutoRepeat() { return m_isCharAutoRepeat; }

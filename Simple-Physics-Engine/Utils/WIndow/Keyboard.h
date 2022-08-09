@@ -2,28 +2,31 @@
 #include "KeyboardEvent.h"
 #include <queue>
 
-class Keyboard {
+class Keyboard
+{
+private:
+	bool m_keyStates[256];
+
+	bool m_isKeyAutoRepeat = false;
+	bool m_isCharAutoRepeat = false;
+
+	std::queue<KeyboardEvent> m_keyBuffer;
+	std::queue<unsigned char> m_charBuffer;
+
 public:
 	Keyboard();
-	bool KeyIsPressed(const unsigned char keycode);
+
+	bool IsPressed(const unsigned char keycode);
 	bool IsKeyBufferEmpty();
 	bool IsCharBufferEmpty();
+
 	KeyboardEvent ReadKey();
 	unsigned char ReadChar();
-	void OnKeyPressed(const unsigned char key);
-	void OnKeyReleased(const unsigned char key);
-	void OnChar(const unsigned char key);
-	void EnableAutoRepeatKeys();
-	void DisableAutoRepeatKeys();
-	void EnableAutoRepeatChars();
-	void DisableAutoRepeatChars();
+
+	void OnPressed(const unsigned char key);
+	void OnReleased(const unsigned char key);
+	void OnCharInput(const unsigned char key);
+
 	bool IsKeysAutoRepeat();
 	bool IsCharsAutoRepeat();
-
-private:
-	bool autoRepeatKeys = false;
-	bool autoRepeatChars = false;
-	bool keyStates[256];
-	std::queue<KeyboardEvent> keyBuffer;
-	std::queue<unsigned char> charBuffer;
 };

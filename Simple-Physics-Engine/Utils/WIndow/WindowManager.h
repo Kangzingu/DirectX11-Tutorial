@@ -6,10 +6,11 @@
 class WindowManager
 {
 public:
-	WindowManager(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int windowWidth, int windowHeight);
-	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	Window m_window;
+	Keyboard m_keyboard;
+	Mouse m_mouse;
+
 public:
-	Window window;
-	Keyboard keyboard;
-	Mouse mouse;
+	WindowManager(HINSTANCE hInstance, const std::string& windowTitle, const std::string& windowClass, int windowWidth, int windowHeight);
+	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };

@@ -1,72 +1,5 @@
 #include "Engine.h"
-// 1. 조건식에 !연산자는 사용 x
-// 2. SAL / noexcept 사용 금지(OUT, INOUT은 필요에 따라 사용 가능)
-// 3. 클래스 선언
-/*	class C
-	{
-	public:
-		//변수
 
-	public:
-		//함수
-
-	protected:
-		//변수
-
-	protected:
-		//함수
-
-	private:
-		//변수
-
-	private:
-		//함수
-	};
-*/
-// 4. 주석은 최대한 없도록
-// 5. 클래스 초기화 등 함수 이름
-// - createActor() / destroyActor()
-// - initializeActor()
-// 6. 약자는 모두 대문자로 ex) ui -> UI
-// 7. 들여쓰기 최대한 안하게
-/*
-- 나쁜예
-bool process()
-{
-	if (hasBall == true)
-	{
-		for (int i = 0; i < length; i++)
-		{
-			// do
-		}
-	}
-}
-
- - 좋은예
-bool process()
-{
-	if (hasBall == false)
-		return false;
-
-	for (int i = 0; i < length; i++)
-	{
-		// do
-	}
-*/
-// 8. 벡터 순회 방법
-/*
-- 나쁜예
-for (int i = 0; i < numItems.size(); i++)
-{
-	// do
-}
-
- - 좋은예
- for (Item& item : items)
-{
-	// do
-}
-*/
 void Engine::Initialize(HINSTANCE hInstance)
 {
 	InitializeWindow(hInstance);
@@ -87,11 +20,11 @@ void Engine::Run()
 }
 void Engine::InitializeWindow(HINSTANCE hInstance)
 {
-	windowManager = new WindowManager(hInstance, "Simple Physics Engine", "Default", 1600, 900);
+	m_windowManager = new WindowManager(hInstance, "Simple Physics Engine", "Default", 1600, 900);
 }
 void Engine::InitializePhysics()
 {
-	physicsManager = new PhysicsManager(&actors, deltaTime, lineForDebug);
+	m_physicsManager = new PhysicsManager(&m_actors, m_deltaTime, m_lineForDebug);
 }
 void Engine::InitializeDirectX()
 {
@@ -113,9 +46,9 @@ void Engine::InitializeDirectX()
 	// 스왑 체인
 	DXGI_SWAP_CHAIN_DESC swapChainDescription;
 	ComPtr<ID3D11Texture2D> swapChainBuffer;
-	swapChainDescription.OutputWindow = windowManager->window.GetHWND();
-	swapChainDescription.BufferDesc.Width = windowManager->window.GetWidth();
-	swapChainDescription.BufferDesc.Height = windowManager->window.GetHeight();
+	swapChainDescription.OutputWindow = m_windowManager->m_window.GetHWND();
+	swapChainDescription.BufferDesc.Width = m_windowManager->m_window.GetWidth();
+	swapChainDescription.BufferDesc.Height = m_windowManager->m_window.GetHeight();
 	swapChainDescription.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDescription.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDescription.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;// 색+데이터에 할당할 바이트 수? 관련된 것인듯
@@ -128,29 +61,29 @@ void Engine::InitializeDirectX()
 	swapChainDescription.Windowed = TRUE;
 	swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescription.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	ERROR_IF_FAILED(D3D11CreateDeviceAndSwapChain(adapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, NULL, 0, D3D11_SDK_VERSION, &swapChainDescription, swapchain.GetAddressOf(), device.GetAddressOf(), NULL, deviceContext.GetAddressOf()), "디바이스와 스왑체인 생성에 실패했습니다");
-	ERROR_IF_FAILED(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(swapChainBuffer.GetAddressOf())), "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
-	ERROR_IF_FAILED(device->CreateRenderTargetView(swapChainBuffer.Get(), NULL, renderTargetView.GetAddressOf()), "렌더타겟 뷰 생성에 실패했습니다");
+	ERROR_IF_FAILED(D3D11CreateDeviceAndSwapChain(adapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, NULL, 0, D3D11_SDK_VERSION, &swapChainDescription, m_swapchain.GetAddressOf(), m_device.GetAddressOf(), NULL, m_deviceContext.GetAddressOf()), "디바이스와 스왑체인 생성에 실패했습니다");
+	ERROR_IF_FAILED(m_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(swapChainBuffer.GetAddressOf())), "스왑체인의 GetBuffer 함수 호출에 실패했습니다");
+	ERROR_IF_FAILED(m_device->CreateRenderTargetView(swapChainBuffer.Get(), NULL, m_renderTargetView.GetAddressOf()), "렌더타겟 뷰 생성에 실패했습니다");
 
 	// 뷰포트
-	CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(windowManager->window.GetWidth()), static_cast<float>(windowManager->window.GetHeight()));
-	deviceContext->RSSetViewports(1, &viewport);
+	CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(m_windowManager->m_window.GetWidth()), static_cast<float>(m_windowManager->m_window.GetHeight()));
+	m_deviceContext->RSSetViewports(1, &viewport);
 
 	// 라스터라이저
 	CD3D11_RASTERIZER_DESC rasterizerDescription(D3D11_DEFAULT);
 	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;// D3D11_CULL_MODE::D3D11_CULL_NONE;//D3D11_CULL_MODE::D3D11_CULL_FRONT; // 참고로 OpenGL은 ccw, DirectX는 cw임
-	ERROR_IF_FAILED(device->CreateRasterizerState(&rasterizerDescription, rasterizerState.GetAddressOf()), "라스터라이저 상태 생성에 실패했습니다");
+	ERROR_IF_FAILED(m_device->CreateRasterizerState(&rasterizerDescription, m_rasterizerState.GetAddressOf()), "라스터라이저 상태 생성에 실패했습니다");
 
 	// 깊이 테스트
-	CD3D11_TEXTURE2D_DESC depthStencilTextureDescription(DXGI_FORMAT_D24_UNORM_S8_UINT, windowManager->window.GetWidth(), windowManager->window.GetHeight());
+	CD3D11_TEXTURE2D_DESC depthStencilTextureDescription(DXGI_FORMAT_D24_UNORM_S8_UINT, m_windowManager->m_window.GetWidth(), m_windowManager->m_window.GetHeight());
 	depthStencilTextureDescription.MipLevels = 1;
 	depthStencilTextureDescription.BindFlags = D3D10_BIND_DEPTH_STENCIL;
-	ERROR_IF_FAILED(device->CreateTexture2D(&depthStencilTextureDescription, NULL, depthStencilBuffer.GetAddressOf()), "Depth Stencil 텍스쳐 생성에 실패했습니다");
-	ERROR_IF_FAILED(device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, depthStencilView.GetAddressOf()), "Depth Stencil 뷰 생성에 실패했습니다");
-	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+	ERROR_IF_FAILED(m_device->CreateTexture2D(&depthStencilTextureDescription, NULL, m_depthStencilBuffer.GetAddressOf()), "Depth Stencil 텍스쳐 생성에 실패했습니다");
+	ERROR_IF_FAILED(m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), NULL, m_depthStencilView.GetAddressOf()), "Depth Stencil 뷰 생성에 실패했습니다");
+	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 	CD3D11_DEPTH_STENCIL_DESC depthStencilDescription(D3D11_DEFAULT);
 	depthStencilDescription.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;//D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;// 일케하면 깊이가 같은 경우에는 걍 넘어가는듯, LESS_EQUAL은 같은 경우 늦게 들어온넘을 그리고
-	ERROR_IF_FAILED(device->CreateDepthStencilState(&depthStencilDescription, depthStencilState.GetAddressOf()), "Depth Stencil 상태 생성에 실패했습니다");
+	ERROR_IF_FAILED(m_device->CreateDepthStencilState(&depthStencilDescription, m_depthStencilState.GetAddressOf()), "Depth Stencil 상태 생성에 실패했습니다");
 
 	// 블렌드
 	D3D11_RENDER_TARGET_BLEND_DESC renderTargetBlendDescription = { 0 };
@@ -164,7 +97,7 @@ void Engine::InitializeDirectX()
 	renderTargetBlendDescription.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 	D3D11_BLEND_DESC blendDescription = { 0 };
 	blendDescription.RenderTarget[0] = renderTargetBlendDescription;
-	ERROR_IF_FAILED(device->CreateBlendState(&blendDescription, blendState.GetAddressOf()),
+	ERROR_IF_FAILED(m_device->CreateBlendState(&blendDescription, m_blendState.GetAddressOf()),
 					"블렌드 상태 생성에 실패했습니다");
 
 	// 텍스쳐
@@ -172,26 +105,26 @@ void Engine::InitializeDirectX()
 	samplerDescription.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDescription.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDescription.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	ERROR_IF_FAILED(device->CreateSamplerState(&samplerDescription, samplerState.GetAddressOf()),
+	ERROR_IF_FAILED(m_device->CreateSamplerState(&samplerDescription, m_samplerState.GetAddressOf()),
 					"샘플러 상태 생성에 실패했습니다");
 
 	// 폰트
-	spriteBatch = make_unique<DirectX::SpriteBatch>(deviceContext.Get());
-	spriteFont = make_unique<DirectX::SpriteFont>(device.Get(), L"Assets/Fonts/NanumSquare_ac_36.spritefont");
+	m_spriteBatch = make_unique<DirectX::SpriteBatch>(m_deviceContext.Get());
+	m_spriteFont = make_unique<DirectX::SpriteFont>(m_device.Get(), L"Assets/Fonts/NanumSquare_ac_36.spritefont");
 
 	// ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(windowManager->window.GetHWND());
-	ImGui_ImplDX11_Init(device.Get(), deviceContext.Get());
+	ImGui_ImplWin32_Init(m_windowManager->m_window.GetHWND());
+	ImGui_ImplDX11_Init(m_device.Get(), m_deviceContext.Get());
 	ImGui::StyleColorsDark();
 
 	// 2D
-	commonState = make_unique<DirectX::CommonStates>(device.Get());
-	basicEffect = make_unique<DirectX::BasicEffect>(device.Get());
-	basicEffect->SetVertexColorEnabled(true);
-	primitiveBatch = make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(deviceContext.Get());
+	m_commonState = make_unique<DirectX::CommonStates>(m_device.Get());
+	m_basicEffect = make_unique<DirectX::BasicEffect>(m_device.Get());
+	m_basicEffect->SetVertexColorEnabled(true);
+	m_primitiveBatch = make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(m_deviceContext.Get());
 }
 void Engine::InitializeShaders()
 {
@@ -219,11 +152,11 @@ void Engine::InitializeShaders()
 		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	UINT numofElements = ARRAYSIZE(inputElementDescription);
-	vertexShader.Initialize(device, shaderPath + L"vertexshader.cso", inputElementDescription, numofElements);
-	pixelShader.Initialize(device, shaderPath + L"pixelshader.cso");
-	pixelShaderNoLight.Initialize(device, shaderPath + L"pixelshader_nolight.cso");
-	vsConstantBuffer.Initialize(device.Get(), deviceContext.Get());
-	psConstantBuffer.Initialize(device.Get(), deviceContext.Get());
+	m_vertexShader.Initialize(m_device, shaderPath + L"vertexshader.cso", inputElementDescription, numofElements);
+	m_pixelShader.Initialize(m_device, shaderPath + L"pixelshader.cso");
+	m_pixelShaderNoLight.Initialize(m_device, shaderPath + L"pixelshader_nolight.cso");
+	m_vsConstantBuffer.Initialize(m_device.Get(), m_deviceContext.Get());
+	m_psConstantBuffer.Initialize(m_device.Get(), m_deviceContext.Get());
 }
 void Engine::InitializeScene()
 {
@@ -237,60 +170,60 @@ void Engine::InitializeScene()
 	Collider collider;
 
 	// 액터
-	model.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	model2.Initialize("Assets/Objects/Cube.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(1.0f, 1.0f, 1.0f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(1.0f, transform.GetScale()));
+	rigidbody.Initialize(0.1f, 1.0f, 1.0f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(10.0f, transform.GetScale()));
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
-	actor->transform.SetPosition(Vector3(0, 0, 0));
+	actor->m_transform.SetPosition(Vector3(0, 0, 0));
 	//actor->transform.SetRotation(Vector3(1, 0, 0));
-	actor->transform.SetScale(Vector3(50, 1, 50));
-	actor->rigidbody.SetInverseMass(0);
-	actor->rigidbody.SetKinematic(true);
-	actor->rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(10000, actor->transform.GetScale()));
-	actors.push_back(actor);
+	actor->m_transform.SetScale(Vector3(50, 1, 50));
+	actor->m_rigidbody.SetInverseMass(0);
+	actor->m_rigidbody.SetKinematic(true);
+	actor->m_rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(1, actor->m_transform.GetScale()));
+	m_actors.push_back(actor);
 	for (int i = 0; i < 20; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i * 0.01, i * 3.0, 0));
-		actors.push_back(actor);
+		actor->m_transform.SetPosition(Vector3(i * 0, i * 1.01+1, 0));
+		m_actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
 	//actors[2].transform.Rotate(Vector3(0, 1, 0), 30.0f);
 	//actors[3].transform.Rotate(Vector3(0, 0, 0));
 
 	// 조명
-	lightModel.Initialize("Assets/Objects/Light.obj", device.Get(), deviceContext.Get(), vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	lightModel.Initialize("Assets/Objects/Light.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.SetPosition(Vector3(3.0f, 10.0f, 0.0f));
 	rigidbody.SetEnabled(false);
 	collider.SetEnabled(false);
-	light = new Light();
-	light->Initialize(lightModel, transform, rigidbody, collider);
-	light->SetAmbientLight(psConstantBuffer, Vector3::One(), 0.5f);
-	light->SetDynamicLight(psConstantBuffer, Vector3::One(), 7.0f, 1.0f, 0.1, 0.1f);
+	m_light = new Light();
+	m_light->Initialize(lightModel, transform, rigidbody, collider);
+	m_light->SetAmbientLight(m_psConstantBuffer, Vector3::One(), 0.5f);
+	m_light->SetDynamicLight(m_psConstantBuffer, Vector3::One(), 7.0f, 1.0f, 0.1, 0.1f);
 
 	// 카메라
-	model.isEnabled = false;
+	model.m_isEnabled = false;
 	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
 	transform.Rotate(Vector3(0, 0, 0));
 	rigidbody.SetEnabled(false);
 	collider.SetEnabled(false);
-	camera = new Camera();
-	camera->Initialize(model, transform, rigidbody, collider);
-	camera->SetProjectionMatrix(45.0f, static_cast<float>(windowManager->window.GetWidth()) / static_cast<float>(windowManager->window.GetHeight()), 0.1f, 3000.0f);
+	m_camera = new Camera();
+	m_camera->Initialize(model, transform, rigidbody, collider);
+	m_camera->SetProjectionMatrix(45.0f, static_cast<float>(m_windowManager->m_window.GetWidth()) / static_cast<float>(m_windowManager->m_window.GetHeight()), 0.1f, 3000.0f);
 	
 	// 타이머
-	sceneTimer.Start();
-	fpsTimer.Start();
+	m_sceneTimer.Start();
+	m_fpsTimer.Start();
 
 	// 배경 색
-	backgroundColor[0] = 0;
-	backgroundColor[1] = 0;
-	backgroundColor[2] = 0;
-	backgroundColor[3] = 1;
+	m_backgroundColor[0] = 0;
+	m_backgroundColor[1] = 0;
+	m_backgroundColor[2] = 0;
+	m_backgroundColor[3] = 1;
 
 	//actors[1]->transform.Rotate(Vector3(General::DegreeToRadian(45.0f), General::DegreeToRadian(45.0f), 0));
 	//actors[2]->transform.Rotate(Vector3(0, 0, General::DegreeToRadian(45.0f)));
@@ -301,148 +234,147 @@ void Engine::InitializeScene()
 }
 bool Engine::IsRenderWindowExist()
 {
-	return windowManager->window.IsEnable();
+	return m_windowManager->m_window.IsEnable();
 }
 void Engine::UpdateTimer()
 {
-	fpsCount += 1;
-	if (fpsTimer.GetElapsedMiliseconds() > 1000.0f)
+	m_fps += 1;
+	if (m_fpsTimer.GetElapsedMiliseconds() > 1000.0f)
 	{
-		fps = "FPS: " + to_string(fpsCount);
-		fpsCount = 0;
-		fpsTimer.Restart();
+		m_fpsString = "FPS: " + to_string(m_fps);
+		m_fps = 0;
+		m_fpsTimer.Restart();
 	}
-	deltaTime = (sceneTimer.GetElapsedMiliseconds() / 1000.0f);
-	sceneTimer.Restart();
+	m_deltaTime = (m_sceneTimer.GetElapsedMiliseconds() / 1000.0f);
+	m_sceneTimer.Restart();
 }
 void Engine::HandleEvent()
 {
 	// 윈도우 메시지 처리
-	windowManager->window.HandleMessage();
+	m_windowManager->m_window.HandleMessage();
 
 	// 마우스 이벤트
-	while (!windowManager->mouse.IsEventBufferEmpty())
+	while (!m_windowManager->m_mouse.IsEventBufferEmpty())
 	{
-		MouseEvent mouseEvent = windowManager->mouse.ReadEvent();
+		MouseEvent mouseEvent = m_windowManager->m_mouse.ReadEvent();
 		//if (windowManager.mouse.IsRightDown() == true)
 		if (mouseEvent.GetType() == MouseEvent::Type::RAW_MOVE)
 		{
-			camera->transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPosX() * -0.0005f);
-			camera->transform.Rotate(camera->transform.GetRight() * (float)mouseEvent.GetPosY() * -0.0005f );
-			Vector3 cameraRotation = camera->transform.GetRotation();
-			camera->UpdateMatrix();
+			m_camera->m_transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPositionX() * -0.0005f);
+			m_camera->m_transform.Rotate(m_camera->m_transform.GetRight() * (float)mouseEvent.GetPositionY() * -0.0005f );
+			Vector3 cameraRotation = m_camera->m_transform.GetRotation();
+			m_camera->UpdateMatrix();
 		}
 	}
 
 	// 키보드 이벤트
 	float cameraSpeed = 10.0f;
-	while (!windowManager->keyboard.IsCharBufferEmpty())
+	while (!m_windowManager->m_keyboard.IsCharBufferEmpty())
 	{
-		unsigned char ch = windowManager->keyboard.ReadChar();
+		unsigned char ch = m_windowManager->m_keyboard.ReadChar();
 	}
-	while (!windowManager->keyboard.IsKeyBufferEmpty())
+	while (!m_windowManager->m_keyboard.IsKeyBufferEmpty())
 	{
-		KeyboardEvent kbe = windowManager->keyboard.ReadKey();
+		KeyboardEvent kbe = m_windowManager->m_keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
-	if (windowManager->keyboard.KeyIsPressed('W'))
+	if (m_windowManager->m_keyboard.IsPressed('W'))
 	{
-		camera->transform.Translate(Vector3( - camera->transform.GetForward() * cameraSpeed * deltaTime));
-		camera->UpdateMatrix();
+		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
 	}
-	if (windowManager->keyboard.KeyIsPressed('A'))
+	if (m_windowManager->m_keyboard.IsPressed('A'))
 	{
-		camera->transform.Translate(Vector3( - camera->transform.GetRight() * cameraSpeed * deltaTime));
-		camera->UpdateMatrix();
+		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetRight() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
 	}
-	if (windowManager->keyboard.KeyIsPressed('S'))
+	if (m_windowManager->m_keyboard.IsPressed('S'))
 	{
-		camera->transform.Translate(Vector3(camera->transform.GetForward() * cameraSpeed * deltaTime));
-		camera->UpdateMatrix();
+		m_camera->m_transform.Translate(Vector3(m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
 	}
-	if (windowManager->keyboard.KeyIsPressed('D'))
+	if (m_windowManager->m_keyboard.IsPressed('D'))
 	{
-		camera->transform.Translate(Vector3(camera->transform.GetRight() * cameraSpeed * deltaTime));
-		camera->UpdateMatrix();
+		m_camera->m_transform.Translate(Vector3(m_camera->m_transform.GetRight() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
 	}
-	if (windowManager->keyboard.KeyIsPressed('Q'))
+	if (m_windowManager->m_keyboard.IsPressed('Q'))
 	{
-		actors[1]->rigidbody.AddForceAt(Vector3(1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
-		actors[3]->rigidbody.AddForceAt(Vector3(-1, 0, 0), actors[1]->transform.GetPosition() + Vector3(0, 0, 0));
+		m_actors[1]->m_rigidbody.AddForceAt(Vector3(1, 0, 0), m_actors[1]->m_transform.GetPosition() + Vector3(0, 0, 0));
+		m_actors[3]->m_rigidbody.AddForceAt(Vector3(-1, 0, 0), m_actors[1]->m_transform.GetPosition() + Vector3(0, 0, 0));
 	}
-	if (windowManager->keyboard.KeyIsPressed('G'))
+	if (m_windowManager->m_keyboard.IsPressed('G'))
 	{
-		actors[1]->rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f), actors[1]->transform.GetPosition() + Vector3(1, -1, 0));
+		m_actors[1]->m_rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f), m_actors[1]->m_transform.GetPosition() + Vector3(1, -1, 0));
 	}
-	if (windowManager->keyboard.KeyIsPressed(VK_UP))
+	if (m_windowManager->m_keyboard.IsPressed(VK_UP))
 	{
-		actors[1]->rigidbody.AddForce((actors[2]->transform.GetPosition() - actors[1]->transform.GetPosition()) * 0.1f);
-		actors[2]->rigidbody.AddForce((actors[1]->transform.GetPosition() - actors[2]->transform.GetPosition()) * 0.1f);
+		m_actors[1]->m_rigidbody.AddForce((m_actors[2]->m_transform.GetPosition() - m_actors[1]->m_transform.GetPosition()) * 0.1f);
+		m_actors[2]->m_rigidbody.AddForce((m_actors[1]->m_transform.GetPosition() - m_actors[2]->m_transform.GetPosition()) * 0.1f);
 	}
-	if (windowManager->keyboard.KeyIsPressed(VK_DOWN))
+	if (m_windowManager->m_keyboard.IsPressed(VK_DOWN))
 	{
-		actors[1]->rigidbody.AddForce((actors[2]->transform.GetPosition() - actors[1]->transform.GetPosition()) * -0.1f);
-		actors[2]->rigidbody.AddForce((actors[1]->transform.GetPosition() - actors[2]->transform.GetPosition()) * -0.1f);
+		m_actors[1]->m_rigidbody.AddForce((m_actors[2]->m_transform.GetPosition() - m_actors[1]->m_transform.GetPosition()) * -0.1f);
+		m_actors[2]->m_rigidbody.AddForce((m_actors[1]->m_transform.GetPosition() - m_actors[2]->m_transform.GetPosition()) * -0.1f);
 	}
-	if (windowManager->keyboard.KeyIsPressed(VK_CONTROL))
+	if (m_windowManager->m_keyboard.IsPressed(VK_CONTROL))
 	{
-		for (int i = 0; i < actors.size(); i++)
+		for (int i = 0; i < m_actors.size(); i++)
 		{
-			actors[i]->rigidbody.AddTorqueAt(Vector3(0, 0, -1.0f * i), actors[i]->transform.GetPosition() + Vector3(1, 1, 0));
+			m_actors[i]->m_rigidbody.AddTorqueAt(Vector3(0, 0, -1.0f * i), m_actors[i]->m_transform.GetPosition() + Vector3(1, 1, 0));
 		}
 	}
 }
 void Engine::UpdatePhysics()
 {
-	physicsManager->Update();
+	m_physicsManager->Update();
 }
 void Engine::UpdateScene()
 {
-	deviceContext->ClearRenderTargetView(renderTargetView.Get(), backgroundColor);
-	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deviceContext->IASetInputLayout(vertexShader.GetInputLayout());
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
-	deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
-	light->SetContantBuffer(psConstantBuffer);
-	psConstantBuffer.ApplyChanges();
-	deviceContext->PSSetConstantBuffers(0, 1, psConstantBuffer.GetAddressOf());
-	deviceContext->RSSetState(rasterizerState.Get());
-	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
-	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
+	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), m_backgroundColor);
+	m_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_deviceContext->IASetInputLayout(m_vertexShader.GetInputLayout());
+	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_deviceContext->VSSetShader(m_vertexShader.GetShader(), NULL, 0);
+	m_deviceContext->PSSetShader(m_pixelShader.GetShader(), NULL, 0);
+	m_deviceContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+	m_light->SetContantBuffer(m_psConstantBuffer);
+	m_psConstantBuffer.ApplyChanges();
+	m_deviceContext->PSSetConstantBuffers(0, 1, m_psConstantBuffer.GetAddressOf());
+	m_deviceContext->RSSetState(m_rasterizerState.Get());
+	m_deviceContext->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
+	m_deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
-	Matrix4x4 viewProjectionMatrix = camera->projectionMatrix * camera->viewMatrix;
 	{// 오브젝트 그리기
-		for (int i = 0; i < actors.size(); i++)
+		for (int i = 0; i < m_actors.size(); i++)
 		{
-			actors[i]->Draw(viewProjectionMatrix);
+			m_actors[i]->Draw(m_camera->GetViewProjectionMatrix());
 		}
-		deviceContext->PSSetShader(pixelShaderNoLight.GetShader(), NULL, 0);
-		light->Draw(viewProjectionMatrix);
+		m_deviceContext->PSSetShader(m_pixelShaderNoLight.GetShader(), NULL, 0);
+		m_light->Draw(m_camera->GetViewProjectionMatrix());
 	}
 	
 	{// 선 그리기
 		
-		basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), camera->viewMatrix.ToXMMATRIX(), camera->projectionMatrix.ToXMMATRIX());
-		basicEffect->Apply(deviceContext.Get());
-		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(device.Get(), basicEffect.get(), primitiveBatchInputLayout.ReleaseAndGetAddressOf());
-		deviceContext->IASetInputLayout(primitiveBatchInputLayout.Get());
-		deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
-		deviceContext->OMSetDepthStencilState(commonState->DepthNone(), 0);
+		m_basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), m_camera->GetViewMatrix().ToXMMATRIX(), m_camera->GetProjectionMatrix().ToXMMATRIX());
+		m_basicEffect->Apply(m_deviceContext.Get());
+		DirectX::CreateInputLayoutFromEffect<DirectX::VertexPositionColor>(m_device.Get(), m_basicEffect.get(), m_primitiveBatchInputLayout.ReleaseAndGetAddressOf());
+		m_deviceContext->IASetInputLayout(m_primitiveBatchInputLayout.Get());
+		m_deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
+		m_deviceContext->OMSetDepthStencilState(m_commonState->DepthNone(), 0);
 
-		primitiveBatch->Begin();
+		m_primitiveBatch->Begin();
 		{
 			DirectX::VertexPositionColor startVertex, endVertex;
-			for (int i = 0; i < lineForDebug[0].size(); i++)
+			for (int i = 0; i < m_lineForDebug[0].size(); i++)
 			{
-				startVertex = DirectX::VertexPositionColor(lineForDebug[0][i].ToXMVECTOR(), lineForDebug[2][i].ToXMVECTOR());
-				endVertex = DirectX::VertexPositionColor(lineForDebug[1][i].ToXMVECTOR(), lineForDebug[2][i].ToXMVECTOR());
-				primitiveBatch->DrawLine(startVertex, endVertex);
+				startVertex = DirectX::VertexPositionColor(m_lineForDebug[0][i].ToXMVECTOR(), m_lineForDebug[2][i].ToXMVECTOR());
+				endVertex = DirectX::VertexPositionColor(m_lineForDebug[1][i].ToXMVECTOR(), m_lineForDebug[2][i].ToXMVECTOR());
+				m_primitiveBatch->DrawLine(startVertex, endVertex);
 			}
-			lineForDebug[0].clear();
-			lineForDebug[1].clear();
-			lineForDebug[2].clear();
+			m_lineForDebug[0].clear();
+			m_lineForDebug[1].clear();
+			m_lineForDebug[2].clear();
 		}
 		/* {
 			DirectX::VertexPositionColor startVertex, endVertex;
@@ -465,7 +397,7 @@ void Engine::UpdateScene()
 				}
 			}
 		}*/
-		primitiveBatch->End();
+		m_primitiveBatch->End();
 		
 		//{
 		//	Vector4 lineColor;
@@ -660,14 +592,14 @@ void Engine::UpdateScene()
 	
 	UpdateUI();
 
-	swapchain->Present(0, NULL);
+	m_swapchain->Present(0, NULL);
 }
 void Engine::UpdateUI()
 {
 	//string firstActorVelocity = to_string(XMVectorGetX(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetY(actors[0].rigidbody.velocity)) + ", " + to_string(XMVectorGetZ(actors[0].rigidbody.velocity));
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->Begin();
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fps).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	m_spriteBatch->Begin();
+	m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(m_fpsString).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
 	/*
 	Vector3 actor1Position = camera->transform.GetPosition();// *180.0f / PI;
 	string actor1PositionString = "Camera Position: " + to_string((int)actor1Position.x) + ", " + to_string((int)actor1Position.y) + ", " + to_string((int)actor1Position.z);
@@ -705,7 +637,7 @@ void Engine::UpdateUI()
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(contactNormal).c_str(), DirectX::XMFLOAT2(5, 90), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string separatingVelocity = "Separating Velocity: " + to_string(contact.separatingVelocity);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
-	spriteBatch->End();
+	m_spriteBatch->End();
 
 	/*
 	ImGui_ImplDX11_NewFrame();
@@ -736,10 +668,10 @@ void Engine::UpdateUI()
 }
 void Engine::DestructScene()
 {
-	delete camera;
-	delete light;
-	for (int i = 0; i < actors.size(); i++)
+	delete m_camera;
+	delete m_light;
+	for (int i = 0; i < m_actors.size(); i++)
 	{
-		delete actors[i];
+		delete m_actors[i];
 	}
 }

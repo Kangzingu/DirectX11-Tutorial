@@ -1,12 +1,15 @@
 #pragma once
-struct MousePoint {
-	int x;
-	int y;
+struct MousePoint
+{
+	int m_x;
+	int m_y;
 };
 
-class MouseEvent {
+class MouseEvent
+{
 public:
-	enum Type {
+	enum Type
+	{
 		LPress,
 		LRelease,
 		RPress,
@@ -19,16 +22,18 @@ public:
 		RAW_MOVE,
 		Invalid
 	};
+
 private:
-	Type type;
-	int x;
-	int y;
+	int m_x;
+	int m_y;
+	Type m_type;
+
 public:
 	MouseEvent();
 	MouseEvent(const Type type, const int x, const int y);
 	bool IsValid() const;
 	Type GetType() const;
-	MousePoint GetPos() const;
-	int GetPosX() const;
-	int GetPosY() const;
+	MousePoint GetPosition() const;
+	int GetPositionX() const;
+	int GetPositionY() const;
 };
