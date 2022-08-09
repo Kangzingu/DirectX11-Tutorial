@@ -1,7 +1,7 @@
 #pragma once
-#include "Transform.h"
-#include "Rigidbody.h"
-#include "Collider.h"
+#include "Components/Transform.h"
+#include "Components/Rigidbody.h"
+#include "Components/Collider.h"
 
 class Object
 {

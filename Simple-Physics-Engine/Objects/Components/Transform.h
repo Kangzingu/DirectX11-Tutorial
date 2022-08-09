@@ -1,5 +1,5 @@
 #pragma once
-#include "Model.h"
+#include "Model/Model.h"
 #include "Components.h"
 
 class Transform : public Components

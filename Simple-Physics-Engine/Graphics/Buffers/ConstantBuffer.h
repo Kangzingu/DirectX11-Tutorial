@@ -2,8 +2,8 @@
 #define ConstantBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
-#include "../Utils/ErrorLogger.h"
 #include <DirectXMath.h>
+#include "../../Utils/ErrorLogger.h"
 
 struct VSConstantBuffer
 {

@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ConstantBuffer.h"
-#include "IndexBuffer.h"
-#include "Texture.h"
-#include "Vertex.h"
-#include "VertexBuffer.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <vector>
-#include "../Utils/SimpleMath.h"
+#include "Texture.h"
+#include "../../../Utils/SimpleMath.h"
+#include "../../../Graphics/Buffers/ConstantBuffer.h"
+#include "../../../Graphics/Buffers/IndexBuffer.h"
+#include "../../../Graphics/Buffers/VertexBuffer.h"
+#include "../../../Graphics/Shaders/Vertex.h"
 
 class Mesh
 {
