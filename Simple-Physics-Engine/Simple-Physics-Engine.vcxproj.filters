@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="pixelshader.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_2d.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_2d_discard.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_nolight.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="vertexshader.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="vertexshader_2d.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Graphics\Actor.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Camera.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Light.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Collider.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Rigidbody.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Transform.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Objects\Components\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Collision.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Contact.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Color.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\ErrorLogger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_draw.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_tables.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp">
+      <Filter>Utils\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\Keyboard.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\KeyboardEvent.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\Mouse.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\MouseEvent.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\Window.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WIndow\WindowManager.cpp">
+      <Filter>Utils\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Objects\Components\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Object.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\PhysicsManager.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Shaders.cpp">
+      <Filter>Graphics\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>Objects\Components\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\StringHelper.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Timer.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Graphics\Actor.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Camera.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Collider.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Rigidbody.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Transform.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Objects\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Collision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Contact.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Color.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\ErrorLogger.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Exception.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imconfig.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_impl_dx11.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_impl_win32.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_internal.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_rectpack.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_textedit.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_truetype.h">
+      <Filter>Utils\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\Keyboard.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\KeyboardEvent.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\Mouse.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\MouseEvent.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\Window.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WIndow\WindowManager.h">
+      <Filter>Utils\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ConstantBuffer.h">
+      <Filter>Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ConstantBufferTypes.h">
+      <Filter>Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IndexBuffer.h">
+      <Filter>Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Objects\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Object.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\PhysicsManager.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Shaders.h">
+      <Filter>Graphics\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexBuffer.h">
+      <Filter>Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>Objects\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Vertex.h">
+      <Filter>Objects\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SimpleMath.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\StringHelper.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Timer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{ef8b29b0-c9e1-4a5a-bf07-4538dd28d623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{69820f37-6140-43b4-acb6-b1cf25d4b83f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{b8656256-1423-4224-b0fd-71ff2dded087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{90503c77-dcd7-4d2d-8a25-10b405adbac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Components">
+      <UniqueIdentifier>{2d30e195-cfd4-4a63-b995-891068842e67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Components\Model">
+      <UniqueIdentifier>{e49f0732-fcbe-493d-b16e-7f56d8b8fef1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shaders">
+      <UniqueIdentifier>{88855c1c-7c9e-4a1f-8dbe-763d18a0d8c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Buffers">
+      <UniqueIdentifier>{24f0dac9-b908-41d7-8b3a-94142c05be5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Windows">
+      <UniqueIdentifier>{af7a834c-b070-4b28-8202-fefeb1dfb784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\ImGui">
+      <UniqueIdentifier>{3d130bba-22b2-4938-b3bf-c66cb4bd83bf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

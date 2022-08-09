@@ -102,65 +102,66 @@ Matrix4x4 Rigidbody::GetInertiaTensor(){return inertiaTensor;}
 
 Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 {
-	Matrix4x4 iitBody = inertiaTensor;
-	Matrix4x4 iitWorld = Matrix4x4::Identity();
-	Matrix4x4 rotmat = object->transform.GetRotationMatrix();
-	float t4 = rotmat.m00 * iitBody.m00 +
-		rotmat.m01 * iitBody.m10 +
-		rotmat.m02 * iitBody.m20;
-	float t9 = rotmat.m00 * iitBody.m01 +
-		rotmat.m01 * iitBody.m11 +
-		rotmat.m02 * iitBody.m21;
-	float t14 = rotmat.m00 * iitBody.m02 +
-		rotmat.m01 * iitBody.m12 +
-		rotmat.m02 * iitBody.m22;
-	float t28 = rotmat.m10 * iitBody.m00 +
-		rotmat.m11 * iitBody.m10 +
-		rotmat.m12 * iitBody.m20;
-	float t33 = rotmat.m10 * iitBody.m01 +
-		rotmat.m11 * iitBody.m11 +
-		rotmat.m12 * iitBody.m21;
-	float t38 = rotmat.m10 * iitBody.m02 +
-		rotmat.m11 * iitBody.m12 +
-		rotmat.m12 * iitBody.m22;
-	float t52 = rotmat.m20 * iitBody.m00 +
-		rotmat.m21 * iitBody.m10 +
-		rotmat.m22 * iitBody.m20;
-	float t57 = rotmat.m20 * iitBody.m01 +
-		rotmat.m21 * iitBody.m11 +
-		rotmat.m22 * iitBody.m21;
-	float t62 = rotmat.m20 * iitBody.m02 +
-		rotmat.m21 * iitBody.m12 +
-		rotmat.m22 * iitBody.m22;
-	iitWorld.m00 = t4 * rotmat.m00 +
-		t9 * rotmat.m01 +
-		t14 * rotmat.m02;
-	iitWorld.m01 = t4 * rotmat.m10 +
-		t9 * rotmat.m11 +
-		t14 * rotmat.m12;
-	iitWorld.m02 = t4 * rotmat.m20 +
-		t9 * rotmat.m21 +
-		t14 * rotmat.m22;
-	iitWorld.m10 = t28 * rotmat.m00 +
-		t33 * rotmat.m01 +
-		t38 * rotmat.m02;
-	iitWorld.m11 = t28 * rotmat.m10 +
-		t33 * rotmat.m11 +
-		t38 * rotmat.m12;
-	iitWorld.m12 = t28 * rotmat.m20 +
-		t33 * rotmat.m21 +
-		t38 * rotmat.m22;
-	iitWorld.m20 = t52 * rotmat.m00 +
-		t57 * rotmat.m01 +
-		t62 * rotmat.m02;
-	iitWorld.m21 = t52 * rotmat.m10 +
-		t57 * rotmat.m11 +
-		t62 * rotmat.m12;
-	iitWorld.m22 = t52 * rotmat.m20 +
-		t57 * rotmat.m21 +
-		t62 * rotmat.m22;
+	//Matrix4x4 iitBody = inertiaTensor;
+	//Matrix4x4 iitWorld = Matrix4x4::Identity();
+	//Matrix4x4 rotmat = object->transform.GetRotationMatrix();
+	//float t4 = rotmat.m00 * iitBody.m00 +
+	//	rotmat.m01 * iitBody.m10 +
+	//	rotmat.m02 * iitBody.m20;
+	//float t9 = rotmat.m00 * iitBody.m01 +
+	//	rotmat.m01 * iitBody.m11 +
+	//	rotmat.m02 * iitBody.m21;
+	//float t14 = rotmat.m00 * iitBody.m02 +
+	//	rotmat.m01 * iitBody.m12 +
+	//	rotmat.m02 * iitBody.m22;
+	//float t28 = rotmat.m10 * iitBody.m00 +
+	//	rotmat.m11 * iitBody.m10 +
+	//	rotmat.m12 * iitBody.m20;
+	//float t33 = rotmat.m10 * iitBody.m01 +
+	//	rotmat.m11 * iitBody.m11 +
+	//	rotmat.m12 * iitBody.m21;
+	//float t38 = rotmat.m10 * iitBody.m02 +
+	//	rotmat.m11 * iitBody.m12 +
+	//	rotmat.m12 * iitBody.m22;
+	//float t52 = rotmat.m20 * iitBody.m00 +
+	//	rotmat.m21 * iitBody.m10 +
+	//	rotmat.m22 * iitBody.m20;
+	//float t57 = rotmat.m20 * iitBody.m01 +
+	//	rotmat.m21 * iitBody.m11 +
+	//	rotmat.m22 * iitBody.m21;
+	//float t62 = rotmat.m20 * iitBody.m02 +
+	//	rotmat.m21 * iitBody.m12 +
+	//	rotmat.m22 * iitBody.m22;
+	//iitWorld.m00 = t4 * rotmat.m00 +
+	//	t9 * rotmat.m01 +
+	//	t14 * rotmat.m02;
+	//iitWorld.m01 = t4 * rotmat.m10 +
+	//	t9 * rotmat.m11 +
+	//	t14 * rotmat.m12;
+	//iitWorld.m02 = t4 * rotmat.m20 +
+	//	t9 * rotmat.m21 +
+	//	t14 * rotmat.m22;
+	//iitWorld.m10 = t28 * rotmat.m00 +
+	//	t33 * rotmat.m01 +
+	//	t38 * rotmat.m02;
+	//iitWorld.m11 = t28 * rotmat.m10 +
+	//	t33 * rotmat.m11 +
+	//	t38 * rotmat.m12;
+	//iitWorld.m12 = t28 * rotmat.m20 +
+	//	t33 * rotmat.m21 +
+	//	t38 * rotmat.m22;
+	//iitWorld.m20 = t52 * rotmat.m00 +
+	//	t57 * rotmat.m01 +
+	//	t62 * rotmat.m02;
+	//iitWorld.m21 = t52 * rotmat.m10 +
+	//	t57 * rotmat.m11 +
+	//	t62 * rotmat.m12;
+	//iitWorld.m22 = t52 * rotmat.m20 +
+	//	t57 * rotmat.m21 +
+	//	t62 * rotmat.m22;
 
-	return iitWorld;;//Matrix4x4((object->transform.GetRotationMatrix() * inertiaTensor.Inverse()) * object->transform.GetRotationMatrix().Inverse());
+	//return iitWorld;
+	return Matrix4x4(object->transform.GetRotationMatrix() * inertiaTensor.Inverse() * object->transform.GetRotationMatrix().Transpose());
 }
 
 // 힘 = 질량 * 가속도

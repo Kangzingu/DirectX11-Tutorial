@@ -246,16 +246,16 @@ void Engine::InitializeScene()
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->transform.SetPosition(Vector3(0, 0, 0));
 	//actor->transform.SetRotation(Vector3(1, 0, 0));
-	actor->transform.SetScale(Vector3(30, 1, 30));
+	actor->transform.SetScale(Vector3(50, 1, 50));
 	actor->rigidbody.SetInverseMass(0);
 	actor->rigidbody.SetKinematic(true);
-	actor->rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(1, actor->transform.GetScale()));
+	actor->rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(10000, actor->transform.GetScale()));
 	actors.push_back(actor);
 	for (int i = 0; i < 20; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->transform.SetPosition(Vector3(i*0.1, i * 2, 0));
+		actor->transform.SetPosition(Vector3(i * 0.01, i * 3.0, 0));
 		actors.push_back(actor);
 	}
 	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
@@ -442,6 +442,7 @@ void Engine::UpdateScene()
 			}
 			lineForDebug[0].clear();
 			lineForDebug[1].clear();
+			lineForDebug[2].clear();
 		}
 		/* {
 			DirectX::VertexPositionColor startVertex, endVertex;

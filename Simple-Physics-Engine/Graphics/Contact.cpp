@@ -5,23 +5,9 @@ void Contact::CalculateInternals(float deltaTime)
 {
 	CalculateContactToWorldMatrix();
 	CalculateRelativeContactPosition();
-	Vector3 closingVelocity;
-	for (int i = 0; i < 2; i++)
-	{
-		float sign = (i == 0) ? 1 : -1;
-		if (m_objects[i] != nullptr)
-		{
-			closingVelocity += m_objects[i]->rigidbody.GetVelocity() * sign;
-		}
-	}
 	CalculateLocalContactVelocity(deltaTime);
 	CalculateDesiredDeltaVelocity(deltaTime);
 	//CalculateImpulse();
-	ResolvePosition();
-	if (Vector3::Dot(closingVelocity, m_normal) < 0)
-	{
-		ResolveVelocity();
-	}
 }
 
 void Contact::CalculateRelativeContactPosition()
@@ -175,7 +161,7 @@ Vector3 Contact::CalculateImpulse()
 	return Vector3(m_desiredDeltaVelocity / deltaVelocity, 0, 0);
 }
 
-void Contact::ResolveVelocity()
+void Contact::ModifyVelocity()
 {
 	Vector3 impulse = m_contactToWorld * CalculateImpulse();
 	Vector3 impulsiveTorque;
@@ -195,7 +181,7 @@ void Contact::ResolveVelocity()
 	}
 }
 
-void Contact::ResolvePosition()
+void Contact::ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], float penetration)
 {
 	const float angularLimit = 0.2f;
 	float angularMove[2];
@@ -204,8 +190,6 @@ void Contact::ResolvePosition()
 	float totalInertia = 0;
 	float linearInertia[2];
 	float angularInertia[2];
-
-	Vector3 angularChange[2], linearChange[2];
 
 	// 일단 contact 좌표계의 관성 텐서 계산좀 하고
 	for (int i = 0; i < 2; i++) if (m_objects[i] != nullptr)
@@ -224,8 +208,8 @@ void Contact::ResolvePosition()
 	for (int i = 0; i < 2; i++) if (m_objects[i] != nullptr)
 	{
 		float sign = (i == 0) ? 1 : -1;
-		angularMove[i] = sign * m_penetration * (angularInertia[i] / totalInertia);
-		linearMove[i] = sign * m_penetration * (linearInertia[i] / totalInertia);
+		angularMove[i] = sign * penetration * (angularInertia[i] / totalInertia);
+		linearMove[i] = sign * penetration * (linearInertia[i] / totalInertia);
 
 		Vector3 projection = m_relativeContactPosition[i];
 		projection += m_normal * -Vector3::Dot(m_relativeContactPosition[i], m_normal);

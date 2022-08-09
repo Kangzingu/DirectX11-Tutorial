@@ -1,12 +1,10 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(DirectX11 Tutorial.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(DirectX11 Tutorial.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
   Engine.cpp
-  PhysicsManager.cpp
-  main.cpp
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(111,2): warning C4804: '>': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(258,49): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(258,41): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\main.cpp(5,1): warning C4297: 'wWinMain': 함수는 예외를 Throw하지 않도록 지정되었으나 예외를 Throw했습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\main.cpp(5,1): message : 함수에서 __declspec(nothrow), throw(), noexcept(true) 또는 noexcept를 지정했습니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(273,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(315,50): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  Simple-Physics-Engine.vcxproj -> C:\Users\kangzingu\Desktop\강진구\VisualStudioProjects\Simple-Physics-Engine\x64\Debug\Simple-Physics-Engine.exe
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(111,2): warning C4804: '>': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(258,52): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(258,42): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(273,80): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Engine.cpp(315,50): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(CommonStates.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(WICTextureLoader.obj)' 또는 'D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+  Simple-Physics-Engine.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\Simple-Physics-Engine.exe

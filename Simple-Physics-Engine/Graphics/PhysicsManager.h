@@ -8,7 +8,7 @@ class PhysicsManager
 {
 private:
 	const float epsilon = 0.00001f;
-	Vector3 gravity = Vector3(0, -10.1f, 0);
+	Vector3 gravity = Vector3(0, -5.5f, 0);
 	vector<Contact> contacts;
 
 	vector<Actor*>* actors;
@@ -23,6 +23,7 @@ public:
 	void UpdateTransform();
 	void DetectCollision();
 	void ResolveCollision();
+	void ResolvePenetration();
 
 public:
 };
