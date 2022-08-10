@@ -173,12 +173,12 @@ void Engine::InitializeScene()
 	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(0.2f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(5.0f, transform.GetScale()).Inverse());
+	rigidbody.Initialize(0.1f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(10.0f, transform.GetScale()).Inverse());
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->m_transform.SetPosition(Vector3(0, 0, 0));
-	actor->m_transform.SetScale(Vector3(10, 1, 10));
+	actor->m_transform.SetScale(Vector3(100, 1, 100));
 	actor->m_rigidbody.SetInverseMass(0);
 	actor->m_rigidbody.SetKinematic(true);
 	actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::Zero());
@@ -187,7 +187,7 @@ void Engine::InitializeScene()
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(0.00f, i * 1.03 +1, 0));
+		actor->m_transform.SetPosition(Vector3(0.00f, i * 3 +1, 0));
 		m_actors.push_back(actor);
 	}
 

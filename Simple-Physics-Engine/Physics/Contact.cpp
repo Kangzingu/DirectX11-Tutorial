@@ -26,6 +26,18 @@ void Contact::CalculateContactToWorldMatrix()
 	Vector3 contactTangent[2];
 	if (abs(m_normal.x) > abs(m_normal.y))
 	{
+		contactTangent[0] = Vector3::Up();
+		contactTangent[1] = Vector3::Cross(m_normal, contactTangent[0]);
+		contactTangent[0] = Vector3::Cross(contactTangent[1], m_normal);
+	}
+	else
+	{
+		contactTangent[0] = Vector3::Right();
+		contactTangent[1] = Vector3::Cross(m_normal, contactTangent[0]);
+		contactTangent[0] = Vector3::Cross(contactTangent[1], m_normal);
+	}
+	/*if (abs(m_normal.x) > abs(m_normal.y))
+	{
 		float s = 1.0f / sqrt(m_normal.z * m_normal.z + m_normal.x * m_normal.x);
 
 		contactTangent[0].x = m_normal.z * s;
@@ -47,7 +59,7 @@ void Contact::CalculateContactToWorldMatrix()
 		contactTangent[1].x = m_normal.y * contactTangent[0].z - m_normal.z * contactTangent[0].y;
 		contactTangent[1].y = -m_normal.x * contactTangent[0].z;
 		contactTangent[1].z = m_normal.x * contactTangent[0].y;
-	}
+	}*/
 	contactTangent[0] = Vector3::Normalize(contactTangent[0]);
 	contactTangent[1] = Vector3::Normalize(contactTangent[1]);
 	m_contactToWorld = Matrix4x4(m_normal, contactTangent[0], contactTangent[1]);

@@ -214,15 +214,11 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 	cube2Edges.push_back(LineSegment(object2.m_transform.GetPosition() + (object2.m_transform.GetRight() * object2.m_transform.GetScale().x - object2.m_transform.GetUp() * object2.m_transform.GetScale().y - object2.m_transform.GetForward() * object2.m_transform.GetScale().z) / 2.0f, object2.m_transform.GetForward(), object2.m_transform.GetScale().z));
 
 	float penetration;
+	float minPenetration = Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale());
 	Vector3 contactPointOnCubeEdge;
 	Vector3 contactPointOnEdge;
-
-	float maxPenetration = 0;
-	Vector3 maxPenetrationClosestPointOnCubeEdge;
-	Vector3 maxPenetrationClosestPointOnEdge;
 	for (int i = 0; i < cube1Edges.size(); i++)
 	{
-		float minPenetration = Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale());
 		Vector3 closestPointOnCubeEdge;
 		Vector3 closestPointOnEdge;
 		for (int j = 0; j < cube2Edges.size(); j++)
@@ -264,19 +260,13 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 				}
 			}
 		}
-		if (minPenetration > maxPenetration && minPenetration != Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale()))
-		{
-			maxPenetration = minPenetration;
-			maxPenetrationClosestPointOnCubeEdge = contactPointOnCubeEdge;
-			maxPenetrationClosestPointOnEdge = contactPointOnEdge;
-		}
 	}
 
 	contact->m_objects[0] = &object1;
 	contact->m_objects[1] = &object2;
-	contact->m_normal = Vector3::Normalize(maxPenetrationClosestPointOnCubeEdge - maxPenetrationClosestPointOnEdge);
-	contact->m_penetration = maxPenetration;
-	contact->m_point = maxPenetrationClosestPointOnEdge + contact->m_normal * contact->m_penetration / 2;
+	contact->m_normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
+	contact->m_penetration = minPenetration;
+	contact->m_point = contactPointOnEdge + contact->m_normal * contact->m_penetration / 2;
 	lineForDebug[0].push_back(contactPointOnCubeEdge);
 	lineForDebug[1].push_back(contactPointOnEdge);
 	lineForDebug[2].push_back(Vector3(0, 0, 1));
@@ -547,6 +537,8 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 	float penetration;
 	float minPenetration = 0;
 	int minPenetrationAxisIndex=-1;
+
+	// 겹치긴 하는데 가장 적게 겹친 축을 찾음(해결하기 위해선 조금만 밀어주는게 자연스러울 거니까..?)
 	for (int i = 0; i < axes.size(); i++)
 	{
 		if (axes[i] == Vector3::Zero())// Edge간 Cross 했을 때 평행한 경우는 제외
