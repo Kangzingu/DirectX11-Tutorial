@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <DirectXMath.h>
+#include <limits>
 
 using namespace std;
 
@@ -287,7 +288,13 @@ public:
 	static Matrix4x4 RotationQuaternion(Vector4 quaternion) { Matrix4x4 m; m.m00 = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z); m.m01 = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w); m.m02 = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w); m.m10 = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w); m.m11 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z); m.m12 = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w); m.m20 = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w); m.m21 = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w); m.m22 = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y); return m; }
 	static Matrix4x4 SphereInertiaTensor(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 5.0f; m.m11 = 2.0f * mass * radius * radius / 5.0f; m.m22 = 2.0f * mass * radius * radius / 5.0f; return m; }
 	static Matrix4x4 EmptySphereInertiaTensor(float mass, float radius) { Matrix4x4 m; m.m00 = 2.0f * mass * radius * radius / 3.0f; m.m11 = 2.0f * mass * radius * radius / 3.0f; m.m22 = 2.0f * mass * radius * radius / 3.0f; return m; }
-	static Matrix4x4 CubeInertiaTensor(float mass, Vector3 scale) { Matrix4x4 m; m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m; }
+	static Matrix4x4 CubeInertiaTensor(float mass, Vector3 scale)
+	{
+		Matrix4x4 m;
+		m.m00 = mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f; 
+		m.m11 = mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f; 
+		m.m22 = mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f; return m;
+	}
 	static Matrix4x4 Quaternion(Quaternion q)
 	{
 		Matrix4x4 m;

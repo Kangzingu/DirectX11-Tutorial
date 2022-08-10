@@ -28,6 +28,6 @@ public:
 	Vector3 CalculateLocalVelocity(int index, float deltaTime);
 	void CalculateLocalContactVelocity(float deltaTime);
 	void CalculateDesiredDeltaVelocity(float deltaTime);
-	void ModifyVelocity();
+	void ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2]);
 	void ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], float penetration);
 };

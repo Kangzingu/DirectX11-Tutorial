@@ -32,7 +32,7 @@ void Contact::CalculateContactToWorldMatrix()
 		contactTangent[0].y = 0;
 		contactTangent[0].z = -m_normal.x * s;
 
-		contactTangent[1].x = m_normal.y * contactTangent[0].x;
+		contactTangent[1].x = m_normal.y * contactTangent[0].z;
 		contactTangent[1].y = m_normal.z * contactTangent[0].x - m_normal.x * contactTangent[0].z;
 		contactTangent[1].z = -m_normal.y * contactTangent[0].x;
 	}
@@ -59,7 +59,8 @@ Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 	velocity += m_objects[index]->m_rigidbody.GetVelocity();
 
 	Vector3 contactVelocity = m_contactToWorld.Transpose() * velocity;
-	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetAccumulatedForce() * m_objects[index]->m_rigidbody.GetInverseMass() * deltaTime;
+
+	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetLastFrameAcceleration() * deltaTime;
 	accVelocity = m_contactToWorld.Transpose() * accVelocity;
 
 	accVelocity.x = 0;
@@ -80,7 +81,7 @@ void Contact::CalculateLocalContactVelocity(float deltaTime)
 }
 void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 {
-	float velocityLimit = 0.00025f;
+	float velocityLimit = 0.25f;
 
 	float velocityFromAcc = 0;
 
@@ -89,7 +90,7 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			velocityFromAcc += Vector3::Dot(m_objects[i]->m_rigidbody.GetAccumulatedForce() * m_objects[i]->m_rigidbody.GetInverseMass() * deltaTime, m_normal) * sign;
+			velocityFromAcc += Vector3::Dot(m_objects[i]->m_rigidbody.GetLastFrameAcceleration() * deltaTime, m_normal) * sign;
 		}
 	}
 	float restitution = m_restitution;
@@ -117,29 +118,31 @@ Vector3 Contact::CalculateImpulse()
 	return Vector3(m_desiredDeltaVelocity / deltaVelocity, 0, 0);
 }
 
-void Contact::ModifyVelocity()
+void Contact::ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2])
 {
 	Vector3 impulse = m_contactToWorld * CalculateImpulse();
 	Vector3 impulsiveTorque;
-	Vector3 angularVelocityChange;
-	Vector3 linearVelocityChange;
 	for (int i = 0; i < 2; i++)
 	{
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			impulsiveTorque = Vector3::Cross(m_relativeContactPosition[i], impulse) * sign;
-			angularVelocityChange = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * impulsiveTorque;
-			linearVelocityChange = impulse * m_objects[i]->m_rigidbody.GetInverseMass() * sign;
-			m_objects[i]->m_rigidbody.AddVelocity(linearVelocityChange);
-			m_objects[i]->m_rigidbody.AddAngularVelocity(angularVelocityChange);
+			impulsiveTorque = Vector3::Cross(m_relativeContactPosition[i], impulse) * sign;// ÂóÂó
+			angularVelocityChange[i] = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * impulsiveTorque;
+			velocityChange[i] = impulse * m_objects[i]->m_rigidbody.GetInverseMass() * sign;
+			m_objects[i]->m_rigidbody.AddVelocity(velocityChange[i]);
+			m_objects[i]->m_rigidbody.AddAngularVelocity(angularVelocityChange[i]);
+			if (Vector3::Magnitude(impulse) > 30.0f)
+			{
+				return;
+			}
 		}
 	}
 }
 
 void Contact::ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], float penetration)
 {
-	const float angularLimit = 0.0002f;
+	const float angularLimit = 0.2f;
 	float angularMove[2];
 	float linearMove[2];
 
@@ -171,16 +174,15 @@ void Contact::ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], 
 		projection += m_normal * -Vector3::Dot(m_relativeContactPosition[i], m_normal);
 
 		float maxMagnitude = angularLimit * Vector3::Magnitude(projection);
+		float totalMove = angularMove[i] + linearMove[i];
 
 		if (angularMove[i] < -maxMagnitude)
 		{
-			float totalMove = angularMove[i] + linearMove[i];
 			angularMove[i] = -maxMagnitude;
 			linearMove[i] = totalMove - angularMove[i];
 		}
 		else if (angularMove[i] > maxMagnitude)
 		{
-			float totalMove = angularMove[i] + linearMove[i];
 			angularMove[i] = maxMagnitude;
 			linearMove[i] = totalMove - angularMove[i];
 		}
@@ -192,7 +194,7 @@ void Contact::ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], 
 		else
 		{
 			Vector3 targetAngularDirection = Vector3::Cross(m_relativeContactPosition[i], m_normal);
-			angularChange[i] = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * targetAngularDirection * (angularMove[i] / angularInertia[i]);
+			angularChange[i] = (m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * targetAngularDirection) * (angularMove[i] / angularInertia[i]);
 		}
 
 		linearChange[i] = m_normal * linearMove[i];

@@ -173,27 +173,23 @@ void Engine::InitializeScene()
 	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(0.1f, 1.0f, 1.0f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(10.0f, transform.GetScale()));
+	rigidbody.Initialize(0.2f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(5.0f, transform.GetScale()).Inverse());
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->m_transform.SetPosition(Vector3(0, 0, 0));
-	//actor->transform.SetRotation(Vector3(1, 0, 0));
-	actor->m_transform.SetScale(Vector3(50, 1, 50));
+	actor->m_transform.SetScale(Vector3(10, 1, 10));
 	actor->m_rigidbody.SetInverseMass(0);
 	actor->m_rigidbody.SetKinematic(true);
-	actor->m_rigidbody.SetInertiaTensor(Matrix4x4::CubeInertiaTensor(1, actor->m_transform.GetScale()));
+	actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::Zero());
 	m_actors.push_back(actor);
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(i * 0, i * 1.01+1, 0));
+		actor->m_transform.SetPosition(Vector3(0.00f, i * 1.03 +1, 0));
 		m_actors.push_back(actor);
 	}
-	//actors[1].transform.Rotate(Vector4(0, 0, 0.5f, sqrt(3.0f) / 2.0f));
-	//actors[2].transform.Rotate(Vector3(0, 1, 0), 30.0f);
-	//actors[3].transform.Rotate(Vector3(0, 0, 0));
 
 	// 조명
 	lightModel.Initialize("Assets/Objects/Light.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
@@ -205,14 +201,14 @@ void Engine::InitializeScene()
 
 	// 카메라
 	model.m_isEnabled = false;
-	transform.SetPosition(Vector3(0.0f, 8.0f, 8.0f));
+	transform.SetPosition(Vector3(0.0f, 5.0f, 8.0f));
 	transform.Rotate(Vector3(0, 0, 0));
 	rigidbody.SetEnabled(false);
 	collider.SetEnabled(false);
 	m_camera = new Camera();
 	m_camera->Initialize(model, transform, rigidbody, collider);
 	m_camera->SetProjectionMatrix(45.0f, static_cast<float>(m_windowManager->m_window.GetWidth()) / static_cast<float>(m_windowManager->m_window.GetHeight()), 0.1f, 3000.0f);
-	
+
 	// 타이머
 	m_sceneTimer.Start();
 	m_fpsTimer.Start();
@@ -223,12 +219,8 @@ void Engine::InitializeScene()
 	m_backgroundColor[2] = 0;
 	m_backgroundColor[3] = 1;
 
-	//actors[1]->transform.Rotate(Vector3(General::DegreeToRadian(45.0f), General::DegreeToRadian(45.0f), 0));
-	//actors[2]->transform.Rotate(Vector3(0, 0, General::DegreeToRadian(45.0f)));
-	/*actors[1]->transform.SetRotation(Vector3(0, 45, 0));
-	actors[2]->transform.SetRotation(Vector3(0, 0, 45));
-	actors[3]->transform.SetRotation(Vector3(1, 0, 0));
-	actors[4]->transform.SetRotation(Vector3(1, 0, 0));*/
+	m_actors[1]->m_transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
+	m_actors[2]->m_transform.Rotate(Vector3(0, 0, General::DegreeToRadian(45.0f)));
 }
 bool Engine::IsRenderWindowExist()
 {

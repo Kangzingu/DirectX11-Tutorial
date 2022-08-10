@@ -27,11 +27,14 @@ float4 main(PS_INPUT input) : SV_TARGET
     float attenuation = 1.0f / (objectToLightDistance * objectToLightDistance);
     diffuse = diffuseStrength * attenuation;
     
-    float3 specular;
-    float3 objectToCamera = normalize(cameraPosition - input.inWorldPosition);
-    float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inNormal)) * 0.8f;
-    specular = pow(specularStrength, 3);
-    
+    float3 specular = 0;
+    //if (dot(objectToLight, input.inNormal) > 0)
+    //{
+        float3 objectToCamera = normalize(cameraPosition - input.inWorldPosition);
+        float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inNormal)) * 0.8f;
+        specular = pow(specularStrength, 3);
+    //}
+
     float3 finalColor = sampleColor + ambient + diffuse + specular;
     return float4(finalColor, 1.0f);
 }

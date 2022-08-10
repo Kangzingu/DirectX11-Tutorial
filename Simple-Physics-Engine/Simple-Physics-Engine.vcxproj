@@ -162,7 +162,7 @@
     <ClCompile Include="Objects\Components\Components.cpp" />
     <ClCompile Include="Physics\Collision.cpp" />
     <ClCompile Include="Physics\Contact.cpp" />
-    <ClCompile Include="Objects\Components\Collider.cpp" />
+    <ClCompile Include="Objects\Components\Collider\Collider.cpp" />
     <ClCompile Include="Objects\Components\Model\Color.cpp" />
     <ClCompile Include="Objects\Object.cpp" />
     <ClCompile Include="Objects\Camera.cpp" />
@@ -197,7 +197,7 @@
     <ClInclude Include="Objects\Components\Components.h" />
     <ClInclude Include="Physics\Collision.h" />
     <ClInclude Include="Physics\Contact.h" />
-    <ClInclude Include="Objects\Components\Collider.h" />
+    <ClInclude Include="Objects\Components\Collider\Collider.h" />
     <ClInclude Include="Objects\Components\Model\Color.h" />
     <ClInclude Include="Objects\Components\Rigidbody.h" />
     <ClInclude Include="Objects\Components\Transform.h" />

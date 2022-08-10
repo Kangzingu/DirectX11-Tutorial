@@ -27,6 +27,9 @@ void Transform::SetScale(Vector3 scale)
 	m_scale = scale;
 	m_scalingMatrix = Matrix4x4::Scaling(m_scale);
 	m_worldMatrix = m_translationMatrix * m_rotationMatrix * m_scalingMatrix;
+
+	if (m_object != nullptr)
+		m_object->m_collider.UpdateBound();
 }
 void Transform::Translate(Vector3 position)
 {
@@ -59,6 +62,9 @@ void Transform::Scale(Vector3 scale)
 	m_scale += scale;
 	m_scalingMatrix = Matrix4x4::Scaling(m_scale);
 	m_worldMatrix = m_translationMatrix * m_rotationMatrix * m_scalingMatrix;
+
+	if (m_object != nullptr)
+		m_object->m_collider.UpdateBound();
 }
 Matrix4x4& Transform::GetWorldMatrix() { return m_worldMatrix; }
 Matrix4x4& Transform::GetTranslationMatrix() { return m_translationMatrix; }

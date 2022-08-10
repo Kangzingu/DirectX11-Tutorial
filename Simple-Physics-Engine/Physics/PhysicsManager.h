@@ -7,8 +7,8 @@ class Actor;
 class PhysicsManager
 {
 private:
-	const float m_epsilon = 0.00001f;
-	Vector3 m_gravity = Vector3(0, -3.5f, 0);
+	const float m_epsilon = 0.01f;
+	Vector3 m_gravity = Vector3(0, -1.8f, 0);
 	vector<Contact> m_contacts;
 
 	vector<Actor*>* m_actors;
@@ -24,4 +24,5 @@ public:
 	void DetectCollision();
 	void ResolveCollision();
 	void ResolvePenetration();
+	void ResolveVelocity();
 };

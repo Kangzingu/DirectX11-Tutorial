@@ -1,6 +1,6 @@
 #include "Object.h"
 
-void Object::Initialize(Model& model, Transform& transform, Rigidbody& rigidbody, Collider& collider)
+void Object::Initialize(Model model, Transform transform, Rigidbody rigidbody, Collider collider)
 {
 	m_model = model;
 	m_transform = transform;
@@ -11,4 +11,6 @@ void Object::Initialize(Model& model, Transform& transform, Rigidbody& rigidbody
 	m_transform.m_object = this;
 	m_rigidbody.m_object = this;
 	m_collider.m_object = this;
+	
+	m_collider.UpdateBound();
 }
