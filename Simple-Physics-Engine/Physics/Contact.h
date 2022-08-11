@@ -9,7 +9,7 @@ public:
 	Vector3 m_point;
 	Vector3 m_normal;
 	float m_penetration;
-	float m_restitution =0.01f;
+	float m_restitution =0.5f;
 	Matrix4x4 m_contactToWorld;
 	Vector3 m_contactVelocity;
 	Vector3 m_relativeContactPosition[2];

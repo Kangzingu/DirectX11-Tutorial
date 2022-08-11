@@ -110,7 +110,7 @@ void Engine::InitializeDirectX()
 
 	// ÆùÆ®
 	m_spriteBatch = make_unique<DirectX::SpriteBatch>(m_deviceContext.Get());
-	m_spriteFont = make_unique<DirectX::SpriteFont>(m_device.Get(), L"Assets/Fonts/NanumSquare_ac_36.spritefont");
+	m_spriteFont = make_unique<DirectX::SpriteFont>(m_device.Get(), L"Assets/Fonts/NanumSquare_ac_16.spritefont");
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -173,7 +173,7 @@ void Engine::InitializeScene()
 	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(1.0f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(1.0f, transform.GetScale()).Inverse());
+	rigidbody.Initialize(0.1f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(10.0f, transform.GetScale()).Inverse());
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
@@ -187,7 +187,7 @@ void Engine::InitializeScene()
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(0.00f, i * 1.001 + 1.003, 0));
+		actor->m_transform.SetPosition(Vector3(0.00f, i * 2.01 + 3.003, 0));
 		m_actors.push_back(actor);
 	}
 
@@ -598,13 +598,16 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	m_spriteBatch->Begin();
 	m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(m_fpsString).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	for (int i = 1; i < m_actors.size(); i++)
+	{
+		Vector3 actorVelocity= m_actors[i]->m_rigidbody.GetVelocity();// *180.0f / PI;
+		string actorVelocityString = "actor " + to_string(i) + " Velocity: " + to_string((int)actorVelocity.x) + ", " + to_string((int)actorVelocity.y) + ", " + to_string((int)actorVelocity.z);
+		m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorVelocityString).c_str(), DirectX::XMFLOAT2(5, 20+i*40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		Vector3 actorAngularVelocity = m_actors[i]->m_rigidbody.GetAngularVelocity();// *180.0f / PI;
+		string actorAngularVelocityString = "actor " + to_string(i)+ " AngularVelocity: " + to_string((int)actorAngularVelocity.x) + ", " + to_string((int)actorAngularVelocity.y) + ", " + to_string((int)actorAngularVelocity.z);
+		m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorAngularVelocityString).c_str(), DirectX::XMFLOAT2(5, 40+i*40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	}
 	/*
-	Vector3 actor1Position = camera->transform.GetPosition();// *180.0f / PI;
-	string actor1PositionString = "Camera Position: " + to_string((int)actor1Position.x) + ", " + to_string((int)actor1Position.y) + ", " + to_string((int)actor1Position.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1PositionString).c_str(), DirectX::XMFLOAT2(5, 45), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	Vector3 actor1Velocity= actors[0]->transform.GetRotation();// *180.0f / PI;
-	string actor1VelocityString = "Camera Rotation: " + to_string((int)actor1Velocity.x) + ", " + to_string((int)actor1Velocity.y) + ", " + to_string((int)actor1Velocity.z);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(actor1VelocityString).c_str(), DirectX::XMFLOAT2(5, 85), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	string deltaTimeString = "DeltaTime: " + to_string(deltaTime);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(deltaTimeString).c_str(), DirectX::XMFLOAT2(5, 125), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));*/
 	/*

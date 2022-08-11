@@ -74,6 +74,12 @@ Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 	// Contact의 좌표계로 변경(normal인 x축 값이 결국 normal(pa - pb)이 되겠징)
 	Vector3 contactVelocity = m_contactToWorld.Transpose() * velocity;
 
+	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetLastFrameAcceleration() * deltaTime;
+	accVelocity = m_contactToWorld.Transpose() * accVelocity;
+
+	accVelocity.x = 0;
+	contactVelocity += accVelocity;
+
 	return contactVelocity;
 }
 void Contact::CalculateLocalContactVelocity(float deltaTime)
@@ -105,6 +111,11 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 	if (abs(m_contactVelocity.x) < velocityLimit)
 	{
 		restitution = 0;
+	}
+
+	if (m_desiredDeltaVelocity > 50)
+	{
+		return;
 	}
 	m_desiredDeltaVelocity = -m_contactVelocity.x -restitution * (m_contactVelocity.x - velocityFromAcc);// -m_ContactVelocity.x - restitution * (m_ContactVelocity.x - velocityFromAcc);
 }

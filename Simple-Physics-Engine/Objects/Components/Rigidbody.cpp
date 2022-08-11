@@ -1,13 +1,13 @@
 #include "Rigidbody.h"
 #include "../Object.h"
 
-void Rigidbody::Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensorInverse)
+void Rigidbody::Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 angularVelocity, Matrix4x4 inertiaTensorInverse)
 {
 	m_inverseMass = inverseMass;
 	m_damping = damping;
 	m_angularDamping = angularDamping;
 	m_velocity = velocity;
-	m_angularVelocity = rotationVelocity;
+	m_angularVelocity = angularVelocity;
 	m_inertiaTensorInverse = inertiaTensorInverse;
 	ClearAccumulatedForce();
 }
@@ -28,14 +28,14 @@ void Rigidbody::Update(float deltaTime)
 {
 	if (m_isKinematic == false)
 	{
-		m_velocity = (m_velocity + (m_accumulatedForce * m_inverseMass) * deltaTime) * pow(m_damping, deltaTime);
+		m_lastFrameAcceleration = m_accumulatedForce * m_inverseMass;
+
+		m_velocity = (m_velocity + (m_lastFrameAcceleration) * deltaTime) * pow(m_damping, deltaTime);
 		m_object->m_transform.Translate(m_velocity * deltaTime);
 
 		m_angularVelocity = (m_angularVelocity + (GetWorldInertiaTensorInverse() * m_accumulatedTorque) * deltaTime) * pow(m_angularDamping, deltaTime);
 		m_object->m_transform.Rotate(m_angularVelocity * deltaTime);
 	}
-	m_lastFrameAcceleration = m_accumulatedForce * m_inverseMass;
-	
 	ClearAccumulatedForce();
 }
 void Rigidbody::SetKinematic(bool isKinematic)
@@ -104,7 +104,7 @@ Vector3 Rigidbody::GetLastFrameAcceleration(){return m_lastFrameAcceleration;}
 Matrix4x4 Rigidbody::GetInertiaTensorInverse(){return m_inertiaTensorInverse;}
 Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 {
-	Matrix4x4 iitBody = m_inertiaTensorInverse;
+	/*Matrix4x4 iitBody = m_inertiaTensorInverse;
 	Matrix4x4 iitWorld = Matrix4x4::Identity();
 	Matrix4x4 rotmat = m_object->m_transform.GetRotationMatrix();
 	float t4 = rotmat.m00 * iitBody.m00 +
@@ -162,8 +162,9 @@ Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 		t57 * rotmat.m21 +
 		t62 * rotmat.m22;
 	m_worldInertiaTensorInverse = iitWorld;
-	return m_worldInertiaTensorInverse;
-	//return Matrix4x4((m_object->m_transform.GetRotationMatrix() * m_inertiaTensorInverse) * m_object->m_transform.GetRotationMatrix().Transpose());
+	return m_worldInertiaTensorInverse;*/
+	m_worldInertiaTensorInverse = m_object->m_transform.GetRotationMatrix() * m_inertiaTensorInverse * m_object->m_transform.GetRotationMatrix().Inverse();
+	return  m_worldInertiaTensorInverse;
 }
 
 // 힘 = 질량 * 가속도
