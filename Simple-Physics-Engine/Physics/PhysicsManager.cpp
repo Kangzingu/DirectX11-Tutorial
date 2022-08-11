@@ -41,12 +41,19 @@ void PhysicsManager::DetectCollision()
 }
 void PhysicsManager::ResolveCollision()
 {
+	if (m_contacts.size() == 0)
+		return;
+
+	CalculateInternals();
+	ResolvePenetration();
+	ResolveVelocity();
+}
+void PhysicsManager::CalculateInternals()
+{
 	for (int i = 0; i < m_contacts.size(); i++)
 	{
 		m_contacts[i].CalculateInternals(m_deltaTime);
 	}
-	ResolvePenetration();
-	ResolveVelocity();
 }
 void PhysicsManager::ResolvePenetration()
 {
@@ -131,7 +138,7 @@ void PhysicsManager::ResolveVelocity()
 					if (m_contacts[i].m_objects[b] == m_contacts[index].m_objects[d])
 					{
 						deltaVelocity = velocityChange[d] + Vector3::Cross(angularVelocityChange[d], m_contacts[i].m_relativeContactPosition[b]);
-						m_contacts[i].m_ContactVelocity += m_contacts[i].m_contactToWorld.Transpose() * deltaVelocity * (b ? -1 : 1);
+						m_contacts[i].m_contactVelocity += m_contacts[i].m_contactToWorld.Transpose() * deltaVelocity * (b ? -1 : 1);
 						m_contacts[i].CalculateDesiredDeltaVelocity(m_deltaTime);
 					}
 				}

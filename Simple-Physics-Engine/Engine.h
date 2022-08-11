@@ -58,6 +58,7 @@ private:
 	string m_fpsString = "FPS: 0";
 	int m_fps = 0;
 	float m_deltaTime = 0;
+	bool isPlaying = false;
 
 	WindowManager* m_windowManager;
 	PhysicsManager* m_physicsManager;

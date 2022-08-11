@@ -67,16 +67,12 @@ void Contact::CalculateContactToWorldMatrix()
 
 Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 {
+	// 한 점에서의 속도  Vp = V + (w X r)
 	Vector3 velocity = Vector3::Cross(m_objects[index]->m_rigidbody.GetAngularVelocity(), m_relativeContactPosition[index]);
 	velocity += m_objects[index]->m_rigidbody.GetVelocity();
-
+	
+	// Contact의 좌표계로 변경(normal인 x축 값이 결국 normal(pa - pb)이 되겠징)
 	Vector3 contactVelocity = m_contactToWorld.Transpose() * velocity;
-
-	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetLastFrameAcceleration() * deltaTime;
-	accVelocity = m_contactToWorld.Transpose() * accVelocity;
-
-	accVelocity.x = 0;
-	contactVelocity += accVelocity;
 
 	return contactVelocity;
 }
@@ -87,7 +83,7 @@ void Contact::CalculateLocalContactVelocity(float deltaTime)
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			m_ContactVelocity += CalculateLocalVelocity(i, deltaTime) * sign;
+			m_contactVelocity += CalculateLocalVelocity(i, deltaTime) * sign;
 		}
 	}
 }
@@ -106,11 +102,11 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 		}
 	}
 	float restitution = m_restitution;
-	if (abs(m_ContactVelocity.x) < velocityLimit)
+	if (abs(m_contactVelocity.x) < velocityLimit)
 	{
 		restitution = 0;
 	}
-	m_desiredDeltaVelocity = -m_ContactVelocity.x - restitution * (m_ContactVelocity.x - velocityFromAcc);
+	m_desiredDeltaVelocity = -m_contactVelocity.x -restitution * (m_contactVelocity.x - velocityFromAcc);// -m_ContactVelocity.x - restitution * (m_ContactVelocity.x - velocityFromAcc);
 }
 Vector3 Contact::CalculateImpulse()
 {
@@ -144,10 +140,6 @@ void Contact::ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityC
 			velocityChange[i] = impulse * m_objects[i]->m_rigidbody.GetInverseMass() * sign;
 			m_objects[i]->m_rigidbody.AddVelocity(velocityChange[i]);
 			m_objects[i]->m_rigidbody.AddAngularVelocity(angularVelocityChange[i]);
-			if (Vector3::Magnitude(impulse) > 30.0f)
-			{
-				return;
-			}
 		}
 	}
 }

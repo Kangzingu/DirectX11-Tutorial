@@ -4,7 +4,7 @@
 /* 물체-1 이 물체-2 에 가서 박는것! */
 /************************************/
 
-pair<float ,float> ProjectVerticesToAxis(Object& object, Vector3& axis)
+pair<float, float> ProjectVerticesToAxis(Object& object, Vector3& axis)
 {
 	float point;
 	pair<float, float> minmax;
@@ -63,11 +63,11 @@ pair<float, float> ProjectCubeToAxis(Object& object, Vector3& axis)
 float GetOverlappedAmount(pair<float, float> p1, pair<float, float> p2)
 {
 	//	p1	p2	p1	p2
-	if (p2.first < p1.second && p2.second >= p1.second)
+	if (p2.first <= p1.second && p2.second >= p1.second)
 		return p1.second - p2.first;
 
 	//	p2	p1	p2	p1
-	else if (p1.first < p2.second && p1.second >= p2.second)
+	else if (p1.first <= p2.second && p1.second >= p2.second)
 		return p2.second - p1.first;
 
 	//	p1	p2	p2	p1
@@ -81,10 +81,11 @@ float GetOverlappedAmount(pair<float, float> p1, pair<float, float> p2)
 	// 겹치지 않음
 	return 0;
 }
-void CubeAndVertex(Object& object1, Object& object2, Contact* contact, vector<Vector3>* lineForDebug)
+void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact* contact, vector<Vector3>* lineForDebug)
 {
 	vector<Vector3> vertices;
 	vector<Vector3> cubeCoordVertices;
+
 	vertices.push_back(Vector3(object1.m_transform.GetPosition() + (object1.m_transform.GetRight() * object1.m_transform.GetScale().x + object1.m_transform.GetUp() * object1.m_transform.GetScale().y + object1.m_transform.GetForward() * object1.m_transform.GetScale().z) / 2.0f));
 	vertices.push_back(Vector3(object1.m_transform.GetPosition() + (-object1.m_transform.GetRight() * object1.m_transform.GetScale().x + object1.m_transform.GetUp() * object1.m_transform.GetScale().y + object1.m_transform.GetForward() * object1.m_transform.GetScale().z) / 2.0f));
 	vertices.push_back(Vector3(object1.m_transform.GetPosition() + (-object1.m_transform.GetRight() * object1.m_transform.GetScale().x + object1.m_transform.GetUp() * object1.m_transform.GetScale().y - object1.m_transform.GetForward() * object1.m_transform.GetScale().z) / 2.0f));
@@ -95,73 +96,66 @@ void CubeAndVertex(Object& object1, Object& object2, Contact* contact, vector<Ve
 	vertices.push_back(Vector3(object1.m_transform.GetPosition() + (object1.m_transform.GetRight() * object1.m_transform.GetScale().x - object1.m_transform.GetUp() * object1.m_transform.GetScale().y - object1.m_transform.GetForward() * object1.m_transform.GetScale().z) / 2.0f));
 
 	for (int i = 0; i < vertices.size(); i++)
-	{
 		cubeCoordVertices.push_back(object2.m_transform.GetRotationMatrix().Inverse() * object2.m_transform.GetTranslationMatrix().Inverse() * vertices[i]);
-	}
 
-	Vector3 cubeHalfScale = object2.m_transform.GetScale() / 2.0f;
 	float penetration[3];
+	vector<float> penetrations;
 	float maxPenetration = 0;
 	Vector3 maxPenetrationVertex;
-	Vector3 maxPenetrationNormal;
-	
-	for (int i = 0; i < cubeCoordVertices.size(); i++)
+	Vector3 normal;
+	Vector3 cubeHalfScale = object2.m_transform.GetScale() / 2.0f;
+
+	for (int i = 0; i < vertices.size(); i++)
 	{
 		penetration[0] = cubeHalfScale.x - abs(cubeCoordVertices[i].x);
 		penetration[1] = cubeHalfScale.y - abs(cubeCoordVertices[i].y);
 		penetration[2] = cubeHalfScale.z - abs(cubeCoordVertices[i].z);
+
+		// 해당 점이 일단 충돌중인 점이여야 하는건 당연하고
 		if (penetration[0] > 0 && penetration[1] > 0 && penetration[2] > 0)
 		{
-			float minPenetration = Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale());
-			Vector3 minPenetrationVertex;
-			Vector3 normal;
-			for (int j = 0; j < 3; j++)
+			// 우리가 찾던 축에 대해서 투영했을 때 충돌 깊이값이 가장 깊은걸 고르면 댐
+			if (penetration[axisIndexToSee] > maxPenetration)
 			{
-				if (penetration[j] < minPenetration)
+				maxPenetration = penetration[axisIndexToSee];
+				maxPenetrationVertex = vertices[i];
+				switch (axisIndexToSee)
 				{
-					minPenetration = penetration[j];
-					minPenetrationVertex = vertices[i];
-					switch (j)
-					{
-					case 0:
-						if (cubeCoordVertices[i].x >= 0)
-							normal = object2.m_transform.GetRight();
-						else
-							normal = -object2.m_transform.GetRight();
-						break;
-					case 1:
-						if (cubeCoordVertices[i].y >= 0)
-							normal = object2.m_transform.GetUp();
-						else
-							normal = -object2.m_transform.GetUp();
-						break;
-					case 2:
-						if (cubeCoordVertices[i].z >= 0)
-							normal = object2.m_transform.GetForward();
-						else
-							normal = -object2.m_transform.GetForward();
-						break;
-					}
-
+				case 0:
+					if (cubeCoordVertices[i].x >= 0)
+						normal = object2.m_transform.GetRight();
+					else
+						normal = -object2.m_transform.GetRight();
+					break;
+				case 1:
+					if (cubeCoordVertices[i].y >= 0)
+						normal = object2.m_transform.GetUp();
+					else
+						normal = -object2.m_transform.GetUp();
+					break;
+				case 2:
+					if (cubeCoordVertices[i].z >= 0)
+						normal = object2.m_transform.GetForward();
+					else
+						normal = -object2.m_transform.GetForward();
+					break;
 				}
-			}
-			if (minPenetration > maxPenetration && minPenetration != Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale()))
-			{
-				maxPenetration = minPenetration;
-				maxPenetrationVertex = minPenetrationVertex;
-				maxPenetrationNormal = normal;
 			}
 		}
 	}
-
+	
+	
 	contact->m_objects[0] = &object1;
 	contact->m_objects[1] = &object2;
-	contact->m_normal = Vector3::Normalize(maxPenetrationNormal);
+	contact->m_normal = Vector3::Normalize(normal);
 	contact->m_penetration = maxPenetration;
 	contact->m_point = maxPenetrationVertex + (contact->m_normal * contact->m_penetration / 2);
 	lineForDebug[0].push_back(contact->m_point);
 	lineForDebug[1].push_back(maxPenetrationVertex);
 	lineForDebug[2].push_back(Vector3(1, 0, 0));
+	return;
+
+
 }
 void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vector3>* lineForDebug)
 {
@@ -245,7 +239,7 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 			closestPointOnCubeEdge = cube2Edges[j].origin + cube2Edges[j].direction * s;
 			closestPointOnEdge = cube1Edges[i].origin + cube1Edges[i].direction * t;
 
-			penetration = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
+			penetration  = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
 			if (penetration == 0)
 				continue;
 
@@ -407,8 +401,8 @@ bool Collision::BroadPhaseAxisAlignBoundingBox(Object& object1, Object& object2)
 		for (UINT j = 0; j < object1.m_model.m_meshes[i].m_vertices.size(); j++)
 		{
 			object1VertexWorldPosition = object1.m_transform.GetWorldMatrix() * Vector3(object1.m_model.m_meshes[i].m_vertices[j].position.x,
-																				   object1.m_model.m_meshes[i].m_vertices[j].position.y,
-																				   object1.m_model.m_meshes[i].m_vertices[j].position.z);
+																						object1.m_model.m_meshes[i].m_vertices[j].position.y,
+																						object1.m_model.m_meshes[i].m_vertices[j].position.z);
 			if (object1VertexWorldPosition.x < object1MinPosition.x)
 				object1MinPosition.x = object1VertexWorldPosition.x;
 			if (object1VertexWorldPosition.y < object1MinPosition.y)
@@ -430,8 +424,8 @@ bool Collision::BroadPhaseAxisAlignBoundingBox(Object& object1, Object& object2)
 		for (UINT j = 0; j < object2.m_model.m_meshes[i].m_vertices.size(); j++)
 		{
 			object2VertexWorldPosition = object2.m_transform.GetWorldMatrix() * Vector3(object2.m_model.m_meshes[i].m_vertices[j].position.x,
-																				   object2.m_model.m_meshes[i].m_vertices[j].position.y,
-																				   object2.m_model.m_meshes[i].m_vertices[j].position.z);
+																						object2.m_model.m_meshes[i].m_vertices[j].position.y,
+																						object2.m_model.m_meshes[i].m_vertices[j].position.z);
 			if (object2VertexWorldPosition.x < object2MinPosition.x)
 				object2MinPosition.x = object2VertexWorldPosition.x;
 			if (object2VertexWorldPosition.y < object2MinPosition.y)
@@ -536,7 +530,7 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 	pair<float, float> result2;
 	float penetration;
 	float minPenetration = 0;
-	int minPenetrationAxisIndex=-1;
+	int minPenetrationAxisIndex = -1;
 
 	// 겹치긴 하는데 가장 적게 겹친 축을 찾음(해결하기 위해선 조금만 밀어주는게 자연스러울 거니까..?)
 	for (int i = 0; i < axes.size(); i++)
@@ -561,11 +555,11 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 
 	if (minPenetrationAxisIndex >= 0 && minPenetrationAxisIndex <= 2)
 	{
-		CubeAndVertex(*object2 , *object1, &contact, lineForDebug);
+		CubeAndVertex(*object2, *object1, minPenetrationAxisIndex, &contact, lineForDebug);
 	}
 	else if (minPenetrationAxisIndex >= 3 && minPenetrationAxisIndex <= 5)
 	{
-		CubeAndVertex(*object1, *object2, &contact, lineForDebug);
+		CubeAndVertex(*object1, *object2, minPenetrationAxisIndex-3, &contact, lineForDebug);
 	}
 	else if (minPenetrationAxisIndex >= 6 && minPenetrationAxisIndex <= 14)
 	{

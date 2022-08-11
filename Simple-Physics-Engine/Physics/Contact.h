@@ -9,10 +9,9 @@ public:
 	Vector3 m_point;
 	Vector3 m_normal;
 	float m_penetration;
-	float m_resolveSpeed;
-	float m_restitution =0.1f;
+	float m_restitution =0.01f;
 	Matrix4x4 m_contactToWorld;
-	Vector3 m_ContactVelocity;
+	Vector3 m_contactVelocity;
 	Vector3 m_relativeContactPosition[2];
 
 	float m_desiredDeltaVelocity;

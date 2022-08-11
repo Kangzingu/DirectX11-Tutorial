@@ -173,21 +173,21 @@ void Engine::InitializeScene()
 	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
-	rigidbody.Initialize(0.1f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(10.0f, transform.GetScale()).Inverse());
+	rigidbody.Initialize(1.0f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(1.0f, transform.GetScale()).Inverse());
 	collider.Initialize();
 	actor = new Actor();
 	actor->Initialize(model, transform, rigidbody, collider);
 	actor->m_transform.SetPosition(Vector3(0, 0, 0));
-	actor->m_transform.SetScale(Vector3(100, 1, 100));
+	actor->m_transform.SetScale(Vector3(30, 1, 30));
 	actor->m_rigidbody.SetInverseMass(0);
 	actor->m_rigidbody.SetKinematic(true);
 	actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::Zero());
 	m_actors.push_back(actor);
-	for (int i = 0; i < 30; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(0.00f, i * 3 +1, 0));
+		actor->m_transform.SetPosition(Vector3(0.00f, i * 1.001 + 1.003, 0));
 		m_actors.push_back(actor);
 	}
 
@@ -219,8 +219,8 @@ void Engine::InitializeScene()
 	m_backgroundColor[2] = 0;
 	m_backgroundColor[3] = 1;
 
-	m_actors[1]->m_transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
-	m_actors[2]->m_transform.Rotate(Vector3(0, 0, General::DegreeToRadian(45.0f)));
+	//m_actors[1]->m_transform.Rotate(Vector3(0, General::DegreeToRadian(45.0f), 0));
+	//m_actors[2]->m_transform.Rotate(Vector3(0, 0, General::DegreeToRadian(45.0f)));
 }
 bool Engine::IsRenderWindowExist()
 {
@@ -302,6 +302,13 @@ void Engine::HandleEvent()
 		m_actors[1]->m_rigidbody.AddForce((m_actors[2]->m_transform.GetPosition() - m_actors[1]->m_transform.GetPosition()) * 0.1f);
 		m_actors[2]->m_rigidbody.AddForce((m_actors[1]->m_transform.GetPosition() - m_actors[2]->m_transform.GetPosition()) * 0.1f);
 	}
+	if (m_windowManager->m_keyboard.IsPressed(VK_SPACE))
+	{
+		if (isPlaying == true)
+			isPlaying = false;
+		else
+			isPlaying = true;
+	}
 	if (m_windowManager->m_keyboard.IsPressed(VK_DOWN))
 	{
 		m_actors[1]->m_rigidbody.AddForce((m_actors[2]->m_transform.GetPosition() - m_actors[1]->m_transform.GetPosition()) * -0.1f);
@@ -317,7 +324,8 @@ void Engine::HandleEvent()
 }
 void Engine::UpdatePhysics()
 {
-	m_physicsManager->Update();
+	if (isPlaying == true)
+		m_physicsManager->Update();
 }
 void Engine::UpdateScene()
 {
