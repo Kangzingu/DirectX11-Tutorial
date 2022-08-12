@@ -9,7 +9,8 @@ public:
 	Vector3 m_point;
 	Vector3 m_normal;
 	float m_penetration;
-	float m_restitution =0.5f;
+	float m_friction = 0.0f;
+	float m_restitution = 0.5f;
 	Matrix4x4 m_contactToWorld;
 	Vector3 m_contactVelocity;
 	Vector3 m_relativeContactPosition[2];
@@ -22,8 +23,9 @@ public:
 	void CalculateRelativeContactPosition();
 	//void CalculateLocalContactVelocity(float deltaTime);
 	//void CalculateResolveSpeed(float deltaTime);
-	
-	Vector3 CalculateImpulse();
+
+	Vector3 CalculateFrictionlessImpulse();
+	Vector3 CalculateFrictionImpulse();
 	Vector3 CalculateLocalVelocity(int index, float deltaTime);
 	void CalculateLocalContactVelocity(float deltaTime);
 	void CalculateDesiredDeltaVelocity(float deltaTime);

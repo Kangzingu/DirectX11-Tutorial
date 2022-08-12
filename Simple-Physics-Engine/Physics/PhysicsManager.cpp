@@ -92,7 +92,7 @@ void PhysicsManager::ResolvePenetration()
 					if (m_contacts[i].m_objects[b] == m_contacts[index].m_objects[d])
 					{
 						deltaPosition = linearChange[d] + Vector3::Cross(angularChange[d], m_contacts[i].m_relativeContactPosition[b]);
-						m_contacts[i].m_penetration += Vector3::Dot(deltaPosition, m_contacts[i].m_normal * (b ? 1 : -1));
+						m_contacts[i].m_penetration += Vector3::Dot(deltaPosition, m_contacts[i].m_normal) * (b ? 1 : -1);
 					}
 				}
 			}
@@ -122,12 +122,13 @@ void PhysicsManager::ResolveVelocity()
 				max = m_contacts[i].m_desiredDeltaVelocity;
 				index = i;
 			}
-		}
+		} 
 
 		if (index == m_contacts.size())// 충돌이 없는 경우
 			break;
 
 		m_contacts[index].ModifyVelocity(velocityChange, angularVelocityChange);
+		//m_contacts[index].CalculateDesiredDeltaVelocity(m_deltaTime);/// 이거 넣으니까 어느정도 안정화되는 느낌인데ㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔ 제대로된 이유는 모르게따
 
 		for (int i = 0; i < m_contacts.size(); i++)
 		{

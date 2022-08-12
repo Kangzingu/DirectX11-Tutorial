@@ -7,6 +7,8 @@ using namespace std;
 
 const float PI = 3.141592f;
 
+typedef struct Matrix4x4;
+
 struct General
 {
 public:
@@ -246,8 +248,72 @@ public:
 			return Matrix3x3::Zero();
 		float determinantInverse = 1.0f / Determinant(); return Matrix3x3(m11 * m22 - m12 * m21, m02 * m21 - m01 * m22, m01 * m12 - m02 * m11, m12 * m20 - m10 * m22, m00 * m22 - m02 * m20, m02 * m10 - m00 * m12, m10 * m21 - m11 * m20, m01 * m20 - m00 * m21, m00 * m11 - m01 * m10) * determinantInverse;
 	}
+	static Matrix3x3 SkewSymmetricForCross(const Vector3 v)
+	{
+		Matrix3x3 m;
+		m.m00 = m.m11 = m.m22 = 0;
+		m.m01 = -v.z;
+		m.m02 = v.y;
+		m.m10 = v.z;
+		m.m12 = -v.x;
+		m.m20 = -v.y;
+		m.m21 = v.x;
+		return m;
+	}
+	Matrix3x3 operator+(Matrix3x3 m)
+	{
+		return Matrix3x3(m00 + m.m00,
+						 m01 + m.m01,
+						 m02 + m.m02,
+						 m10 + m.m10,
+						 m11 + m.m11,
+						 m12 + m.m12,
+						 m20 + m.m20,
+						 m21 + m.m21,
+						 m22 + m.m22);
+	}
+	Matrix3x3& operator+=(Matrix3x3 m)
+	{
+		m00 += m.m00;
+		m01 += m.m01;
+		m02 += m.m02;
+		m10 += m.m10;
+		m11 += m.m11;
+		m12 += m.m12;
+		m20 += m.m20;
+		m21 += m.m21;
+		m22 += m.m22;
+		return*this;
+	}
 	Matrix3x3 operator*(float a) { return Matrix3x3(m00 * a, m01 * a, m02 * a, m10 * a, m11 * a, m12 * a, m20 * a, m21 * a, m22 * a); }
 	Matrix3x3& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m10 *= a; m11 *= a; m12 *= a; m20 *= a; m21 *= a; m22 *= a; return *this; }
+	Matrix3x3 operator*(Matrix3x3 m)
+	{
+		return Matrix3x3(m00 * m.m00 + m01 * m.m10 + m02 * m.m20,
+						 m00 * m.m01 + m01 * m.m11 + m02 * m.m21,
+						 m00 * m.m02 + m01 * m.m12 + m02 * m.m22,
+						 m10 * m.m00 + m11 * m.m10 + m12 * m.m20,
+						 m10 * m.m01 + m11 * m.m11 + m12 * m.m21,
+						 m10 * m.m02 + m11 * m.m12 + m12 * m.m22,
+						 m20 * m.m00 + m21 * m.m10 + m22 * m.m20,
+						 m20 * m.m01 + m21 * m.m11 + m22 * m.m21,
+						 m20 * m.m02 + m21 * m.m12 + m22 * m.m22);
+	}
+	Matrix3x3& operator*=(Matrix3x3 m)
+	{
+		m00 = m00 * m.m00 + m01 * m.m10 + m02 * m.m20;
+		m01 = m00 * m.m01 + m01 * m.m11 + m02 * m.m21;
+		m02 = m00 * m.m02 + m01 * m.m12 + m02 * m.m22;
+		m10 = m10 * m.m00 + m11 * m.m10 + m12 * m.m20;
+		m11 = m10 * m.m01 + m11 * m.m11 + m12 * m.m21;
+		m12 = m10 * m.m02 + m11 * m.m12 + m12 * m.m22;
+		m20 = m20 * m.m00 + m21 * m.m10 + m22 * m.m20;
+		m21 = m20 * m.m01 + m21 * m.m11 + m22 * m.m21;
+		m22 = m20 * m.m02 + m21 * m.m12 + m22 * m.m22;
+		return *this;
+	}
+	//Matrix3x3 operator*(Matrix4x4 m) { return Matrix3x3(m00 * m.m00 + m01 * m.m10 + m02 * m.m20, m00 * m.m01 + m01 * m.m11 + m02 * m.m21, m00 * m.m02 + m01 * m.m12 + m02 * m.m22, m10 * m.m00 + m11 * m.m10 + m12 * m.m20, m10 * m.m01 + m11 * m.m11 + m12 * m.m21, m10 * m.m02 + m11 * m.m12 + m12 * m.m22, m20 * m.m00 + m21 * m.m10 + m22 * m.m20, m20 * m.m01 + m21 * m.m11 + m22 * m.m21, m20 * m.m02 + m21 * m.m12 + m22 * m.m22); }
+	//Matrix3x3& operator*=(Matrix4x4 m) { m00 = m00 * m.m00 + m01 * m.m10 + m02 * m.m20; m01 = m00 * m.m01 + m01 * m.m11 + m02 * m.m21; m02 = m00 * m.m02 + m01 * m.m12 + m02 * m.m22; m10 = m10 * m.m00 + m11 * m.m10 + m12 * m.m20; m11 = m10 * m.m01 + m11 * m.m11 + m12 * m.m21; m12 = m10 * m.m02 + m11 * m.m12 + m12 * m.m22; m20 = m20 * m.m00 + m21 * m.m10 + m22 * m.m20; m21 = m20 * m.m01 + m21 * m.m11 + m22 * m.m21; m22 = m20 * m.m02 + m21 * m.m12 + m22 * m.m22; return *this; }
 	//Matrix3x3 Quaternion(Vector4 quaternion) { return Matrix3x3(1 - (2 * pow(quaternion.z, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.y * quaternion.z + 2 * quaternion.w * quaternion.x, 2 * quaternion.y * quaternion.w - 2 * quaternion.z * quaternion.x, 2 * quaternion.y * quaternion.z - 2 * quaternion.w * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.w, 2)), 2 * quaternion.z * quaternion.w + 2 * quaternion.y + quaternion.x, 2 * quaternion.y * quaternion.w + 2 * quaternion.z * quaternion.x, 2 * quaternion.z * quaternion.w - 2 * quaternion.y * quaternion.x, 1 - (2 * pow(quaternion.y, 2) + 2 * pow(quaternion.z, 2))); }
 };
 struct Matrix4x4
@@ -324,6 +390,18 @@ public:
 		m.m22 = 1.0f - 2.0f * (q.i * q.i + q.j * q.j);
 		return m;
 	}
+	static Matrix4x4 SkewSymmetricForCross(const Vector4 v)
+	{
+		Matrix4x4 m;
+		m.m00 = m.m11 = m.m22 = 0;
+		m.m01 = -v.z;
+		m.m02 = v.y;
+		m.m10 = v.z;
+		m.m12 = -v.x;
+		m.m20 = -v.y;
+		m.m21 = v.x;
+		return m;
+	}
 	Matrix4x4 operator+(Matrix4x4 m) { return Matrix4x4(m00 + m.m00, m01 + m.m01, m02 + m.m02, m03 + m.m03, m10 + m.m10, m11 + m.m11, m12 + m.m12, m13 + m.m13, m20 + m.m20, m21 + m.m21, m22 + m.m22, m23 + m.m23, m30 + m.m30, m31 + m.m31, m32 + m.m32, m33 + m.m33); }
 	Matrix4x4& operator+=(Matrix4x4 m) { m00 += m.m00; m01 += m.m01; m02 += m.m02; m03 += m.m03; m10 += m.m10; m11 += m.m11; m12 += m.m12; m13 += m.m13; m20 += m.m20; m21 += m.m21; m22 += m.m22; m23 += m.m23; m30 += m.m30; m31 += m.m31; m32 += m.m32; m33 += m.m33; return*this; }
 	Matrix4x4 operator+(float a) { return Matrix4x4(m00 + a, m01 + a, m02 + a, m03 + a, m10 + a, m11 + a, m12 + a, m13 + a, m20 + a, m21 + a, m22 + a, m23 + a, m30 + a, m31 + a, m32 + a, m33 + a); }
@@ -339,5 +417,7 @@ public:
 	Matrix4x4 operator*(float a) { return Matrix4x4(m00 * a, m01 * a, m02 * a, m03 * a, m10 * a, m11 * a, m12 * a, m13 * a, m20 * a, m21 * a, m22 * a, m23 * a, m30 * a, m31 * a, m32 * a, m33 * a); }
 	Matrix4x4& operator*=(float a) { m00 *= a; m01 *= a; m02 *= a; m03 *= a; m10 *= a; m11 *= a; m12 *= a; m13 *= a; m20 *= a; m21 *= a; m22 *= a; m23 *= a; m30 *= a; m31 *= a; m32 *= a; m33 *= a; return*this; }
 	Matrix4x4 operator=(DirectX::XMMATRIX m) { return Matrix4x4(m); }
+	bool operator==(Matrix4x4 m) { if (m00 == m.m00 && m01 == m.m01 && m02 == m.m02 && m03 == m.m03 && m10 == m.m10 && m11 == m.m11 && m12 == m.m12 && m13 == m.m13 && m20 == m.m20 && m21 == m.m21 && m22 == m.m22 && m23 == m.m23 && m30 == m.m30 && m31 == m.m31 && m32 == m.m32 && m33 == m.m33)return true; else return false; }
+	bool operator!=(Matrix4x4 m) { if (m00 != m.m00 || m01 != m.m01 || m02 != m.m02 || m03 != m.m03 || m10 != m.m10 || m11 != m.m11 || m12 != m.m12 || m13 != m.m13 || m20 != m.m20 || m21 != m.m21 || m22 != m.m22 || m23 != m.m23 || m30 != m.m30 || m31 != m.m31 || m32 != m.m32 || m33 != m.m33)return true; else return false; }
 	DirectX::XMMATRIX ToXMMATRIX() { DirectX::XMMATRIX m = DirectX::XMMatrixSet(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33); return m; }
 };
