@@ -163,7 +163,7 @@ Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
 		t62 * rotmat.m22;
 	m_worldInertiaTensorInverse = iitWorld;
 	return m_worldInertiaTensorInverse;*/
-	m_worldInertiaTensorInverse = m_object->m_transform.GetRotationMatrix() * m_inertiaTensorInverse * m_object->m_transform.GetRotationMatrix().Inverse();
+	m_worldInertiaTensorInverse = m_object->m_transform.GetRotationMatrix() * m_inertiaTensorInverse * m_object->m_transform.GetRotationMatrix().Transpose();
 	return  m_worldInertiaTensorInverse;
 }
 

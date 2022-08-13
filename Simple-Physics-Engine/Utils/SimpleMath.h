@@ -331,7 +331,7 @@ public:
 	Matrix4x4(Vector3 v1, Vector3 v2, Vector3 v3) :m00(v1.x), m01(v2.x), m02(v3.x), m03(0), m10(v1.y), m11(v2.y), m12(v3.y), m13(0), m20(v1.z), m21(v2.z), m22(v3.z), m23(0), m30(0), m31(0), m32(0), m33(1) {}
 	Matrix4x4(Vector4 v1, Vector4 v2, Vector4 v3) :m00(v1.x), m01(v2.x), m02(v3.x), m03(0), m10(v1.y), m11(v2.y), m12(v3.y), m13(0), m20(v1.z), m21(v2.z), m22(v3.z), m23(0), m30(v1.w), m31(v2.w), m32(v3.w), m33(1) {}
 	Matrix4x4(Vector4 v1, Vector4 v2, Vector4 v3, Vector4 v4) :m00(v1.x), m01(v2.x), m02(v3.x), m03(v4.x), m10(v1.y), m11(v2.y), m12(v3.y), m13(v4.y), m20(v1.z), m21(v2.z), m22(v3.z), m23(v4.z), m30(v1.w), m31(v2.w), m32(v3.w), m33(v4.w) {}
-	Matrix4x4 Transpose() { Matrix4x4 m; m.m01 = m10; m.m02 = m20; m.m03 = m30; m.m10 = m01; m.m12 = m21; m.m13 = m31; m.m20 = m02; m.m21 = m12; m.m23 = m32; m.m30 = m03; m.m31 = m13; m.m32 = m23; return m; }
+	Matrix4x4 Transpose() { Matrix4x4 m; m.m00 = m00; m.m01 = m10; m.m02 = m20; m.m03 = m30; m.m10 = m01; m.m11 = m11; m.m12 = m21; m.m13 = m31; m.m20 = m02; m.m21 = m12; m.m22 = m22; m.m23 = m32; m.m30 = m03; m.m31 = m13; m.m32 = m23; m.m33 = m33; return m; }
 	float Determinant() { return(m00 * m11 * m22 * m33 + m00 * m12 * m23 * m31 + m00 * m13 * m21 * m32 + m01 * m10 * m23 * m32 + m01 * m12 * m20 * m33 + m01 * m13 * m22 * m30 + m02 * m10 * m21 * m33 + m02 * m11 * m23 * m30 + m02 * m13 * m20 * m31 + m03 * m10 * m22 * m31 + m03 * m11 * m20 * m32 + m03 * m12 * m21 * m30 - m00 * m11 * m23 * m32 - m00 * m12 * m21 * m33 - m00 * m13 * m22 * m31 - m01 * m10 * m22 * m33 - m01 * m12 * m23 * m30 - m01 * m13 * m20 * m32 - m02 * m10 * m23 * m31 - m02 * m11 * m20 * m33 - m02 * m13 * m21 * m30 - m03 * m10 * m21 * m32 - m03 * m11 * m22 * m30 - m03 * m12 * m20 * m31); }
 	Matrix4x4 Inverse()
 	{

@@ -7,7 +7,6 @@ void Contact::CalculateInternals(float deltaTime)
 	CalculateRelativeContactPosition();
 	CalculateLocalContactVelocity(deltaTime);
 	CalculateDesiredDeltaVelocity(deltaTime);
-	//CalculateImpulse();
 }
 void Contact::CalculateRelativeContactPosition()
 {
@@ -34,30 +33,6 @@ void Contact::CalculateContactToWorldMatrix()
 		contactTangent[1] = Vector3::Cross(m_normal, contactTangent[0]);
 		contactTangent[0] = Vector3::Cross(contactTangent[1], m_normal);
 	}
-	/*if (abs(m_normal.x) > abs(m_normal.y))
-	{
-		float s = 1.0f / sqrt(m_normal.z * m_normal.z + m_normal.x * m_normal.x);
-
-		contactTangent[0].x = m_normal.z * s;
-		contactTangent[0].y = 0;
-		contactTangent[0].z = -m_normal.x * s;
-
-		contactTangent[1].x = m_normal.y * contactTangent[0].z;
-		contactTangent[1].y = m_normal.z * contactTangent[0].x - m_normal.x * contactTangent[0].z;
-		contactTangent[1].z = -m_normal.y * contactTangent[0].x;
-	}
-	else
-	{
-		float s = 1.0f / sqrt(m_normal.z * m_normal.z + m_normal.y * m_normal.y);
-
-		contactTangent[0].x = 0;
-		contactTangent[0].y = -m_normal.z * s;
-		contactTangent[0].z = m_normal.y * s;
-
-		contactTangent[1].x = m_normal.y * contactTangent[0].z - m_normal.z * contactTangent[0].y;
-		contactTangent[1].y = -m_normal.x * contactTangent[0].z;
-		contactTangent[1].z = m_normal.x * contactTangent[0].y;
-	}*/
 	contactTangent[0] = Vector3::Normalize(contactTangent[0]);
 	contactTangent[1] = Vector3::Normalize(contactTangent[1]);
 	m_contactToWorld = Matrix4x4(m_normal, contactTangent[0], contactTangent[1]);
@@ -74,6 +49,7 @@ Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetLastFrameAcceleration() * deltaTime;
 	accVelocity = m_contactToWorld.Transpose() * accVelocity;
 
+	// 최소한 중력 입장에서는 y축 가속을 빼버리는 거니까 크게 상관없을듯
 	accVelocity.x = 0;
 	contactVelocity += accVelocity;
 
@@ -110,11 +86,7 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 		restitution = 0;
 	}
 
-	/*if (m_desiredDeltaVelocity > 50)
-	{
-		return;
-	}*/
-	m_desiredDeltaVelocity = -m_contactVelocity.x -restitution * (m_contactVelocity.x - velocityFromAcc);// -m_ContactVelocity.x - restitution * (m_ContactVelocity.x - velocityFromAcc);
+	m_desiredDeltaVelocity = -m_contactVelocity.x -restitution * (m_contactVelocity.x - velocityFromAcc);
 }
 Vector3 Contact::CalculateFrictionlessImpulse()
 {
