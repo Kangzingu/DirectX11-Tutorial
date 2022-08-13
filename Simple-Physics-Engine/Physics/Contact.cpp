@@ -126,6 +126,7 @@ Vector3 Contact::CalculateFrictionImpulse()
 			totalInverseMass += m_objects[i]->m_rigidbody.GetInverseMass();
 		}
 	}
+	totalDeltaVelWorld.m33 = 1;
 	Matrix4x4 deltaVelocity = m_contactToWorld.Transpose();
 	deltaVelocity *= totalDeltaVelWorld;
 	deltaVelocity *= m_contactToWorld;
@@ -135,7 +136,11 @@ Vector3 Contact::CalculateFrictionImpulse()
 	deltaVelocity.m22 += totalInverseMass;
 
 	Matrix4x4 impulseMatrix = deltaVelocity.Inverse();
-	Vector4 velKill = Vector4(m_desiredDeltaVelocity, -m_contactVelocity.y, -m_contactVelocity.z,1);
+
+	Vector4 velKill = Vector4(m_desiredDeltaVelocity, 
+		-m_contactVelocity.y, 
+		-m_contactVelocity.z,
+		1);
 
 	impulseContact = impulseMatrix * velKill;
 	
