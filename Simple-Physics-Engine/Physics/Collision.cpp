@@ -63,11 +63,11 @@ pair<float, float> ProjectCubeToAxis(Object& object, Vector3& axis)
 float GetOverlappedAmount(pair<float, float> p1, pair<float, float> p2)
 {
 	//	p1	p2	p1	p2
-	if (p2.first <= p1.second && p2.second >= p1.second)
+	if (p2.first < p1.second && p2.second > p1.second)
 		return p1.second - p2.first;
 
 	//	p2	p1	p2	p1
-	else if (p1.first <= p2.second && p1.second >= p2.second)
+	else if (p1.first < p2.second && p1.second > p2.second)
 		return p2.second - p1.first;
 
 	//	p1	p2	p2	p1
@@ -159,8 +159,6 @@ void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact
 }
 void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vector3>* lineForDebug)
 {
-	// TODO: æÍ ºˆ¡§«œ¿⁄ ±Ì¿∫∞≈ æ„¿∫∞≈ «Ú∞•∏∞¥Ÿ.. √• 296pgø° ¿÷¿Ω
-
 	//    2 ------- 3
 	//   /|        /|
 	//  1 ------- 0 7
@@ -239,9 +237,10 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 			closestPointOnCubeEdge = cube2Edges[j].origin + cube2Edges[j].direction * s;
 			closestPointOnEdge = cube1Edges[i].origin + cube1Edges[i].direction * t;
 
-			penetration  = Vector3::Magnitude(closestPointOnCubeEdge - closestPointOnEdge);
+			penetration  = Vector3::SquareMagnitude(closestPointOnCubeEdge - closestPointOnEdge);
 			if (penetration == 0)
 				continue;
+			penetration = sqrt(penetration);
 
 			if (Vector3::SquareMagnitude(object2.m_transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.m_transform.GetPosition() - closestPointOnEdge) &&
 				Vector3::SquareMagnitude(object1.m_transform.GetPosition() - closestPointOnEdge) > Vector3::SquareMagnitude(object1.m_transform.GetPosition() - closestPointOnCubeEdge))

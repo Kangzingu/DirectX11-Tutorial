@@ -10,6 +10,7 @@ void PhysicsManager::Update()
 	DetectCollision();
 	ResolveCollision();
 	m_contacts.clear();
+
 }
 void PhysicsManager::GenerateGravity()
 {

@@ -183,11 +183,11 @@ void Engine::InitializeScene()
 	actor->m_rigidbody.SetKinematic(true);
 	actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::Zero());
 	m_actors.push_back(actor);
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		actor = new Actor();
 		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(0.00f, i * 2.01 + 3.003, 0));
+		actor->m_transform.SetPosition(Vector3(0.00f, i * 1+ 1, 0));
 		m_actors.push_back(actor);
 	}
 
@@ -201,7 +201,7 @@ void Engine::InitializeScene()
 
 	// Ä«¸Þ¶ó
 	model.m_isEnabled = false;
-	transform.SetPosition(Vector3(0.0f, 5.0f, 8.0f));
+	transform.SetPosition(Vector3(0.0f, 5.0f, 30.0f));
 	transform.Rotate(Vector3(0, 0, 0));
 	rigidbody.SetEnabled(false);
 	collider.SetEnabled(false);

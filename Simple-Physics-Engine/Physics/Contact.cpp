@@ -78,6 +78,7 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 		if (m_objects[i] != nullptr)
 		{
 			velocityFromAcc += Vector3::Dot(m_objects[i]->m_rigidbody.GetLastFrameAcceleration(), m_normal) * deltaTime * sign;
+			//velocityFromAcc = 0;
 		}
 	}
 	float restitution = m_restitution;
@@ -103,6 +104,7 @@ Vector3 Contact::CalculateFrictionlessImpulse()
 			deltaVelocity += m_objects[i]->m_rigidbody.GetInverseMass();
 		}
 	}
+
 	return Vector3(m_desiredDeltaVelocity / deltaVelocity, 0, 0);
 }
 Vector3 Contact::CalculateFrictionImpulse()
@@ -158,6 +160,7 @@ Vector3 Contact::CalculateFrictionImpulse()
 		impulseContact.y *= m_friction * impulseContact.x;
 		impulseContact.z *= m_friction * impulseContact.x;
 	}
+
 	return impulseContact.XYZ();
 }
 void Contact::ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2])
