@@ -111,10 +111,8 @@ void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact
 		penetration[1] = cubeHalfScale.y - abs(cubeCoordVertices[i].y);
 		penetration[2] = cubeHalfScale.z - abs(cubeCoordVertices[i].z);
 
-		// 해당 점이 일단 충돌중인 점이여야 하는건 당연하고
 		if (penetration[0] > 0 && penetration[1] > 0 && penetration[2] > 0)
 		{
-			// 우리가 찾던 축에 대해서 투영했을 때 충돌 깊이값이 가장 깊은걸 고르면 댐
 			if (penetration[axisIndexToSee] > maxPenetration)
 			{
 				maxPenetration = penetration[axisIndexToSee];
@@ -264,114 +262,6 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 	lineForDebug[1].push_back(contactPointOnEdge);
 	lineForDebug[2].push_back(Vector3(0, 0, 1));
 }
-bool SAT(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
-{
-	vector<Vector3> axes;
-
-	// 1. Projection 축 뽑아내기
-	{
-		vector<Vector3> object1Edges;
-		vector<Vector3> object2Edges;
-		Vector3 edge[3];
-		Vector3 vertex[3];
-		Vector3 normal;
-		// 첫 물체의 face normal
-		for (int i = 0; i < object1.m_model.m_meshes.size(); i++)
-		{
-			Mesh mesh = object1.m_model.m_meshes[i];
-			for (int j = 0; j < mesh.m_indices.size(); j += 3)
-			{
-				vertex[0] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j]].position);
-				vertex[1] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 1]].position);
-				vertex[2] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 2]].position);
-				edge[0] = vertex[1] - vertex[0];
-				edge[1] = vertex[2] - vertex[0];
-				normal = Vector3::Normalize(Vector3::Cross(edge[0], edge[1]));
-				axes.push_back(normal);
-				edge[2] = vertex[2] - vertex[1];
-				for (int k = 0; k < 3; k++)
-				{
-					object1Edges.push_back(edge[k]);
-				}
-				lineForDebug[0].push_back(vertex[0]);
-				lineForDebug[1].push_back(vertex[1]);
-				lineForDebug[0].push_back(vertex[1]);
-				lineForDebug[1].push_back(vertex[2]);
-				lineForDebug[0].push_back(vertex[2]);
-				lineForDebug[1].push_back(vertex[0]);
-
-			}
-		}
-		// 두번째 물체의 face normal
-		for (int i = 0; i < object2.m_model.m_meshes.size(); i++)
-		{
-			Mesh mesh = object2.m_model.m_meshes[i];
-			for (int j = 0; j < mesh.m_indices.size(); j += 3)
-			{
-				vertex[0] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j]].position);
-				vertex[1] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 1]].position);
-				vertex[2] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 2]].position);
-				edge[0] = vertex[1] - vertex[0];
-				edge[1] = vertex[2] - vertex[0];
-				normal = Vector3::Normalize(Vector3::Cross(edge[0], edge[1]));
-				axes.push_back(normal);
-				edge[2] = vertex[2] - vertex[1];
-				for (int k = 0; k < 3; k++)
-				{
-					object2Edges.push_back(edge[k]);
-				}
-				lineForDebug[0].push_back(vertex[0]);
-				lineForDebug[1].push_back(vertex[1]);
-				lineForDebug[0].push_back(vertex[1]);
-				lineForDebug[1].push_back(vertex[2]);
-				lineForDebug[0].push_back(vertex[2]);
-				lineForDebug[1].push_back(vertex[0]);
-			}
-		}
-		// 두 물체의 edge cross
-		for (int i = 0; i < object1Edges.size(); i++)
-		{
-			for (int j = 0; j < object2Edges.size(); j++)
-			{
-				normal = Vector3::Cross(object1Edges[i], object2Edges[j]);
-				if (normal == Vector3::Zero())
-				{
-					continue;
-				}
-				normal = Vector3::Normalize(normal);
-				axes.push_back(normal);
-				//HashMap<float, pair<float ,float>> 
-				// 중복 제거, x를 키값으로서 해시 테이블 생성
-
-
-			}
-		}
-	}
-
-	// 2. Projection
-	{
-		pair<float, float> result1;
-		pair<float, float> result2;
-		for (int i = 0; i < axes.size(); i++)
-		{
-			result1 = ProjectVerticesToAxis(object1, axes[i]);
-			result2 = ProjectVerticesToAxis(object2, axes[i]);
-			float penetration = GetOverlappedAmount(result1, result2);
-			// Proj p1 = projectToAxis(object1, axes[i]);
-			// Proj p2 = projectToAxis(object2, axes[i]);
-			// 
-			// if(!p1.overlap(p2)){
-			//     return false;
-			// }
-			// 각 물체의 모든 점을? 플젝 해서 
-			if (penetration == 0)
-				return false;
-
-		}
-	}
-	//return true;
-	return true;
-}
 bool Collision::BroadPhaseBoundingSphere(Object& object1, Object& object2)
 {
 	float object1Radius = object1.m_collider.GetBound().maxRadius;
@@ -505,7 +395,7 @@ void Collision::NarrowPhaseSphereAndCube(Object* object1, Object* object2, vecto
 		}
 	}
 }
-bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
+void Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
 {
 	Contact contact;
 	vector<Vector3> axes;
@@ -543,7 +433,7 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 		penetration = GetOverlappedAmount(result1, result2);
 
 		if (penetration == 0)// 겹치지 않은 경우이므로 충돌 자체가 성립하지 않음
-			return false;
+			return;
 
 		if (minPenetration == 0 || penetration < minPenetration)// 아직 minPenetration이 초기화 되지 않았거나 최근 결과가 더 작은 경우
 		{
@@ -575,9 +465,198 @@ bool Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 			contact.m_objects[i] = nullptr;
 	}
 	contacts.push_back(contact);
-	return true;
 }
-bool Collision::NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vector<Vector3>* lineForDebug)
+void Collision::NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
 {
-	return SAT(object1, object2, lineForDebug);
+	Contact contact;
+	vector<Vector3> axes;
+
+	vector<Vector3> faceCenterPositions;
+	int object1FaceCount = 0;
+	int object2FaceCount = 0;
+
+	vector<LineSegment> object1Edges;
+	vector<LineSegment> object2Edges;
+
+	// 1. Projection 축 뽑아내기
+	{
+		LineSegment edge[3];
+		Vector3 vertex[3];
+		Vector3 normal;
+		// 첫 물체의 face normal
+		for (int i = 0; i < object1.m_model.m_meshes.size(); i++)
+		{
+			Mesh mesh = object1.m_model.m_meshes[i];
+			for (int j = 0; j < mesh.m_indices.size(); j += 3)
+			{
+				vertex[0] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j]].position);
+				vertex[1] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 1]].position);
+				vertex[2] = object1.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 2]].position);
+
+				edge[0].direction = Vector3::Normalize(vertex[1] - vertex[0]);
+				edge[0].length = Vector3::Magnitude(vertex[1] - vertex[0]);
+				edge[0].origin = vertex[0];
+				edge[1].direction = Vector3::Normalize(vertex[2] - vertex[0]);
+				edge[1].length = Vector3::Magnitude(vertex[2] - vertex[0]);
+				edge[1].origin = vertex[0];
+				edge[2].direction = Vector3::Normalize(vertex[2] - vertex[1]);
+				edge[2].length = Vector3::Magnitude(vertex[2] - vertex[1]);
+				edge[2].origin = vertex[1];
+
+				axes.push_back(Vector3::Cross(edge[0].direction, edge[1].direction));
+				faceCenterPositions.push_back((vertex[0] + vertex[1] + vertex[2]) / 3);
+				object1FaceCount++;
+
+				for (int k = 0; k < 3; k++)
+				{
+					object1Edges.push_back(edge[k]);
+				}
+				/*lineForDebug[0].push_back(vertex[0]);
+				lineForDebug[1].push_back(vertex[1]);
+				lineForDebug[0].push_back(vertex[1]);
+				lineForDebug[1].push_back(vertex[2]);
+				lineForDebug[0].push_back(vertex[2]);
+				lineForDebug[1].push_back(vertex[0]);*/
+			}
+		}
+		// 두번째 물체의 face normal
+		for (int i = 0; i < object2.m_model.m_meshes.size(); i++)
+		{
+			Mesh mesh = object2.m_model.m_meshes[i];
+			for (int j = 0; j < mesh.m_indices.size(); j += 3)
+			{
+				vertex[0] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j]].position);
+				vertex[1] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 1]].position);
+				vertex[2] = object2.m_transform.GetWorldMatrix() * Vector3(mesh.m_vertices[mesh.m_indices[j + 2]].position);
+
+				edge[0].direction = Vector3::Normalize(vertex[1] - vertex[0]);
+				edge[0].length = Vector3::Magnitude(vertex[1] - vertex[0]);
+				edge[0].origin = vertex[0];
+				edge[1].direction = Vector3::Normalize(vertex[2] - vertex[0]);
+				edge[1].length = Vector3::Magnitude(vertex[2] - vertex[0]);
+				edge[1].origin = vertex[0];
+				edge[2].direction = Vector3::Normalize(vertex[2] - vertex[1]);
+				edge[2].length = Vector3::Magnitude(vertex[2] - vertex[1]);
+				edge[2].origin = vertex[1];
+
+				axes.push_back(Vector3::Cross(edge[0].direction, edge[1].direction));
+				faceCenterPositions.push_back((vertex[0] + vertex[1] + vertex[2]) / 3);
+				object2FaceCount++;
+
+				for (int k = 0; k < 3; k++)
+				{
+					object2Edges.push_back(edge[k]);
+				}
+			}
+		}
+		// 두 물체의 edge cross
+		for (int i = 0; i < object1Edges.size(); i++)
+		{
+			for (int j = 0; j < object2Edges.size(); j++)
+			{
+				normal = Vector3::Cross(object1Edges[i].direction, object2Edges[j].direction);
+				axes.push_back(normal);
+				//HashMap<float, pair<float ,float>> 
+				// 중복 제거, x를 키값으로서 해시 테이블 생성
+			}
+		}
+	}
+
+	// 2. Projection
+	{
+		pair<float, float> result1;
+		pair<float, float> result2;
+		float minPenetration = 0;
+		int minPenetrationAxisIndex = -1;
+		for (int i = 0; i < axes.size(); i++)
+		{
+			if (axes[i] == Vector3::Zero())
+				continue;
+
+			axes[i] = Vector3::Normalize(axes[i]);
+			result1 = ProjectVerticesToAxis(object1, axes[i]);
+			result2 = ProjectVerticesToAxis(object2, axes[i]);
+			float penetration = GetOverlappedAmount(result1, result2);
+
+			if (penetration == 0)
+				return;
+
+			if (minPenetration == 0 ||
+				penetration < minPenetration)
+			{
+				minPenetration = penetration;
+				minPenetrationAxisIndex = i;
+			}
+		}
+
+		if (minPenetrationAxisIndex >= 0 && minPenetrationAxisIndex <= object1FaceCount - 1)
+		{
+			Vector3 contactPointOnFace = object2.m_transform.GetPosition() - axes[minPenetrationAxisIndex] * Vector3::Dot(axes[minPenetrationAxisIndex], object2.m_transform.GetPosition() - faceCenterPositions[minPenetrationAxisIndex]);
+			contact.m_objects[0] = &object2;
+			contact.m_objects[1] = &object1;
+			contact.m_normal = axes[minPenetrationAxisIndex];
+			contact.m_penetration = minPenetration;
+			contact.m_point = contactPointOnFace - (contact.m_normal * contact.m_penetration / 2);
+
+		}
+		else if (minPenetrationAxisIndex >= object1FaceCount && minPenetrationAxisIndex <= object1FaceCount + object2FaceCount - 1)
+		{
+			Vector3 contactPointOnFace = object2.m_transform.GetPosition() - axes[minPenetrationAxisIndex] * Vector3::Dot(axes[minPenetrationAxisIndex], object2.m_transform.GetPosition() - faceCenterPositions[minPenetrationAxisIndex]);
+			contact.m_objects[0] = &object1;
+			contact.m_objects[1] = &object2;
+			contact.m_normal = axes[minPenetrationAxisIndex];
+			contact.m_penetration = minPenetration;
+			contact.m_point = contactPointOnFace - (contact.m_normal * contact.m_penetration / 2);
+
+		}
+		else if (minPenetrationAxisIndex >= object1FaceCount + object2FaceCount && minPenetrationAxisIndex <= axes.size() - 1)
+		{
+			int i = (minPenetrationAxisIndex - (object1FaceCount + object2FaceCount)) / object2Edges.size();
+			int j = (minPenetrationAxisIndex - (object1FaceCount + object2FaceCount)) % object2Edges.size();
+			Vector3 o1 = object2Edges[j].origin;
+			Vector3 o2 = object1Edges[i].origin;
+			Vector3 d1 = object2Edges[j].direction;
+			Vector3 d2 = object1Edges[i].direction;
+			float s, t;
+			if (Vector3::Cross(d1, d2) == Vector3::Zero())
+				return;
+
+			float x = Vector3::Dot((o1 - o2), d1);
+			float y = Vector3::Dot((o1 - o2), d2);
+			float a = Vector3::Dot(d1, d1);
+			float b = Vector3::Dot(d2, d2);
+			float c = Vector3::Dot(d1, d2);
+			s = (x * b - y * c) / (c * c - a * b);
+			t = (x * c - y * a) / (c * c - a * b);
+			if (s<0 || s>object2Edges[j].length ||
+				t<0 || t>object1Edges[i].length)
+				return;
+
+			Vector3 closestPointOnCubeEdge = object2Edges[j].origin + object2Edges[j].direction * s;
+			Vector3 closestPointOnEdge = object1Edges[i].origin + object1Edges[i].direction * t;
+
+			contact.m_objects[0] = &object1;
+			contact.m_objects[1] = &object2;
+			contact.m_normal = Vector3::Normalize(closestPointOnCubeEdge - closestPointOnEdge);
+			contact.m_penetration = minPenetration;
+			contact.m_point = closestPointOnEdge + contact.m_normal * contact.m_penetration / 2;
+
+			//return false;
+		}
+		else
+		{
+			ErrorLogger::Log("Convex의 SAT 검사가 범위 이상의 축을 검사함..");
+		}
+
+		//return true;
+		for (int i = 0; i < 2; i++)
+		{
+			if (contact.m_objects[i]->m_rigidbody.IsKinematic())
+				contact.m_objects[i] = nullptr;
+		}
+		lineForDebug[0].push_back(contact.m_point);
+		lineForDebug[1].push_back(contact.m_point + contact.m_normal * contact.m_penetration);
+		lineForDebug[2].push_back(Vector3(0, 0, 1));
+		contacts.push_back(contact);
+	}
 }

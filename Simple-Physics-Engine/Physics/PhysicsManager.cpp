@@ -82,7 +82,9 @@ void PhysicsManager::ResolvePenetration()
 		if (index == m_contacts.size())// 충돌이 없는 경우
 			break;
 
-		m_contacts[index].ModifyPosition(linearChange, angularChange, max);
+		m_contacts[index].MatchAwakeState();
+
+		m_contacts[index].ResolvePenetration(linearChange, angularChange, max);
 
 		for (int i = 0; i < m_contacts.size(); i++)
 		{
@@ -108,7 +110,7 @@ void PhysicsManager::ResolveVelocity()
 	Vector3 deltaVelocity;
 	int index;
 	float max;
-	float epsilon = 0.01f;
+	float epsilon = 0.000001f;
 
 	int velocityIterationsUsed = 0;
 	int velocityIterations = m_contacts.size();
@@ -128,7 +130,9 @@ void PhysicsManager::ResolveVelocity()
 		if (index == m_contacts.size())// 충돌이 없는 경우
 			break;
 
-		m_contacts[index].ModifyVelocity(velocityChange, angularVelocityChange);
+		m_contacts[index].MatchAwakeState();
+
+		m_contacts[index].ChangeVelocity(velocityChange, angularVelocityChange);
 		//m_contacts[index].CalculateDesiredDeltaVelocity(m_deltaTime);/// 이거 넣으니까 어느정도 안정화되는 느낌인데ㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔ 제대로된 이유는 모르게따
 
 		for (int i = 0; i < m_contacts.size(); i++)
@@ -140,7 +144,7 @@ void PhysicsManager::ResolveVelocity()
 					if (m_contacts[i].m_objects[b] == m_contacts[index].m_objects[d])
 					{
 						deltaVelocity = velocityChange[d] + Vector3::Cross(angularVelocityChange[d], m_contacts[i].m_relativeContactPosition[b]);
-						m_contacts[i].m_contactVelocity += m_contacts[i].m_contactToWorld.Transpose() * deltaVelocity * (b ? -1 : 1);
+						m_contacts[i].m_separateVelocity += m_contacts[i].m_contactToWorld.Transpose() * deltaVelocity * (b ? -1 : 1);
 						m_contacts[i].CalculateDesiredDeltaVelocity(m_deltaTime);
 					}
 				}

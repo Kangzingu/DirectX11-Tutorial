@@ -162,51 +162,73 @@ void Engine::InitializeScene()
 {
 	// 컴포넌트 초기화
 	Actor* actor;
-	Model model;
-	Model model2;
+	Model cubeModel;
+	Model triangleConeModel;
+	Model quadConeModel;
 	Model lightModel;
 	Transform transform;
 	Rigidbody rigidbody;
 	Collider collider;
 
 	// 액터
-	model.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
-	model2.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	cubeModel.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	triangleConeModel.Initialize("Assets/Objects/TriangleCone.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+	quadConeModel.Initialize("Assets/Objects/QuadCone.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
 	rigidbody.Initialize(0.1f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(12.0f, transform.GetScale()).Inverse());
 	collider.Initialize();
 	actor = new Actor();
-	actor->Initialize(model, transform, rigidbody, collider);
+	actor->Initialize(cubeModel, transform, rigidbody, collider);
 	actor->m_transform.SetPosition(Vector3(0, 0, 0));
 	actor->m_transform.SetScale(Vector3(30, 1, 30));
 	actor->m_rigidbody.SetInverseMass(0);
 	actor->m_rigidbody.SetKinematic(true);
 	actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::Zero());
 	m_actors.push_back(actor);
-	for (int i = 0; i < 4; i++)
+	/*for (int i = 0; i < 5; i++)
 	{
-		actor = new Actor();
-		actor->Initialize(model, transform, rigidbody, collider);
-		actor->m_transform.SetPosition(Vector3(0.00f, i * 1+ 1, 0));
-		m_actors.push_back(actor);
+		for (int j = 0; j < 5 - i; j++)
+		{
+			for (int k = 0; k < 5 - i; k++)
+			{
+				actor = new Actor();
+				actor->Initialize(model, transform, rigidbody, collider);
+				actor->m_transform.SetPosition(Vector3(j - 5, i + 1, k - 5));
+				m_actors.push_back(actor);
+			}
+		}
+	}*/
+	for (int i = 0; i < 5; i++)
+	{
+			Model cubeModel;
+			cubeModel.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(0.3f, 0.3f, 0.3f));
+			actor = new Actor();
+			/*if (i < 1)
+				actor->Initialize(triangleConeModel, transform, rigidbody, collider);
+			else if (i < 3)
+				actor->Initialize(cubeModel, transform, rigidbody, collider);
+			else if (i < 8)
+				actor->Initialize(triangleConeModel, transform, rigidbody, collider);
+			else 
+				actor->Initialize(quadConeModel, transform, rigidbody, collider);*/
+			actor->Initialize(cubeModel, transform, rigidbody, collider);
+
+			actor->m_transform.SetPosition(Vector3(0, i * 1 + 1, 0));
+			//actor->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::CubeInertiaTensor(12, actor->m_transform.GetScale()).Inverse());
+			m_actors.push_back(actor);
 	}
 
 	// 조명
 	lightModel.Initialize("Assets/Objects/Light.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
 	transform.SetPosition(Vector3(3.0f, 10.0f, 0.0f));
-	rigidbody.SetEnabled(false);
-	collider.SetEnabled(false);
 	m_light = new Light();
 	m_light->Initialize(lightModel, transform, rigidbody, collider);
 
 	// 카메라
-	model.m_isEnabled = false;
 	transform.SetPosition(Vector3(0.0f, 5.0f, 30.0f));
 	transform.Rotate(Vector3(0, 0, 0));
-	rigidbody.SetEnabled(false);
-	collider.SetEnabled(false);
 	m_camera = new Camera();
-	m_camera->Initialize(model, transform, rigidbody, collider);
+	m_camera->Initialize(cubeModel, transform, rigidbody, collider);
 	m_camera->SetProjectionMatrix(45.0f, static_cast<float>(m_windowManager->m_window.GetWidth()) / static_cast<float>(m_windowManager->m_window.GetHeight()), 0.1f, 3000.0f);
 
 	// 타이머
@@ -268,19 +290,9 @@ void Engine::HandleEvent()
 		KeyboardEvent kbe = m_windowManager->m_keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
-	if (m_windowManager->m_keyboard.IsPressed('W'))
-	{
-		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
-		m_camera->UpdateMatrix();
-	}
 	if (m_windowManager->m_keyboard.IsPressed('A'))
 	{
 		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetRight() * cameraSpeed * m_deltaTime));
-		m_camera->UpdateMatrix();
-	}
-	if (m_windowManager->m_keyboard.IsPressed('S'))
-	{
-		m_camera->m_transform.Translate(Vector3(m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
 		m_camera->UpdateMatrix();
 	}
 	if (m_windowManager->m_keyboard.IsPressed('D'))
@@ -288,14 +300,30 @@ void Engine::HandleEvent()
 		m_camera->m_transform.Translate(Vector3(m_camera->m_transform.GetRight() * cameraSpeed * m_deltaTime));
 		m_camera->UpdateMatrix();
 	}
-	if (m_windowManager->m_keyboard.IsPressed('Q'))
+	if (m_windowManager->m_keyboard.IsPressed('E'))
 	{
-		m_actors[1]->m_rigidbody.AddForceAt(Vector3(1, 0, 0), m_actors[1]->m_transform.GetPosition() + Vector3(0, 0, 0));
-		m_actors[3]->m_rigidbody.AddForceAt(Vector3(-1, 0, 0), m_actors[1]->m_transform.GetPosition() + Vector3(0, 0, 0));
+		m_actors[0]->m_transform.Translate(Vector3(0, 0.1f, 0));
+	}
+	if (m_windowManager->m_keyboard.IsPressed('F'))
+	{
 	}
 	if (m_windowManager->m_keyboard.IsPressed('G'))
 	{
 		m_actors[1]->m_rigidbody.AddTorqueAt(Vector3(0, 0, -0.1f), m_actors[1]->m_transform.GetPosition() + Vector3(1, -1, 0));
+	}
+	if (m_windowManager->m_keyboard.IsPressed('Q'))
+	{
+		m_actors[0]->m_transform.Translate(Vector3(0, -0.1f, 0));
+	}
+	if (m_windowManager->m_keyboard.IsPressed('S'))
+	{
+		m_camera->m_transform.Translate(Vector3(m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
+	}
+	if (m_windowManager->m_keyboard.IsPressed('W'))
+	{
+		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetForward() * cameraSpeed * m_deltaTime));
+		m_camera->UpdateMatrix();
 	}
 	if (m_windowManager->m_keyboard.IsPressed(VK_UP))
 	{
@@ -304,10 +332,29 @@ void Engine::HandleEvent()
 	}
 	if (m_windowManager->m_keyboard.IsPressed(VK_SPACE))
 	{
-		if (isPlaying == true)
-			isPlaying = false;
-		else
+		if (isPlaying == false)
+		{
 			isPlaying = true;
+
+			/*Model cubeModel;
+			Transform transform;
+			Rigidbody rigidbody;
+			Collider collider;
+			cubeModel.Initialize("Assets/Objects/Cube.obj", m_device.Get(), m_deviceContext.Get(), m_vsConstantBuffer, aiColor3D(1.0f, 1.0f, 1.0f));
+			transform.Initialize(Vector3::Zero(), Vector3::Zero(), Vector3::One());
+			rigidbody.Initialize(0.1f, 0.95f, 0.95f, Vector3::Zero(), Vector3::Zero(), Matrix4x4::CubeInertiaTensor(12.0f, transform.GetScale()).Inverse());
+			collider.Initialize();
+			Actor* bullet = new Actor();
+			bullet->Initialize(cubeModel, transform, rigidbody, collider);
+
+			bullet->m_transform.SetPosition(m_camera->m_transform.GetPosition());
+			bullet->m_transform.SetScale(Vector3(1, 1, 1));
+			bullet->m_rigidbody.SetInverseMass(0.1f);
+			bullet->m_rigidbody.SetKinematic(false);
+			bullet->m_rigidbody.SetInertiaTensorInverse(Matrix4x4::CubeInertiaTensor(12, bullet->m_transform.GetScale()));
+			bullet->m_rigidbody.AddForceAt(Vector3(0, 0, -100000), bullet->m_transform.GetPosition() + Vector3(1, -1, 0));
+			m_actors.push_back(bullet);*/
+		}
 	}
 	if (m_windowManager->m_keyboard.IsPressed(VK_DOWN))
 	{
@@ -318,7 +365,7 @@ void Engine::HandleEvent()
 	{
 		for (int i = 0; i < m_actors.size(); i++)
 		{
-			m_actors[i]->m_rigidbody.AddTorqueAt(Vector3(0, 0, -1.0f * i), m_actors[i]->m_transform.GetPosition() + Vector3(1, 1, 0));
+			m_actors[i]->m_rigidbody.AddTorqueAt(Vector3(0, 0, -i *1), m_actors[i]->m_transform.GetPosition() + Vector3(1, 1, 0));
 		}
 	}
 }
@@ -362,7 +409,7 @@ void Engine::UpdateScene()
 		m_deviceContext->OMSetDepthStencilState(m_commonState->DepthNone(), 0);
 
 		m_primitiveBatch->Begin();
-		{
+		/*{
 			DirectX::VertexPositionColor startVertex, endVertex;
 			for (int i = 0; i < m_lineForDebug[0].size(); i++)
 			{
@@ -373,7 +420,7 @@ void Engine::UpdateScene()
 			m_lineForDebug[0].clear();
 			m_lineForDebug[1].clear();
 			m_lineForDebug[2].clear();
-		}
+		}*/
 		/* {
 			DirectX::VertexPositionColor startVertex, endVertex;
 			for (int actorCount = 0; actorCount < actors.size(); actorCount++)
@@ -598,15 +645,15 @@ void Engine::UpdateUI()
 	//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(firstActorVelocity).c_str(), DirectX::XMFLOAT2(0, 100), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	m_spriteBatch->Begin();
 	m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(m_fpsString).c_str(), DirectX::XMFLOAT2(5, 5), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
-	for (int i = 1; i < m_actors.size(); i++)
-	{
-		Vector3 actorVelocity= m_actors[i]->m_rigidbody.GetVelocity();// *180.0f / PI;
-		string actorVelocityString = "actor " + to_string(i) + " Velocity: " + to_string((int)actorVelocity.x) + ", " + to_string((int)actorVelocity.y) + ", " + to_string((int)actorVelocity.z);
-		m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorVelocityString).c_str(), DirectX::XMFLOAT2(5, 20+i*40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		Vector3 actorAngularVelocity = m_actors[i]->m_rigidbody.GetAngularVelocity();// *180.0f / PI;
-		string actorAngularVelocityString = "actor " + to_string(i)+ " AngularVelocity: " + to_string((int)actorAngularVelocity.x) + ", " + to_string((int)actorAngularVelocity.y) + ", " + to_string((int)actorAngularVelocity.z);
-		m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorAngularVelocityString).c_str(), DirectX::XMFLOAT2(5, 40+i*40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	}
+	//for (int i = 1; i < m_actors.size(); i++)
+	//{
+	//	Vector3 actorVelocity= m_actors[i]->m_rigidbody.GetVelocity();// *180.0f / PI;
+	//	string actorVelocityString = "Actor " + to_string(i) + " Velocity: " + to_string((int)actorVelocity.x) + ", " + to_string((int)actorVelocity.y) + ", " + to_string((int)actorVelocity.z);
+	//	m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorVelocityString).c_str(), DirectX::XMFLOAT2(5, 25+i*45), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	//	Vector3 actorAngularVelocity = m_actors[i]->m_rigidbody.GetAngularVelocity();// *180.0f / PI;
+	//	string actorAngularVelocityString = "Actor " + to_string(i)+ " AngularVelocity: " + to_string((int)actorAngularVelocity.x) + ", " + to_string((int)actorAngularVelocity.y) + ", " + to_string((int)actorAngularVelocity.z);
+	//	m_spriteFont->DrawString(m_spriteBatch.get(), StringHelper::StringToWString(actorAngularVelocityString).c_str(), DirectX::XMFLOAT2(5, 45+i*45), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	//}
 	/*
 	string deltaTimeString = "DeltaTime: " + to_string(deltaTime);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(deltaTimeString).c_str(), DirectX::XMFLOAT2(5, 125), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));*/

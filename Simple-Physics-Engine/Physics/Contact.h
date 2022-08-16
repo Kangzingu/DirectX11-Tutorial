@@ -12,23 +12,24 @@ public:
 	float m_friction = 0.5f;
 	float m_restitution = 0.5f;
 	Matrix4x4 m_contactToWorld;
-	Vector3 m_contactVelocity;
+	Vector3 m_separateVelocity;
 	Vector3 m_relativeContactPosition[2];
 
 	float m_desiredDeltaVelocity;
 
 public:
+	void MatchAwakeState();
+
+	void SwapObjects();
 	void CalculateInternals(float deltaTime);
 	void CalculateContactToWorldMatrix();
 	void CalculateRelativeContactPosition();
-	//void CalculateLocalContactVelocity(float deltaTime);
-	//void CalculateResolveSpeed(float deltaTime);
 
 	Vector3 CalculateFrictionlessImpulse();
 	Vector3 CalculateFrictionImpulse();
 	Vector3 CalculateLocalVelocity(int index, float deltaTime);
 	void CalculateLocalContactVelocity(float deltaTime);
 	void CalculateDesiredDeltaVelocity(float deltaTime);
-	void ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2]);
-	void ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], float penetration);
+	void ChangeVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2]);
+	void ResolvePenetration(Vector3 linearChange[2], Vector3 angularChange[2], float penetration);
 };

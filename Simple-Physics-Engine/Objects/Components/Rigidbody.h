@@ -7,9 +7,11 @@
 class Rigidbody : public Components
 {
 private:
-	bool m_isEnabled = true;
 	bool m_isKinematic = false;
-	
+	bool m_isAwake = true;
+
+	float m_sleepEpsilon = 0.3f;
+	float m_motion = 0.5f;
 	float m_inverseMass;
 	float m_damping = 0.95f;
 	float m_angularDamping = 0.95f;
@@ -26,9 +28,10 @@ private:
 	Matrix4x4 m_worldInertiaTensorInverse = Matrix4x4::Identity();
 
 public:
-	bool IsEnabled();
 	bool IsKinematic();
+	bool IsAwake();
 
+	float GetMotion();
 	float GetInverseMass();
 	float GetDamping();
 	float GetangularDamping();
@@ -47,8 +50,9 @@ public:
 	void Update(float deltaTime);
 
 	void SetKinematic(bool isKinematic);
-	void SetEnabled(bool isEnabled);
+	void SetAwake(bool isAwake);
 
+	void SetMotion(float motion);
 	void SetInverseMass(float inverseMass);
 	void SetDamping(float damping);
 	void SetAngularDamping(float angularDamping);

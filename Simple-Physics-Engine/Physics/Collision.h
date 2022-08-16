@@ -10,6 +10,6 @@ public:
 
 	static void NarrowPhaseSphereAndSphere(Object* object1, Object* object2, vector<Contact>& contacts);
 	static void NarrowPhaseSphereAndCube(Object* object1, Object* object2, vector<Contact>& contacts);
-	static bool NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug);
-	static bool NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vector<Vector3>* lineForDebug);
+	static void NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug);
+	static void NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug);
 };

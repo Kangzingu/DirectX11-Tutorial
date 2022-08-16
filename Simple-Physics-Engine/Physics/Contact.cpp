@@ -1,12 +1,40 @@
 #include "Contact.h"
 #include "../Objects/Object.h"
 
+void Contact::MatchAwakeState()
+{
+	if (m_objects[1] == nullptr)
+		return;
+
+	bool object0IsAwake = m_objects[0]->m_rigidbody.IsAwake();
+	bool object1IsAwake = m_objects[1]->m_rigidbody.IsAwake();
+
+	if (object0IsAwake ^ object1IsAwake)
+	{
+		if (object0IsAwake == true)
+			m_objects[1]->m_rigidbody.SetAwake(true);
+		else
+			m_objects[0]->m_rigidbody.SetAwake(true);
+	}
+}
+
 void Contact::CalculateInternals(float deltaTime)
 {
+	if (m_objects[0] == nullptr)
+		SwapObjects();
+
 	CalculateContactToWorldMatrix();
 	CalculateRelativeContactPosition();
 	CalculateLocalContactVelocity(deltaTime);
 	CalculateDesiredDeltaVelocity(deltaTime);
+}
+void Contact::SwapObjects()
+{
+	m_normal *= -1;
+	Object* object;
+	object = m_objects[0];
+	m_objects[0] = m_objects[1];
+	m_objects[1] = object;
 }
 void Contact::CalculateRelativeContactPosition()
 {
@@ -40,11 +68,9 @@ void Contact::CalculateContactToWorldMatrix()
 Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 {
 	// 한 점에서의 속도  Vp = V + (w X r)
-	Vector3 velocity = Vector3::Cross(m_objects[index]->m_rigidbody.GetAngularVelocity(), m_relativeContactPosition[index]);
-	velocity += m_objects[index]->m_rigidbody.GetVelocity();
-	
-	// Contact의 좌표계로 변경(normal인 x축 값이 결국 normal(pa - pb)이 되겠징)
-	Vector3 contactVelocity = m_contactToWorld.Transpose() * velocity;
+	Vector3 pointVelocity = Vector3::Cross(m_objects[index]->m_rigidbody.GetAngularVelocity(), m_relativeContactPosition[index]);
+	pointVelocity += m_objects[index]->m_rigidbody.GetVelocity();
+	Vector3 contactVelocity = m_contactToWorld.Transpose() * pointVelocity;
 
 	Vector3 accVelocity = m_objects[index]->m_rigidbody.GetLastFrameAcceleration() * deltaTime;
 	accVelocity = m_contactToWorld.Transpose() * accVelocity;
@@ -62,7 +88,7 @@ void Contact::CalculateLocalContactVelocity(float deltaTime)
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			m_contactVelocity += CalculateLocalVelocity(i, deltaTime) * sign;
+			m_separateVelocity += CalculateLocalVelocity(i, deltaTime) * sign;
 		}
 	}
 }
@@ -77,30 +103,32 @@ void Contact::CalculateDesiredDeltaVelocity(float deltaTime)
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			velocityFromAcc += Vector3::Dot(m_objects[i]->m_rigidbody.GetLastFrameAcceleration(), m_normal) * deltaTime * sign;
-			//velocityFromAcc = 0;
+			if (m_objects[i]->m_rigidbody.IsAwake() == true)
+			{
+				velocityFromAcc += Vector3::Dot(m_objects[i]->m_rigidbody.GetLastFrameAcceleration(), m_normal) * deltaTime * sign;
+			}
 		}
 	}
 	float restitution = m_restitution;
-	if (abs(m_contactVelocity.x) < velocityLimit)
+	if (abs(m_separateVelocity.x) < velocityLimit)
 	{
 		restitution = 0;
 	}
 
-	m_desiredDeltaVelocity = -m_contactVelocity.x -restitution * (m_contactVelocity.x - velocityFromAcc);
+	m_desiredDeltaVelocity = -m_separateVelocity.x -restitution * m_separateVelocity.x - velocityFromAcc;
 }
 Vector3 Contact::CalculateFrictionlessImpulse()
 {
-	Vector3 deltaVelWorld;
+	Vector3 deltaVelocityWorld;
 	float deltaVelocity = 0;
 	for (int i = 0; i < 2; i++)
 	{
 		if (m_objects[i] != nullptr)
 		{
-			deltaVelWorld = Vector3::Cross(m_relativeContactPosition[i], m_normal);
-			deltaVelWorld = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * deltaVelWorld;
-			deltaVelWorld = Vector3::Cross(deltaVelWorld, m_relativeContactPosition[i]);
-			deltaVelocity += Vector3::Dot(deltaVelWorld, m_normal);
+			deltaVelocityWorld = Vector3::Cross(m_relativeContactPosition[i], m_normal);
+			deltaVelocityWorld = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * deltaVelocityWorld;
+			deltaVelocityWorld = Vector3::Cross(deltaVelocityWorld, m_relativeContactPosition[i]);
+			deltaVelocity += Vector3::Dot(deltaVelocityWorld, m_normal);
 			deltaVelocity += m_objects[i]->m_rigidbody.GetInverseMass();
 		}
 	}
@@ -140,8 +168,8 @@ Vector3 Contact::CalculateFrictionImpulse()
 	Matrix4x4 impulseMatrix = deltaVelocity.Inverse();
 
 	Vector4 velKill = Vector4(m_desiredDeltaVelocity, 
-		-m_contactVelocity.y, 
-		-m_contactVelocity.z,
+		-m_separateVelocity.y, 
+		-m_separateVelocity.z,
 		1);
 
 	impulseContact = impulseMatrix * velKill;
@@ -163,7 +191,7 @@ Vector3 Contact::CalculateFrictionImpulse()
 
 	return impulseContact.XYZ();
 }
-void Contact::ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2])
+void Contact::ChangeVelocity(Vector3 velocityChange[2], Vector3 angularVelocityChange[2])
 {
 	Vector3 impulseContact;
 	if (m_friction == 0)
@@ -174,23 +202,23 @@ void Contact::ModifyVelocity(Vector3 velocityChange[2], Vector3 angularVelocityC
 	{
         impulseContact =  CalculateFrictionImpulse();
 	}
-	Vector3 impulse = m_contactToWorld * impulseContact;
 
 	Vector3 impulsiveTorque;
+	Vector3 impulse = m_contactToWorld * impulseContact;
 	for (int i = 0; i < 2; i++)
 	{
 		float sign = (i == 0) ? 1 : -1;
 		if (m_objects[i] != nullptr)
 		{
-			impulsiveTorque = Vector3::Cross(m_relativeContactPosition[i], impulse) * sign;// 찝찝
-			angularVelocityChange[i] = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * impulsiveTorque;
 			velocityChange[i] = impulse * m_objects[i]->m_rigidbody.GetInverseMass() * sign;
+			impulsiveTorque = Vector3::Cross(m_relativeContactPosition[i], impulse) * sign;
+			angularVelocityChange[i] = m_objects[i]->m_rigidbody.GetWorldInertiaTensorInverse() * impulsiveTorque;
 			m_objects[i]->m_rigidbody.AddVelocity(velocityChange[i]);
 			m_objects[i]->m_rigidbody.AddAngularVelocity(angularVelocityChange[i]);
 		}
 	}
 }
-void Contact::ModifyPosition(Vector3 linearChange[2], Vector3 angularChange[2], float penetration)
+void Contact::ResolvePenetration(Vector3 linearChange[2], Vector3 angularChange[2], float penetration)
 {
 	const float angularLimit = 0.2f;
 	float angularMove[2];

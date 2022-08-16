@@ -10,15 +10,12 @@ struct Bound
 class Collider : public Components
 {
 private:
-	bool m_isEnabled = true;
 	Vector3 m_center = Vector3::Zero();
 	Bound m_bound;
 
 public:
 	void Initialize();
 	void Update(float deltaTime);
-	bool IsEnabled();
-	void SetEnabled(bool isEnabled);
 	void SetCenter(Vector3 center);
 	void SetBound(Bound bound);
 	void UpdateBound();

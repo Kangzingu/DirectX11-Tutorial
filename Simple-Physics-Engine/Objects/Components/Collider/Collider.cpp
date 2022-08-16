@@ -7,10 +7,6 @@ void Collider::Initialize()
 void Collider::Update(float deltaTime)
 {
 }
-void Collider::SetEnabled(bool isEnabled)
-{
-	m_isEnabled = isEnabled;
-}
 void Collider::SetCenter(Vector3 center)
 {
 	m_center = center;
@@ -56,7 +52,6 @@ void PlaneCollider::SetOffset(float offset)
 {
 	m_offset = offset;
 }
-bool Collider::IsEnabled(){return m_isEnabled;}
 Vector3 Collider::GetCenter(){return m_center;}
 Bound Collider::GetBound(){return m_bound;}
 float SphereCollider::GetRadius(){return m_radius;}
