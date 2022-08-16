@@ -20,8 +20,8 @@ public:
 	void SetBound(Bound bound);
 	void UpdateBound();
 
-	Vector3 GetCenter();
-	Bound GetBound();
+	Vector3& GetCenter();
+	Bound& GetBound();
 };
 
 class SphereCollider : public Collider

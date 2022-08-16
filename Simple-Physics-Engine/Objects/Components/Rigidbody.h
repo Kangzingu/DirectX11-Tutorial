@@ -36,14 +36,14 @@ public:
 	float GetDamping();
 	float GetangularDamping();
 
-	Vector3 GetVelocity();
-	Vector3 GetAngularVelocity();
-	Vector3 GetAccumulatedForce();
-	Vector3 GetAccumulatedTorque();
-	Vector3 GetLastFrameAcceleration();
+	Vector3& GetVelocity();
+	Vector3& GetAngularVelocity();
+	Vector3& GetAccumulatedForce();
+	Vector3& GetAccumulatedTorque();
+	Vector3& GetLastFrameAcceleration();
 
-	Matrix4x4 GetInertiaTensorInverse();
-	Matrix4x4 GetWorldInertiaTensorInverse();
+	Matrix4x4& GetInertiaTensorInverse();
+	Matrix4x4& GetWorldInertiaTensorInverse();
 
 public:
 	void Initialize(float inverseMass, float damping, float angularDamping, Vector3 velocity, Vector3 rotationVelocity, Matrix4x4 inertiaTensorInverse);

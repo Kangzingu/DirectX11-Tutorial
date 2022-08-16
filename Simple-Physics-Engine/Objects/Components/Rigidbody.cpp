@@ -130,19 +130,55 @@ void Rigidbody::ClearAccumulatedForce()
 	m_accumulatedForce = Vector3::Zero();
 	m_accumulatedTorque = Vector3::Zero();
 }
-bool Rigidbody::IsKinematic() { return m_isKinematic; }
-bool Rigidbody::IsAwake() { return m_isAwake; }
-float Rigidbody::GetMotion() { return m_motion; }
-float Rigidbody::GetInverseMass() { return m_inverseMass; }
-float Rigidbody::GetDamping() { return m_damping; }
-float Rigidbody::GetangularDamping() { return m_angularDamping; }
-Vector3 Rigidbody::GetVelocity() { return m_velocity; }
-Vector3 Rigidbody::GetAngularVelocity() { return m_angularVelocity; }
-Vector3 Rigidbody::GetAccumulatedForce() { return m_accumulatedForce; }
-Vector3 Rigidbody::GetAccumulatedTorque() { return m_accumulatedTorque; }
-Vector3 Rigidbody::GetLastFrameAcceleration() { return m_lastFrameAcceleration; }
-Matrix4x4 Rigidbody::GetInertiaTensorInverse() { return m_inertiaTensorInverse; }
-Matrix4x4 Rigidbody::GetWorldInertiaTensorInverse()
+bool Rigidbody::IsKinematic()
+{
+	return m_isKinematic;
+}
+bool Rigidbody::IsAwake()
+{
+	return m_isAwake;
+}
+float Rigidbody::GetMotion()
+{
+	return m_motion;
+}
+float Rigidbody::GetInverseMass()
+{
+	return m_inverseMass;
+}
+float Rigidbody::GetDamping()
+{
+	return m_damping;
+}
+float Rigidbody::GetangularDamping()
+{
+	return m_angularDamping;
+}
+Vector3& Rigidbody::GetVelocity()
+{
+	return m_velocity;
+}
+Vector3& Rigidbody::GetAngularVelocity()
+{
+	return m_angularVelocity;
+}
+Vector3& Rigidbody::GetAccumulatedForce()
+{
+	return m_accumulatedForce;
+}
+Vector3& Rigidbody::GetAccumulatedTorque()
+{
+	return m_accumulatedTorque;
+}
+Vector3& Rigidbody::GetLastFrameAcceleration()
+{
+	return m_lastFrameAcceleration;
+}
+Matrix4x4& Rigidbody::GetInertiaTensorInverse()
+{
+	return m_inertiaTensorInverse;
+}
+Matrix4x4& Rigidbody::GetWorldInertiaTensorInverse()
 {
 	m_worldInertiaTensorInverse = m_object->m_transform.GetRotationMatrix() * m_inertiaTensorInverse * m_object->m_transform.GetRotationMatrix().Transpose();
 	return  m_worldInertiaTensorInverse;

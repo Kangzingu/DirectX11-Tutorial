@@ -265,8 +265,8 @@ void Engine::HandleEvent()
 	// 윈도우 메시지 처리
 	m_windowManager->m_window.HandleMessage();
 
-	// 마우스 이벤트
-	while (!m_windowManager->m_mouse.IsEventBufferEmpty())
+	// 실시간 입력 이벤트 처리
+	while (m_windowManager->m_mouse.IsEventBufferEmpty() == false)
 	{
 		MouseEvent mouseEvent = m_windowManager->m_mouse.ReadEvent();
 		//if (windowManager.mouse.IsRightDown() == true)
@@ -274,22 +274,21 @@ void Engine::HandleEvent()
 		{
 			m_camera->m_transform.Rotate(Vector3::Up() * (float)mouseEvent.GetPositionX() * -0.0005f);
 			m_camera->m_transform.Rotate(m_camera->m_transform.GetRight() * (float)mouseEvent.GetPositionY() * -0.0005f );
-			Vector3 cameraRotation = m_camera->m_transform.GetRotation();
 			m_camera->UpdateMatrix();
 		}
 	}
-
-	// 키보드 이벤트
-	float cameraSpeed = 10.0f;
-	while (!m_windowManager->m_keyboard.IsCharBufferEmpty())
+	while (m_windowManager->m_keyboard.IsCharBufferEmpty() == false)
 	{
 		unsigned char ch = m_windowManager->m_keyboard.ReadChar();
 	}
-	while (!m_windowManager->m_keyboard.IsKeyBufferEmpty())
+	while (m_windowManager->m_keyboard.IsKeyBufferEmpty() == false)
 	{
 		KeyboardEvent kbe = m_windowManager->m_keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
+
+	// 기존 입력 상태에 따른 이벤트 처리
+	float cameraSpeed = 10.0f;
 	if (m_windowManager->m_keyboard.IsPressed('A'))
 	{
 		m_camera->m_transform.Translate(Vector3( - m_camera->m_transform.GetRight() * cameraSpeed * m_deltaTime));

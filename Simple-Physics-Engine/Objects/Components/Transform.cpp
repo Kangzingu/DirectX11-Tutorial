@@ -66,11 +66,26 @@ void Transform::Scale(Vector3 scale)
 	if (m_object != nullptr)
 		m_object->m_collider.UpdateBound();
 }
-Matrix4x4& Transform::GetWorldMatrix() { return m_worldMatrix; }
-Matrix4x4& Transform::GetTranslationMatrix() { return m_translationMatrix; }
-Matrix4x4& Transform::GetRotationMatrix() { return m_rotationMatrix; }
-Matrix4x4& Transform::GetScalingMatrix() { return m_scalingMatrix; }
-Vector3& Transform::GetPosition() { return m_position; }
+Matrix4x4& Transform::GetWorldMatrix()
+{
+	return m_worldMatrix;
+}
+Matrix4x4& Transform::GetTranslationMatrix()
+{
+	return m_translationMatrix;
+}
+Matrix4x4& Transform::GetRotationMatrix()
+{
+	return m_rotationMatrix;
+}
+Matrix4x4& Transform::GetScalingMatrix()
+{
+	return m_scalingMatrix;
+}
+Vector3& Transform::GetPosition()
+{
+	return m_position;
+}
 Vector3& Transform::GetRotation()
 {
 	Vector3 rotation;
@@ -90,8 +105,23 @@ Vector3& Transform::GetRotation()
 	rotation.z = General::RadianToDegree(atan2(t3, t4));
 	return rotation;
 }
-Quaternion& Transform::GetOrientation() { return m_orientation; }
-Vector3& Transform::GetScale() { return m_scale; }
-Vector3& Transform::GetRight() { return m_right; }
-Vector3& Transform::GetUp() { return m_up; }
-Vector3& Transform::GetForward() { return m_forward; }
+Quaternion& Transform::GetOrientation()
+{
+	return m_orientation;
+}
+Vector3& Transform::GetScale()
+{
+	return m_scale;
+}
+Vector3& Transform::GetRight()
+{
+	return m_right;
+}
+Vector3& Transform::GetUp()
+{
+	return m_up;
+}
+Vector3& Transform::GetForward()
+{
+	return m_forward;
+}

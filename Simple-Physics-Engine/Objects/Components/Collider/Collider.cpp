@@ -52,9 +52,27 @@ void PlaneCollider::SetOffset(float offset)
 {
 	m_offset = offset;
 }
-Vector3 Collider::GetCenter(){return m_center;}
-Bound Collider::GetBound(){return m_bound;}
-float SphereCollider::GetRadius(){return m_radius;}
-Vector3 CubeCollider::GetSize(){return m_size;}
-Vector3 PlaneCollider::GetNormal(){return m_normal;}
-float PlaneCollider::GetOffset(){return m_offset;}
+Vector3& Collider::GetCenter()
+{
+	return m_center;
+}
+Bound& Collider::GetBound()
+{
+	return m_bound;
+}
+float SphereCollider::GetRadius()
+{
+	return m_radius;
+}
+Vector3 CubeCollider::GetSize()
+{
+	return m_size;
+}
+Vector3 PlaneCollider::GetNormal()
+{
+	return m_normal;
+}
+float PlaneCollider::GetOffset()
+{
+	return m_offset;
+}
