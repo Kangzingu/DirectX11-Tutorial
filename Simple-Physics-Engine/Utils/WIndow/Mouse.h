@@ -11,9 +11,15 @@ private:
 	bool m_isRightDown = false;
 	bool m_isWheelButtonDown = false;
 
+	float m_sensitivity = 0.0005f;
+
 	std::queue<MouseEvent> m_eventBuffer;
 
 public:
+	int GetPositionX();
+	int GetPositionY();
+	MousePoint GetPosition();
+
 	void OnLeftPressed(int x, int y);
 	void OnLeftReleased(int x, int y);
 	void OnRightPressed(int x, int y);
@@ -33,8 +39,7 @@ public:
 	bool IsWheelButtonDown();
 	bool IsRightDown();
 
-	int GetPositionX();
-	int GetPositionY();
-	MousePoint GetPosition();
+	float GetSensitivity();
+	void SetSensitivity(float sensitivity);
 
 };

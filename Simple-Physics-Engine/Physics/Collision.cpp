@@ -81,7 +81,7 @@ float GetOverlappedAmount(pair<float, float> p1, pair<float, float> p2)
 	// 겹치지 않음
 	return 0;
 }
-void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact* contact, vector<Vector3>* lineForDebug)
+void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, vector<Contact>& contacts, Contact* contact, vector<Vector3>* lineForDebug)
 {
 	vector<Vector3> vertices;
 	vector<Vector3> cubeCoordVertices;
@@ -99,10 +99,6 @@ void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact
 		cubeCoordVertices.push_back(object2.m_transform.GetRotationMatrix().Inverse() * object2.m_transform.GetTranslationMatrix().Inverse() * vertices[i]);
 
 	float penetration[3];
-	vector<float> penetrations;
-	float maxPenetration = 0;
-	Vector3 maxPenetrationVertex;
-	Vector3 normal;
 	Vector3 cubeHalfScale = object2.m_transform.GetScale() / 2.0f;
 
 	for (int i = 0; i < vertices.size(); i++)
@@ -113,49 +109,56 @@ void CubeAndVertex(Object& object1, Object& object2, int axisIndexToSee, Contact
 
 		if (penetration[0] > 0 && penetration[1] > 0 && penetration[2] > 0)
 		{
-			if (penetration[axisIndexToSee] > maxPenetration)
+			contact->m_objects[0] = &object1;
+			contact->m_objects[1] = &object2;
+			contact->m_penetration = penetration[axisIndexToSee];
+			switch (axisIndexToSee)
 			{
-				maxPenetration = penetration[axisIndexToSee];
-				maxPenetrationVertex = vertices[i];
-				switch (axisIndexToSee)
+			case 0:
+				if (cubeCoordVertices[i].x >= 0)
 				{
-				case 0:
-					if (cubeCoordVertices[i].x >= 0)
-						normal = object2.m_transform.GetRight();
-					else
-						normal = -object2.m_transform.GetRight();
-					break;
-				case 1:
-					if (cubeCoordVertices[i].y >= 0)
-						normal = object2.m_transform.GetUp();
-					else
-						normal = -object2.m_transform.GetUp();
-					break;
-				case 2:
-					if (cubeCoordVertices[i].z >= 0)
-						normal = object2.m_transform.GetForward();
-					else
-						normal = -object2.m_transform.GetForward();
-					break;
+					contact->m_normal = object2.m_transform.GetRight();
 				}
+				else
+				{
+					contact->m_normal = -object2.m_transform.GetRight();
+				}
+				break;
+			case 1:
+				if (cubeCoordVertices[i].y >= 0)
+				{
+					contact->m_normal = object2.m_transform.GetUp();
+				}
+				else
+				{
+					contact->m_normal = -object2.m_transform.GetUp();
+				}break;
+			case 2:
+				if (cubeCoordVertices[i].z >= 0)
+				{
+					contact->m_normal = object2.m_transform.GetForward();
+				}
+				else
+				{
+					contact->m_normal = -object2.m_transform.GetForward();
+				}break;
 			}
+			contact->m_point = vertices[i] + (contact->m_normal * contact->m_penetration / 2);
+
+			for (int i = 0; i < 2; i++)
+			{
+				if (contact->m_objects[i]->m_rigidbody.IsKinematic())
+					contact->m_objects[i] = nullptr;
+			}
+			contacts.push_back(*contact);
+			lineForDebug[0].push_back(contact->m_point);
+			lineForDebug[1].push_back(vertices[i]);
+			lineForDebug[2].push_back(Vector3(1, 0, 0));
 		}
 	}
-	
-	
-	contact->m_objects[0] = &object1;
-	contact->m_objects[1] = &object2;
-	contact->m_normal = Vector3::Normalize(normal);
-	contact->m_penetration = maxPenetration;
-	contact->m_point = maxPenetrationVertex + (contact->m_normal * contact->m_penetration / 2);
-	lineForDebug[0].push_back(contact->m_point);
-	lineForDebug[1].push_back(maxPenetrationVertex);
-	lineForDebug[2].push_back(Vector3(1, 0, 0));
 	return;
-
-
 }
-void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vector3>* lineForDebug)
+void CubeAndEdge(Object& object1, Object& object2, float minPenetration, vector<Contact>& contacts, Contact* contact, vector<Vector3>* lineForDebug)
 {
 	//    2 ------- 3
 	//   /|        /|
@@ -204,9 +207,6 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 	cube2Edges.push_back(LineSegment(object2.m_transform.GetPosition() + (object2.m_transform.GetRight() * object2.m_transform.GetScale().x - object2.m_transform.GetUp() * object2.m_transform.GetScale().y - object2.m_transform.GetForward() * object2.m_transform.GetScale().z) / 2.0f, object2.m_transform.GetForward(), object2.m_transform.GetScale().z));
 
 	float penetration;
-	float minPenetration = Vector3::Magnitude(object1.m_transform.GetScale()) + Vector3::Magnitude(object2.m_transform.GetScale());
-	Vector3 contactPointOnCubeEdge;
-	Vector3 contactPointOnEdge;
 	for (int i = 0; i < cube1Edges.size(); i++)
 	{
 		Vector3 closestPointOnCubeEdge;
@@ -236,31 +236,27 @@ void CubeAndEdge(Object& object1, Object& object2, Contact* contact, vector<Vect
 			closestPointOnEdge = cube1Edges[i].origin + cube1Edges[i].direction * t;
 
 			penetration  = Vector3::SquareMagnitude(closestPointOnCubeEdge - closestPointOnEdge);
-			if (penetration == 0)
+			if (penetration == 0 || penetration > minPenetration)
 				continue;
 			penetration = sqrt(penetration);
 
 			if (Vector3::SquareMagnitude(object2.m_transform.GetPosition() - closestPointOnCubeEdge) > Vector3::SquareMagnitude(object2.m_transform.GetPosition() - closestPointOnEdge) &&
 				Vector3::SquareMagnitude(object1.m_transform.GetPosition() - closestPointOnEdge) > Vector3::SquareMagnitude(object1.m_transform.GetPosition() - closestPointOnCubeEdge))
 			{
-				if (penetration < minPenetration)
-				{
-					minPenetration = penetration;
-					contactPointOnCubeEdge = closestPointOnCubeEdge;
-					contactPointOnEdge = closestPointOnEdge;
-				}
+
+				contact->m_objects[0] = &object1;
+				contact->m_objects[1] = &object2;
+				contact->m_normal = Vector3::Normalize(closestPointOnCubeEdge - closestPointOnEdge);
+				contact->m_penetration = penetration;
+				contact->m_point = closestPointOnEdge + contact->m_normal * contact->m_penetration / 2;
+				contacts.push_back(*contact);
+				lineForDebug[0].push_back(closestPointOnCubeEdge);
+				lineForDebug[1].push_back(closestPointOnEdge);
+				lineForDebug[2].push_back(Vector3(0, 0, 1));
 			}
 		}
 	}
 
-	contact->m_objects[0] = &object1;
-	contact->m_objects[1] = &object2;
-	contact->m_normal = Vector3::Normalize(contactPointOnCubeEdge - contactPointOnEdge);
-	contact->m_penetration = minPenetration;
-	contact->m_point = contactPointOnEdge + contact->m_normal * contact->m_penetration / 2;
-	lineForDebug[0].push_back(contactPointOnCubeEdge);
-	lineForDebug[1].push_back(contactPointOnEdge);
-	lineForDebug[2].push_back(Vector3(0, 0, 1));
 }
 bool Collision::BroadPhaseBoundingSphere(Object& object1, Object& object2)
 {
@@ -444,27 +440,20 @@ void Collision::NarrowPhaseCubeAndCube(Object* object1, Object* object2, vector<
 
 	if (minPenetrationAxisIndex >= 0 && minPenetrationAxisIndex <= 2)
 	{
-		CubeAndVertex(*object2, *object1, minPenetrationAxisIndex, &contact, lineForDebug);
+		CubeAndVertex(*object2, *object1, minPenetrationAxisIndex, contacts, &contact, lineForDebug);
 	}
 	else if (minPenetrationAxisIndex >= 3 && minPenetrationAxisIndex <= 5)
 	{
-		CubeAndVertex(*object1, *object2, minPenetrationAxisIndex-3, &contact, lineForDebug);
+		CubeAndVertex(*object1, *object2, minPenetrationAxisIndex-3, contacts, &contact, lineForDebug);
 	}
 	else if (minPenetrationAxisIndex >= 6 && minPenetrationAxisIndex <= 14)
 	{
-		CubeAndEdge(*object1, *object2, &contact, lineForDebug);
+		CubeAndEdge(*object1, *object2, minPenetration, contacts, &contact, lineForDebug);
 	}
 	else
 	{
 		ErrorLogger::Log("Box의 SAT 검사가 15개 이상의 축을 검사함..");
 	}
-
-	for (int i = 0; i < 2; i++)
-	{
-		if (contact.m_objects[i]->m_rigidbody.IsKinematic())
-			contact.m_objects[i] = nullptr;
-	}
-	contacts.push_back(contact);
 }
 void Collision::NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vector<Contact>& contacts, vector<Vector3>* lineForDebug)
 {

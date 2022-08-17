@@ -7,6 +7,8 @@ using namespace std;
 
 const float PI = 3.141592f;
 
+typedef float real;
+
 struct General
 {
 public:
@@ -27,52 +29,52 @@ public:
 	float z;
 
 public:
-	inline Vector3() : x(0), y(0), z(0) {}
-	inline Vector3(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)) {}
-	inline Vector3(DirectX::XMFLOAT3 v) : x(v.x), y(v.y), z(v.z) {}
-	inline Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
-	inline static Vector3 Zero()
+	Vector3() : x(0), y(0), z(0) {}
+	Vector3(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)) {}
+	Vector3(DirectX::XMFLOAT3 v) : x(v.x), y(v.y), z(v.z) {}
+	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+	static Vector3 Zero()
 	{
 		return Vector3(0.0f, 0.0f, 0.0);
 	}
-	inline static Vector3 One()
+	static Vector3 One()
 	{
 		return Vector3(1.0f, 1.0f, 1.0f);
 	}
-	inline static Vector3 Up()
+	static Vector3 Up()
 	{
 		return Vector3(0.0f, 1.0f, 0.0f);
 	}
-	inline static Vector3 Right()
+	static Vector3 Right()
 	{
 		return Vector3(1.0f, 0.0f, 0.0f);
 	}
-	inline static Vector3 Forward()
+	static Vector3 Forward()
 	{
 		return Vector3(0.0f, 0.0f, 1.0f);
 	}
-	inline static Vector3 Normalize(Vector3 v)
+	static Vector3 Normalize(Vector3 v)
 	{
 		float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 		return Vector3(v.x / length, v.y / length, v.z / length);
 	}
-	inline static Vector3 Cross(Vector3 v1, Vector3 v2)
+	static Vector3 Cross(Vector3 v1, Vector3 v2)
 	{
 		return Vector3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
 	}
-	inline static float Magnitude(Vector3 v)
+	static float Magnitude(Vector3 v)
 	{
 		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 	}
-	inline static float SquareMagnitude(Vector3 v)
+	static float SquareMagnitude(Vector3 v)
 	{
 		return v.x * v.x + v.y * v.y + v.z * v.z;
 	}
-	inline static float Dot(Vector3 v1, Vector3 v2)
+	static float Dot(Vector3 v1, Vector3 v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
-	inline static void GetOrthonormalBasis(Vector3& x, Vector3* y, Vector3* z)
+	static void GetOrthonormalBasis(Vector3& x, Vector3* y, Vector3* z)
 	{
 		// x축으로 부터 직교기저를 생성함, 실질적으로 x가 기준이 되고 y는 계산에 필요하기 때문에 임시로 주어지는것이기 떄문에 결국 바뀜
 		*z = Vector3::Cross(x, *y);
@@ -92,84 +94,84 @@ public:
 		*y = Vector3::Normalize(*y);
 		*z = Vector3::Normalize(*z);
 	}
-	inline Vector3 operator+(Vector3 v)
+	Vector3 operator+(Vector3 v)
 	{
 		return Vector3(x + v.x, y + v.y, z + v.z);
 	}
-	inline Vector3& operator+=(Vector3 v)
+	Vector3& operator+=(Vector3 v)
 	{
 		x += v.x; y += v.y; z += v.z;
 		return *this;
 	}
-	inline Vector3 operator+(float a)
+	Vector3 operator+(float a)
 	{
 		return Vector3(x + a, y + a, z + a);
 	}
-	inline Vector3& operator+=(float a)
+	Vector3& operator+=(float a)
 	{
 		x += a; y += a; z += a;
 		return *this;
 	}
-	inline Vector3 operator-(Vector3 v)
+	Vector3 operator-(Vector3 v)
 	{
 		return Vector3(x - v.x, y - v.y, z - v.z);
 	}
-	inline Vector3& operator-=(Vector3 v)
+	Vector3& operator-=(Vector3 v)
 	{
 		x -= v.x; y -= v.y; z -= v.z;
 		return *this;
 	}
-	inline Vector3 operator-(float a)
+	Vector3 operator-(float a)
 	{
 		return Vector3(x - a, y - a, z - a);
 	}
-	inline Vector3& operator-=(float a)
+	Vector3& operator-=(float a)
 	{
 		x -= a; y -= a; z -= a;
 		return *this;
 	}
-	inline Vector3 operator-()
+	Vector3 operator-()
 	{
 		return Vector3(-x, -y, -z);
 	}
-	inline Vector3 operator*(float a)
+	Vector3 operator*(float a)
 	{
 		return Vector3(x * a, y * a, z * a);
 	}
-	inline Vector3& operator*=(float a)
+	Vector3& operator*=(float a)
 	{
 		x *= a; y *= a; z *= a;
 		return *this;
 	}
-	inline Vector3 operator/(float a)
+	Vector3 operator/(float a)
 	{
 		return Vector3(x / a, y / a, z / a);
 	}
-	inline Vector3& operator/=(float a)
+	Vector3& operator/=(float a)
 	{
 		x /= a; y /= a; z /= a;
 		return *this;
 	}
-	inline bool operator==(Vector3 v)
+	bool operator==(Vector3 v)
 	{
 		if (x == v.x && y == v.y && z == v.z)
 			return true;
 		else
 			return false;
 	}
-	inline bool operator!=(Vector3 v)
+	bool operator!=(Vector3 v)
 	{
 		if (x != v.x || y != v.y || z != v.z)
 			return true;
 		else
 			return false;
 	}
-	inline DirectX::XMVECTOR ToXMVECTOR()
+	DirectX::XMVECTOR ToXMVECTOR()
 	{
 		DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, 1);
 		return v;
 	}
-	inline DirectX::XMFLOAT3 ToXMFLOAT3()
+	DirectX::XMFLOAT3 ToXMFLOAT3()
 	{
 		DirectX::XMFLOAT3 v = DirectX::XMFLOAT3(x, y, z);
 		return v;
@@ -184,23 +186,23 @@ public:
 	float w;// 0 : 방향, 1 : 점
 
 public:
-	inline Vector4() : x(0), y(0), z(0), w(1) {};
-	inline Vector4(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)), w(DirectX::XMVectorGetW(v)) {}
-	inline Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
-	inline Vector4(Vector3 v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
-	inline Vector3 XYZ()
+	Vector4() : x(0), y(0), z(0), w(1) {};
+	Vector4(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)), z(DirectX::XMVectorGetZ(v)), w(DirectX::XMVectorGetW(v)) {}
+	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+	Vector4(Vector3 v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
+	Vector3 XYZ()
 	{
 		return Vector3(x, y, z);
 	}
-	inline static Vector4 Zero()
+	static Vector4 Zero()
 	{
 		return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
-	inline static Vector4 One()
+	static Vector4 One()
 	{
 		return Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
-	inline static Vector4 Normalize(Vector4 v)
+	static Vector4 Normalize(Vector4 v)
 	{
 		float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 		if (length == 0)
@@ -208,115 +210,115 @@ public:
 		else
 			return Vector4(v.x / length, v.y / length, v.z / length, v.w / length);
 	}
-	inline static float Magnitude(Vector4 v)
+	static float Magnitude(Vector4 v)
 	{
 		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 	}
-	inline static float SquareMagnitude(Vector4 v)
+	static float SquareMagnitude(Vector4 v)
 	{
 		return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 	}
-	inline static float Dot(Vector4 v1, Vector4 v2)
+	static float Dot(Vector4 v1, Vector4 v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 	}
-	inline static Vector4 Quaternion(Vector3 axis, float angle)
+	static Vector4 Quaternion(Vector3 axis, float angle)
 	{
 		angle = General::DegreeToRadian(angle);
 		return Vector4(axis.x * sin(angle / 2.0f), axis.y * sin(angle / 2.0f), axis.z * sin(angle / 2.0f), cos(angle / 2.0f));
 	}
-	inline static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2)
+	static Vector4 CombineQuaternion(Vector4 q1, Vector4 q2)
 	{
 		return Vector4(q1.w * q2.x + q1.x * q2.w - q1.y * q2.z - q1.z * q2.y,
 					   q1.w * q2.y - q1.x * q2.z + q1.y * q2.w - q1.z * q2.x,
 					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
 					   q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
 	}
-	inline static Vector4 CombineQuaternionBookVersion(Vector4 q1, Vector4 q2)
+	static Vector4 CombineQuaternionBookVersion(Vector4 q1, Vector4 q2)
 	{
 		return Vector4(q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
 					   q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
 					   q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
 					   q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
 	}
-	inline Vector4 operator+(Vector4 v)
+	Vector4 operator+(Vector4 v)
 	{
 		return Vector4(x + v.x, y + v.y, z + v.z, w + v.w);
 	}
-	inline Vector4& operator+=(Vector4 v)
+	Vector4& operator+=(Vector4 v)
 	{
 		x += v.x; y += v.y; z += v.z; w += v.w;
 		return *this;
 	}
-	inline Vector4 operator+(float a)
+	Vector4 operator+(float a)
 	{
 		return Vector4(x + a, y + a, z + a, w + a);
 	}
-	inline Vector4& operator+=(float a)
+	Vector4& operator+=(float a)
 	{
 		x += a; y += a; z += a; w += a;
 		return *this;
 	}
-	inline Vector4 operator-(Vector4 v)
+	Vector4 operator-(Vector4 v)
 	{
 		return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);
 	}
-	inline Vector4& operator-=(Vector4 v)
+	Vector4& operator-=(Vector4 v)
 	{
 		x -= v.x; y -= v.y; z -= v.z; w -= v.w;
 		return *this;
 	}
-	inline Vector4 operator-(float a)
+	Vector4 operator-(float a)
 	{
 		return Vector4(x - a, y - a, z - a, w - a);
 	}
-	inline Vector4& operator-=(float a)
+	Vector4& operator-=(float a)
 	{
 		x -= a; y -= a; z -= a; w -= a;
 		return *this;
 	}
-	inline Vector4 operator-()
+	Vector4 operator-()
 	{
 		return Vector4(-x, -y, -z, -w);
 	}
-	inline Vector4 operator*(float a)
+	Vector4 operator*(float a)
 	{
 		return Vector4(x * a, y * a, z * a, w * a);
 	}
-	inline Vector4& operator*=(float a)
+	Vector4& operator*=(float a)
 	{
 		x *= a; y *= a; z *= a; w *= a;
 		return *this;
 	}
-	inline Vector4 operator/(float a)
+	Vector4 operator/(float a)
 	{
 		return Vector4(x / a, y / a, z / a, w / a);
 	}
-	inline Vector4& operator/=(float a)
+	Vector4& operator/=(float a)
 	{
 		x /= a; y /= a; z /= a; w /= a;
 		return *this;
 	}
-	inline bool operator==(Vector4 v)
+	bool operator==(Vector4 v)
 	{
 		if (x == v.x && y == v.y && z == v.z && w == v.w)
 			return true;
 		else
 			return false;
 	}
-	inline bool operator!=(Vector4 v)
+	bool operator!=(Vector4 v)
 	{
 		if (x != v.x || y != v.y || z != v.z || w != v.w)
 			return true;
 		else
 			return false;
 	}
-	inline DirectX::XMVECTOR ToXMVECTOR()
+	DirectX::XMVECTOR ToXMVECTOR()
 	{
 		DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, z, w);
 		return v;
 	}
-	inline DirectX::XMFLOAT4 ToXMFLOAT4()
+	DirectX::XMFLOAT4 ToXMFLOAT4()
 	{
 		DirectX::XMFLOAT4 v = DirectX::XMFLOAT4(x, y, z, w);
 		return v;

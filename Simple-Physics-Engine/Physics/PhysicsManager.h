@@ -19,7 +19,7 @@ public:
 	PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug);
 
 	void Update();
-	void GenerateGravity();
+	void GenerateGeneralForces();
 	void UpdateTransform();
 	void DetectCollision();
 	void ResolveCollision();

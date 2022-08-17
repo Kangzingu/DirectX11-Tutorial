@@ -5,18 +5,22 @@ PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<
 void PhysicsManager::Update()
 {
 	// 순서 계속 헷갈린다.. 마지막에 Transform 을 바꿔주는게 상식적으론 맞는거 같은데 차이를 잘 모르겠다
-	GenerateGravity();
+	GenerateGeneralForces();
 	UpdateTransform();
 	DetectCollision();
 	ResolveCollision();
 	m_contacts.clear();
 
 }
-void PhysicsManager::GenerateGravity()
+void PhysicsManager::GenerateGeneralForces()
 {
 	for (int i = 0; i < (*m_actors).size(); i++)
 	{
-		if ((*m_actors)[i]->m_rigidbody.GetInverseMass() != 0)
+		if ((*m_actors)[i] == nullptr)
+		{
+			return;
+		}
+		if ((*m_actors)[i]->m_rigidbody.IsKinematic() == false)
 		{
 			(*m_actors)[i]->m_rigidbody.AddForce(m_gravity / (*m_actors)[i]->m_rigidbody.GetInverseMass());
 		}
@@ -62,13 +66,12 @@ void PhysicsManager::ResolvePenetration()
 	Vector3 deltaPosition;
 	int index;
 	float max;
-	float epsilon=0.01;
 
 	int positionIterationsUsed = 0;
-	int positionIterations = m_contacts.size();
+	int positionIterations = m_contacts.size() * 3;
 	while (positionIterationsUsed < positionIterations)
 	{
-		max = epsilon;
+		max = m_epsilon;
 		index = m_contacts.size();
 		for (int i = 0; i < m_contacts.size(); i++)
 		{
@@ -110,13 +113,12 @@ void PhysicsManager::ResolveVelocity()
 	Vector3 deltaVelocity;
 	int index;
 	float max;
-	float epsilon = 0.000001f;
 
 	int velocityIterationsUsed = 0;
-	int velocityIterations = m_contacts.size();
+	int velocityIterations = m_contacts.size() * 3;
 	while (velocityIterationsUsed < velocityIterations)
 	{
-		max = epsilon;
+		max = m_epsilon;
 		index = m_contacts.size();
 		for (int i = 0; i < m_contacts.size(); i++)
 		{

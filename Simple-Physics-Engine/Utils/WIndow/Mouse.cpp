@@ -61,10 +61,39 @@ MouseEvent Mouse::ReadEvent()
 		return e;
 	}
 }
-bool Mouse::IsEventBufferEmpty() { return m_eventBuffer.empty(); }
-bool Mouse::IsLeftDown() { return m_isLeftDown; }
-bool Mouse::IsWheelButtonDown() { return m_isWheelButtonDown; }
-bool Mouse::IsRightDown() { return m_isRightDown; }
-int Mouse::GetPositionX() { return m_x; }
-int Mouse::GetPositionY() { return m_y; }
-MousePoint Mouse::GetPosition() { return { m_x, m_y }; }
+bool Mouse::IsEventBufferEmpty()
+{
+	return m_eventBuffer.empty();
+}
+bool Mouse::IsLeftDown()
+{
+	return m_isLeftDown;
+}
+bool Mouse::IsWheelButtonDown()
+{
+	return m_isWheelButtonDown;
+}
+bool Mouse::IsRightDown()
+{
+	return m_isRightDown;
+}
+float Mouse::GetSensitivity()
+{
+	return m_sensitivity;
+}
+void Mouse::SetSensitivity(float sensitivity)
+{
+	m_sensitivity = sensitivity;
+}
+int Mouse::GetPositionX()
+{
+	return m_x;
+}
+int Mouse::GetPositionY()
+{
+	return m_y;
+}
+MousePoint Mouse::GetPosition()
+{
+	return { m_x, m_y };
+}

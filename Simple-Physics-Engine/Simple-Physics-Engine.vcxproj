@@ -166,8 +166,8 @@
     <ClCompile Include="Objects\Components\Model\Color.cpp" />
     <ClCompile Include="Objects\Object.cpp" />
     <ClCompile Include="Objects\Camera.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="Objects\Components\Transform.cpp" />
     <ClCompile Include="Objects\Components\Rigidbody.cpp" />
     <ClCompile Include="Physics\PhysicsManager.cpp" />
@@ -207,7 +207,7 @@
     <ClInclude Include="Objects\Object.h" />
     <ClInclude Include="Objects\Camera.h" />
     <ClInclude Include="Graphics\Buffers\ConstantBuffer.h" />
-    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Utils\ErrorLogger.h" />
     <ClInclude Include="Utils\ImGui\imconfig.h" />
     <ClInclude Include="Utils\ImGui\imgui.h" />

@@ -3,8 +3,29 @@
 
 void Camera::SetProjectionMatrix(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
-	m_projectionMatrix = Matrix4x4::Projection(fovDegrees, aspectRatio, nearZ, farZ);
+	m_nearZ = nearZ;
+	m_farZ = farZ;
+	m_projectionMatrix = Matrix4x4::Projection(fovDegrees, aspectRatio, m_nearZ, m_farZ);
 	UpdateMatrix();
+}
+float Camera::GetNearZ()
+{
+	return m_nearZ;
+}
+float Camera::GetFarZ()
+{
+	return m_farZ;
+}
+void Camera::SetSpeed(float speed)
+{
+	m_speed = speed;
+}
+void Camera::SetBackgroundColor(float* backgroundColor)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		m_backgroundColor[i] = backgroundColor[i];
+	}
 }
 void Camera::UpdateMatrix()
 {
@@ -31,4 +52,14 @@ Matrix4x4& Camera::GetProjectionMatrix()
 Matrix4x4& Camera::GetViewProjectionMatrix()
 {
 	return m_viewProjectionMatrix;
+}
+
+float Camera::GetSpeed()
+{
+	return m_speed;
+}
+
+float* Camera::GetBackgroundColor()
+{
+	return m_backgroundColor;
 }

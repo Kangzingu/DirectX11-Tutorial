@@ -12,8 +12,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="Objects\Actor.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -109,7 +109,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Objects\Actor.h">
       <Filter>Objects</Filter>
     </ClInclude>
