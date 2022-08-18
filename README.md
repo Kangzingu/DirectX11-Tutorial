@@ -146,5 +146,5 @@ Penetration이 큰 충돌을 우선 처리하도록 바꾼 후 맞이한 문제�
 ```
 2022.8.9.(화)
  - 렌더링 : 기본 퐁라이팅으로 변경
- - 물리 : 월드 좌표계에서의 관성텐서 부분 수정(rotationMat * localInverseInertiaTensor * rotationMat^-1)
+ - 물리 : 월드 좌표계에서의 관성텐서 부분 수정(rotationMat * localInverseInertiaTensor * rotationMat^T)
 ```
