@@ -38,10 +38,14 @@ void Rigidbody::Update(float deltaTime)
 	if (m_isAwake == false)
 		return;
 
-	m_lastFrameAcceleration = m_accumulatedForce * m_inverseMass;
+	m_lastFrameAcceleration = m_acceleration;
+	m_lastFrameAcceleration += m_accumulatedForce * m_inverseMass;
 
 	m_velocity = (m_velocity + (m_lastFrameAcceleration)*deltaTime) * pow(m_damping, deltaTime);
 	m_angularVelocity = (m_angularVelocity + (GetWorldInertiaTensorInverse() * m_accumulatedTorque) * deltaTime) * pow(m_angularDamping, deltaTime);
+
+	m_object->m_transform.Translate(m_velocity * deltaTime);
+	m_object->m_transform.Rotate(m_angularVelocity * deltaTime);
 
 	ClearAccumulatedForce();
 
@@ -50,15 +54,10 @@ void Rigidbody::Update(float deltaTime)
 	float bias = pow(0.5f, deltaTime);
 	m_motion = bias * m_motion + (1 - bias) * currentMotion;
 
-	/*if (m_motion < m_sleepEpsilon)
+	if (m_motion < m_sleepEpsilon)
 		SetAwake(false);
-	else
-	{
-		if (m_motion > 10 * m_sleepEpsilon)
-			m_motion = 10 * m_sleepEpsilon;
-	}*/
-		m_object->m_transform.Translate(m_velocity * deltaTime);
-		m_object->m_transform.Rotate(m_angularVelocity * deltaTime);
+	else if (m_motion > 10 * m_sleepEpsilon)
+		m_motion = 10 * m_sleepEpsilon;
 }
 void Rigidbody::SetKinematic(bool isKinematic)
 {
@@ -92,6 +91,10 @@ void Rigidbody::SetDamping(float damping)
 void Rigidbody::SetAngularDamping(float angularDamping)
 {
 	m_angularDamping = angularDamping;
+}
+void Rigidbody::SetAcceleration(Vector3 acceleration)
+{
+	m_acceleration = acceleration;
 }
 void Rigidbody::SetVelocity(Vector3 velocity)
 {
@@ -150,9 +153,13 @@ float Rigidbody::GetDamping()
 {
 	return m_damping;
 }
-float Rigidbody::GetangularDamping()
+float Rigidbody::GetAngularDamping()
 {
 	return m_angularDamping;
+}
+Vector3& Rigidbody::GetAcceleration()
+{
+	return m_acceleration;
 }
 Vector3& Rigidbody::GetVelocity()
 {

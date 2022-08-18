@@ -40,6 +40,7 @@ public:
 	void HandleEvent();
 	void UpdatePhysics();
 	void UpdateTimer();
+	void CheckStopCondition();
 	void UpdateScene();
 	void UpdateUI();
 	bool IsRenderWindowExist();
@@ -54,7 +55,8 @@ private:
 	vector<Vector3> m_lineForDebug[3];
 
 	Timer m_fpsTimer;
-	Timer m_sceneTimer;
+	Timer m_deltaTimer;
+	//Timer m_sceneTimer;
 	string m_fpsString = "FPS: 0";
 	int m_fps = 0;
 	float m_deltaTime = 0;

@@ -20,10 +20,10 @@ public:
 	Matrix4x4 m_worldMatrix;
 	vector<Vertex> m_vertices;
 	vector<DWORD> m_indices;
+	std::vector<Texture> m_textures;
 
 private:
 	ID3D11DeviceContext* m_deviceContext;
 	VertexBuffer<Vertex> m_vertexbuffer;
 	IndexBuffer m_indexbuffer;
-	std::vector<Texture> m_textures;
 };

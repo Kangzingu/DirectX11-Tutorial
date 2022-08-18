@@ -10,12 +10,13 @@ private:
 	bool m_isKinematic = false;
 	bool m_isAwake = true;
 
-	float m_sleepEpsilon = 0.3f;
-	float m_motion = 0.5f;
+	float m_sleepEpsilon = 0.5f;
+	float m_motion = 0.6f;
 	float m_inverseMass;
 	float m_damping = 0.95f;
 	float m_angularDamping = 0.95f;
 	
+	Vector3 m_acceleration = Vector3::Zero();
 	Vector3 m_velocity = Vector3::Zero();// m/s ¥‹¿ß
 	Vector3 m_angularVelocity = Vector3::Zero();
 	
@@ -34,8 +35,9 @@ public:
 	float GetMotion();
 	float GetInverseMass();
 	float GetDamping();
-	float GetangularDamping();
+	float GetAngularDamping();
 
+	Vector3& GetAcceleration();
 	Vector3& GetVelocity();
 	Vector3& GetAngularVelocity();
 	Vector3& GetAccumulatedForce();
@@ -57,6 +59,7 @@ public:
 	void SetDamping(float damping);
 	void SetAngularDamping(float angularDamping);
 
+	void SetAcceleration(Vector3 acceleration);
 	void SetVelocity(Vector3 velocity);
 	void AddVelocity(Vector3 velocity);
 	void SetAngularVelocity(Vector3 angularVelocity);

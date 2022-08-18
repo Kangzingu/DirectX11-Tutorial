@@ -1,7 +1,13 @@
 #include "../Objects/Actor.h"
 #include "PhysicsManager.h"
 
-PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug) : m_actors(actors), m_deltaTime(deltaTime), m_lineForDebug(lineForDebug) {}
+PhysicsManager::PhysicsManager(vector<Actor*>* actors, float& deltaTime, vector<Vector3>* lineForDebug) : m_actors(actors), m_deltaTime(deltaTime), m_lineForDebug(lineForDebug)
+{
+	for (int i = 0; i < m_actors->size(); i++)
+	{
+		(*m_actors)[i]->m_rigidbody.SetAcceleration(Vector3(0, -9.8f, 0));
+	}
+}
 void PhysicsManager::Update()
 {
 	// 순서 계속 헷갈린다.. 마지막에 Transform 을 바꿔주는게 상식적으론 맞는거 같은데 차이를 잘 모르겠다
@@ -10,7 +16,6 @@ void PhysicsManager::Update()
 	DetectCollision();
 	ResolveCollision();
 	m_contacts.clear();
-
 }
 void PhysicsManager::GenerateGeneralForces()
 {
@@ -19,10 +24,6 @@ void PhysicsManager::GenerateGeneralForces()
 		if ((*m_actors)[i] == nullptr)
 		{
 			return;
-		}
-		if ((*m_actors)[i]->m_rigidbody.IsKinematic() == false)
-		{
-			(*m_actors)[i]->m_rigidbody.AddForce(m_gravity / (*m_actors)[i]->m_rigidbody.GetInverseMass());
 		}
 	}
 }
@@ -68,7 +69,7 @@ void PhysicsManager::ResolvePenetration()
 	float max;
 
 	int positionIterationsUsed = 0;
-	int positionIterations = m_contacts.size() * 3;
+	int positionIterations = m_contacts.size() * 4;
 	while (positionIterationsUsed < positionIterations)
 	{
 		max = m_epsilon;
@@ -115,7 +116,7 @@ void PhysicsManager::ResolveVelocity()
 	float max;
 
 	int velocityIterationsUsed = 0;
-	int velocityIterations = m_contacts.size() * 3;
+	int velocityIterations = m_contacts.size() * 4;
 	while (velocityIterationsUsed < velocityIterations)
 	{
 		max = m_epsilon;
