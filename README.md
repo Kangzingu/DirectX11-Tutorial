@@ -181,3 +181,11 @@ https://user-images.githubusercontent.com/34128052/185279991-8903b894-69bc-464d-
 https://user-images.githubusercontent.com/34128052/185280080-3c163035-84be-42ce-a342-1302712817b5.mp4
 
 모든 Contact를 뽑아낸 경우(진동이 줄어들어 비교적 잘 버팀)<br>
+
+https://user-images.githubusercontent.com/34128052/185289360-64052ce2-da12-44b7-9e33-f16184494788.mp4
+
+가장 깊은 Contact 1개만 뽑아낸 경우 진동<br>
+
+https://user-images.githubusercontent.com/34128052/185289385-bee2e87c-8790-4c37-89b3-0430a090bdd7.mp4
+
+모든 Contact를 뽑아낸 경우 진동<br>
