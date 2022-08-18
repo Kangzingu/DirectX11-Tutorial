@@ -109,7 +109,6 @@ https://user-images.githubusercontent.com/34128052/181603874-9d954c26-0738-4979-
 ```
 https://user-images.githubusercontent.com/34128052/183495430-53070aaf-de9b-491b-b92e-8923431cb87c.mp4
 
-
 ```
 2022.8.3.(수)
  - 물리 : 충돌 해결 구현 중
@@ -143,3 +142,9 @@ Penetration이 작은 충돌을 우선 처리했기 때문에 나왔던 문제�
 https://user-images.githubusercontent.com/34128052/183501688-3e596071-0702-44df-aaac-e252fccdb3ae.mp4
 
 Penetration이 큰 충돌을 우선 처리하도록 바꾼 후 맞이한 문제점<br>
+
+```
+2022.8.9.(화)
+ - 렌더링 : 기본 퐁라이팅으로 변경
+ - 물리 : 월드 좌표계에서의 관성텐서 부분 수정(rotationMat * localInverseInertiaTensor * rotationMat^-1)
+```
