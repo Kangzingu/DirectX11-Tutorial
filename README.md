@@ -146,9 +146,11 @@ Penetration이 큰 충돌을 우선 처리하도록 바꾼 후 맞이한 문제�
 ```
 2022.8.9.(화)
  - 렌더링 : 기본 퐁라이팅 구현
- - 물리 : 월드 좌표계에서의 관성텐서 부분 수정
-  * rotationMat * localInverseInertiaTensor * rotationMat^T
+ - 물리 : 월드 좌표계에서의 관성텐서 수정
+  * 기존에는 아예 잘 못 이해하고 있었음. 위키 참고해서 다음과 같이 변경함 rotationMat * localInverseInertiaTensor * rotationMat^T
 ```
+![image](https://user-images.githubusercontent.com/34128052/185282366-c132933b-0f63-48e4-b9dd-be20cb17c1e3.png)
+
 ```
 2022.8.10.(수) ~ 2022.8.13.(토)
  - 물리 : 물체의 운동이 불규칙했던 현상 해결
