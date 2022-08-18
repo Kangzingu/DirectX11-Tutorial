@@ -146,5 +146,14 @@ Penetration이 큰 충돌을 우선 처리하도록 바꾼 후 맞이한 문제�
 ```
 2022.8.9.(화)
  - 렌더링 : 기본 퐁라이팅으로 변경
- - 물리 : 월드 좌표계에서의 관성텐서 부분 수정(rotationMat * localInverseInertiaTensor * rotationMat^T)
+ - 물리 : 월드 좌표계에서의 관성텐서 부분 수정
+  * rotationMat * localInverseInertiaTensor * rotationMat^T
 ```
+```
+2022.8.10.(수) ~ 2022.8.13.(토)
+ - 물리 : 물체의 운동이 불규칙했던 현상 해결
+  * 기존에는 물체의 운동이 조금 이상해서 원래 그런건가 넘어갔었는데 딱봐도 너무 이상해서 이 주 내내 찾아봤고 결국 찾음.. 직접 구현했던 수학 라이브러리에 문제가 있었음
+```
+
+![image](https://user-images.githubusercontent.com/34128052/185278086-788d395f-c647-4cce-a25d-28ff5b4f2386.png)
+
