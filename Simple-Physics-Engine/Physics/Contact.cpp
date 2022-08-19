@@ -79,7 +79,7 @@ Vector3 Contact::CalculateLocalVelocity(int index, float deltaTime)
 	accVelocity.x = 0;
 	contactVelocity += accVelocity;
 
-	return contactVelocity;
+	return contactVelocity;// TODO: Vector3::Dot(contactVelocity, normal) 이 만약 0보다 크다면? 걍 떨어지고 있는거라면 다시 안떨궈야 하는데 그게 구현되어 있는건지 모르겠당..
 }
 void Contact::CalculateLocalContactVelocity(float deltaTime)
 {
