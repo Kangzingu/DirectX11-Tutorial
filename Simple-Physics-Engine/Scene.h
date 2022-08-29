@@ -46,7 +46,6 @@ public:
 	bool IsRenderWindowExist();
 
 	~Scene();
-	void DestructScene();
 
 private:
 	Light* m_light;

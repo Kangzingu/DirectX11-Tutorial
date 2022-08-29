@@ -9,7 +9,6 @@
 #include "../../../Graphics/Buffers/IndexBuffer.h"
 #include "../../../Graphics/Buffers/VertexBuffer.h"
 #include "../../../Graphics/Shaders/Vertex.h"
-#include "../../../Utils/SimpleMath.h"
 
 class Mesh
 {

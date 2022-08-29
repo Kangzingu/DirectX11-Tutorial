@@ -101,9 +101,6 @@
     <ClCompile Include="Objects\Components\Components.cpp">
       <Filter>Objects\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Components\Model\Color.cpp">
-      <Filter>Objects\Components\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\Components\Collider\Collider.cpp">
       <Filter>Objects\Components\Collider</Filter>
     </ClCompile>
@@ -217,9 +214,6 @@
     </ClInclude>
     <ClInclude Include="Objects\Components\Components.h">
       <Filter>Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Components\Model\Color.h">
-      <Filter>Objects\Components\Model</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Shaders\Vertex.h">
       <Filter>Graphics\Shaders</Filter>

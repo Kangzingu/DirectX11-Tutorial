@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <assimp/material.h>
-#include "Color.h"
+#include "../../../Utils/SimpleMath.h"
 
 enum class TextureStorageType
 {

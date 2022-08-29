@@ -21,6 +21,37 @@ public:
 		return degree * PI / 180.0f;
 	};
 };
+struct Color
+{
+public:
+	union
+	{
+		unsigned char rgba[4];
+		// 컬러값 비교할 때 매우 용이해서 int형을 넣었다고 함(아마 rgba 4개 각각이 아니라 하나의 정수로 비교하면 쉬우니깐 그런듯)
+		unsigned int color;
+	};
+
+public:
+	Color() : color(0) {}
+	Color(unsigned int color) : color(color) {}
+	Color(unsigned char r, unsigned char g, unsigned char b) : Color(r, g, b, 255) {}
+	Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+	{
+		rgba[0] = r;
+		rgba[1] = g;
+		rgba[2] = b;
+		rgba[3] = a;
+	}
+	Color(const Color& src) : color(src.color) {}
+	static Color GetUnloadedTextureColor()
+	{
+		return Color(100, 100, 100);
+	}
+	static Color GetUnhandledTextureColor()
+	{
+		return Color(250, 0, 0);
+	}
+};
 struct Vector3
 {
 public:

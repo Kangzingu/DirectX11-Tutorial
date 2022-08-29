@@ -21,7 +21,7 @@ Texture::Texture(ID3D11Device* device, const std::string& filePath, aiTextureTyp
 		HRESULT hr = DirectX::CreateDDSTextureFromFile(device, StringHelper::StringToWString(filePath).c_str(), m_texture.GetAddressOf(), m_textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
-			Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
+			Initialize1x1ColorTexture(device, Color::GetUnloadedTextureColor(), type);
 		}
 		return;
 	}
@@ -30,7 +30,7 @@ Texture::Texture(ID3D11Device* device, const std::string& filePath, aiTextureTyp
 		HRESULT hr = DirectX::CreateWICTextureFromFile(device, StringHelper::StringToWString(filePath).c_str(), m_texture.GetAddressOf(), m_textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
-			Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
+			Initialize1x1ColorTexture(device, Color::GetUnloadedTextureColor(), type);
 		}
 		return;
 	}

@@ -2,18 +2,18 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\Simple-Physics-Engine.exe</FullPath>
+      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\Simple-Physics-Engine.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader.cso</FullPath>
+      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso</FullPath>
+      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader_nolight.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\kangzingu\Desktop\강진구\GithubProjects\Simple-Physics-Engine\x64\Debug\vertexshader.cso</FullPath>
+      <FullPath>D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\vertexshader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

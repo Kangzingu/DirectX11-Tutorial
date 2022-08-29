@@ -146,7 +146,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 				//pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 				if (aiColor.IsBlack())
 				{
-					materialTextures.push_back(Texture(m_device, Colors::UnloadedTextureColor, textureType));
+					materialTextures.push_back(Texture(m_device, Color::GetUnloadedTextureColor(), textureType));
 					return materialTextures;
 				}
 				materialTextures.push_back(Texture(m_device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
@@ -188,7 +188,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiTextur
 	}
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(Texture(m_device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(Texture(m_device, Color::GetUnhandledTextureColor(), aiTextureType::aiTextureType_DIFFUSE));
 	}
 	return materialTextures;
 }
