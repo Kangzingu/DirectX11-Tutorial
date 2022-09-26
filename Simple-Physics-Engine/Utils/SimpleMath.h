@@ -52,6 +52,136 @@ public:
 		return Color(250, 0, 0);
 	}
 };
+struct Vector2
+{
+public:
+	float x;
+	float y;
+
+public:
+	Vector2() : x(0), y(0) {}
+	Vector2(DirectX::XMVECTOR v) : x(DirectX::XMVectorGetX(v)), y(DirectX::XMVectorGetY(v)) {}
+	Vector2(DirectX::XMFLOAT3 v) : x(v.x), y(v.y) {}
+	Vector2(float x, float y) : x(x), y(y) {}
+	static Vector2 Zero()
+	{
+		return Vector2(0.0f, 0.0f);
+	}
+	static Vector2 One()
+	{
+		return Vector2(1.0f, 1.0f);
+	}
+	static Vector2 Up()
+	{
+		return Vector2(0.0f, 1.0f);
+	}
+	static Vector2 Right()
+	{
+		return Vector2(1.0f, 0.0f);
+	}
+	static Vector2 Normalize(Vector2 v)
+	{
+		float length = sqrt(v.x * v.x + v.y * v.y);
+		if (length == 0)
+			return Vector2();
+		else
+			return Vector2(v.x / length, v.y / length);
+	}
+	static float Magnitude(Vector2 v)
+	{
+		return sqrt(v.x * v.x + v.y * v.y);
+	}
+	static float SquareMagnitude(Vector2 v)
+	{
+		return v.x * v.x + v.y * v.y;
+	}
+	static float Dot(Vector2 v1, Vector2 v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y;
+	}
+	Vector2 operator+(Vector2 v)
+	{
+		return Vector2(x + v.x, y + v.y);
+	}
+	Vector2& operator+=(Vector2 v)
+	{
+		x += v.x; y += v.y;
+		return *this;
+	}
+	Vector2 operator+(float a)
+	{
+		return Vector2(x + a, y + a);
+	}
+	Vector2& operator+=(float a)
+	{
+		x += a; y += a;
+		return *this;
+	}
+	Vector2 operator-(Vector2 v)
+	{
+		return Vector2(x - v.x, y - v.y);
+	}
+	Vector2& operator-=(Vector2 v)
+	{
+		x -= v.x; y -= v.y;
+		return *this;
+	}
+	Vector2 operator-(float a)
+	{
+		return Vector2(x - a, y - a);
+	}
+	Vector2& operator-=(float a)
+	{
+		x -= a; y -= a;
+		return *this;
+	}
+	Vector2 operator-()
+	{
+		return Vector2(-x, -y);
+	}
+	Vector2 operator*(float a)
+	{
+		return Vector2(x * a, y * a);
+	}
+	Vector2& operator*=(float a)
+	{
+		x *= a; y *= a;
+		return *this;
+	}
+	Vector2 operator/(float a)
+	{
+		return Vector2(x / a, y / a);
+	}
+	Vector2& operator/=(float a)
+	{
+		x /= a; y /= a;
+		return *this;
+	}
+	bool operator==(Vector2 v)
+	{
+		if (x == v.x && y == v.y)
+			return true;
+		else
+			return false;
+	}
+	bool operator!=(Vector2 v)
+	{
+		if (x != v.x || y != v.y)
+			return true;
+		else
+			return false;
+	}
+	DirectX::XMVECTOR ToXMVECTOR()
+	{
+		DirectX::XMVECTOR v = DirectX::XMVectorSet(x, y, 0, 1);
+		return v;
+	}
+	DirectX::XMFLOAT2 ToXMFLOAT2()
+	{
+		DirectX::XMFLOAT2 v = DirectX::XMFLOAT2(x, y);
+		return v;
+	}
+};
 struct Vector3
 {
 public:
@@ -87,7 +217,10 @@ public:
 	static Vector3 Normalize(Vector3 v)
 	{
 		float length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-		return Vector3(v.x / length, v.y / length, v.z / length);
+		if (length == 0)
+			return Vector3();
+		else
+			return Vector3(v.x / length, v.y / length, v.z / length);
 	}
 	static Vector3 Cross(Vector3 v1, Vector3 v2)
 	{

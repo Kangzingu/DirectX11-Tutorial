@@ -649,3 +649,46 @@ void Collision::NarrowPhaseConvexAndConvex(Object& object1, Object& object2, vec
 		contacts.push_back(contact);
 	}
 }
+
+
+/************************************/
+/* GJK Algorithm                    */
+/************************************/
+Vector3 GJKSupport(Object& object1, Object& object2, Vector3 direction)
+{
+	if (direction == Vector3::Zero())
+		assert("두 물체의 위치가 동일해서 초기 direction 값이 0임");
+	 Vector3 object1MaxDistanceVertex = object1.m_model.GetFarthestVertexOfDirectionWorldCoord(direction);
+	 Vector3 object2MaxDistanceVertex = object2.m_model.GetFarthestVertexOfDirectionWorldCoord(-direction);
+	
+	return object1MaxDistanceVertex - object2MaxDistanceVertex;
+}
+bool GJKDoesSimplexContainsOrigin(vector<Vector3>& simplex)
+{
+	Vector3 lastAddedPoint = simplex[simplex.size() - 1];
+	return false;
+}
+bool GJK(Object& object1, Object& object2)
+{
+	vector<Vector3> simplex;
+	Vector3 direction = object2.m_transform.GetPosition() - object1.m_transform.GetPosition();
+
+	simplex.push_back(GJKSupport(object1, object2, direction));
+
+	direction *= -1;
+
+	while (true)
+	{
+		simplex.push_back(GJKSupport(object1, object2, direction));
+		if (Vector3::Dot(simplex.back(), direction) < 0)
+		{
+			assert("두 물체는 충돌하지 않음");
+			return false;
+		}
+		else
+		{
+			if (GJKDoesSimplexContainsOrigin(simplex) == true)
+				return true;
+		}
+	}
+}

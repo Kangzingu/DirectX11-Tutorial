@@ -18,7 +18,28 @@ void Model::Draw(Matrix4x4 worldMatrix, Matrix4x4& viewProjectionMatrix)
 		m_vsConstantBuffer->data.worldMatrix = worldMatrix * m_meshes[i].m_worldMatrix;
 		m_vsConstantBuffer->ApplyChanges();
 		m_meshes[i].Draw();
+		m_meshes[i].UpdateWorldSpaceVertices(m_vsConstantBuffer->data.worldMatrix);
 	}
+}
+Vector3 Model::GetFarthestVertexOfDirectionWorldCoord(Vector3 direction)
+{
+	float dotResult;
+	float maxDotResult = -FLT_MAX;
+	Vector3 maxDotResultVertex;
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		for (int j = 0; j < m_meshes[i].m_worldSpaceVerticesPosition.size(); j++)
+		{
+			dotResult= Vector3::Dot(m_meshes[i].m_worldSpaceVerticesPosition[j], direction);
+
+			if (dotResult > maxDotResult)
+			{
+				maxDotResult = dotResult;
+				maxDotResultVertex = m_meshes[i].m_worldSpaceVerticesPosition[j];
+			}
+		}
+	}
+	return maxDotResultVertex;
 }
 void Model::Load(const std::string& filePath)
 {
@@ -49,7 +70,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, Matrix4x4 parentTran
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, Matrix4x4 transformMatrix)
 {
 	std::vector<Vertex> vertices;
-	std::vector<DWORD> indices;
+	std::vector<UINT> indices;
 
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{

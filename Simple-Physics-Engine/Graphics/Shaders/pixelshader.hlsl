@@ -8,7 +8,7 @@ struct PS_INPUT
 {
 	float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD;
-    float3 inNormal : NORMAL;
+    float3 inWorldNormal : NORMAL;
     float3 inWorldPosition : WORLD_POSITION;
 };
 
@@ -22,7 +22,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     float3 diffuse;
     float3 objectToLight = normalize(lightPosition - input.inWorldPosition);
-    float diffuseStrength = max(0, dot(objectToLight, input.inNormal));
+    float diffuseStrength = max(0, dot(objectToLight, input.inWorldNormal));
     float objectToLightDistance = distance(lightPosition, input.inWorldPosition);
     float attenuation = 1.0f / (objectToLightDistance * objectToLightDistance);
     diffuse = diffuseStrength * attenuation;
@@ -31,7 +31,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     //if (dot(objectToLight, input.inNormal) > 0)
     //{
         float3 objectToCamera = normalize(cameraPosition - input.inWorldPosition);
-        float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inNormal)) * 0.8f;
+    float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inWorldNormal)) * 0.8f;
         specular = pow(specularStrength, 3);
     //}
 

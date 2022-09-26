@@ -1,49 +1,40 @@
-/* 끝 */
 #ifndef VertexBuffer_h__
 #define VertexBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
-#include <memory>
+using namespace Microsoft::WRL;
 
 template<class T>
 class VertexBuffer
 {
 private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
-	UINT m_stride = sizeof(T);
+	ComPtr<ID3D11Buffer> m_buffer = nullptr;
+
 	UINT m_numofVertex = 0;
+	UINT m_stride = sizeof(T);
 
 public:
-	void Initialize(ID3D11Device* device, T* data, UINT vertexCount)
+	VertexBuffer() {};
+	void Initialize(ID3D11Device* device, T* data, UINT numofVertex)
 	{
 		if (m_buffer.Get() != nullptr)
 			m_buffer.Reset();
-		m_numofVertex = vertexCount;
-		D3D11_BUFFER_DESC vertexBufferDescription;
-		ZeroMemory(&vertexBufferDescription, sizeof(vertexBufferDescription));
-		vertexBufferDescription.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDescription.ByteWidth = m_stride * vertexCount;
-		vertexBufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDescription.CPUAccessFlags = 0;
-		vertexBufferDescription.MiscFlags = 0;
+
+		m_numofVertex = numofVertex;
+
 		D3D11_SUBRESOURCE_DATA vertexBufferData;
 		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 		vertexBufferData.pSysMem = data;
+
+		D3D11_BUFFER_DESC vertexBufferDescription;
+		ZeroMemory(&vertexBufferDescription, sizeof(vertexBufferDescription));
+		vertexBufferDescription.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDescription.ByteWidth = m_stride * numofVertex;
+		vertexBufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDescription.CPUAccessFlags = 0;
+		vertexBufferDescription.MiscFlags = 0;
+
 		ERROR_IF_FAILED(device->CreateBuffer(&vertexBufferDescription, &vertexBufferData, m_buffer.GetAddressOf()), "버텍스 버퍼 생성에 실패했습니다");
-	}
-	VertexBuffer() {}
-	VertexBuffer(const VertexBuffer<T>& input)
-	{
-		m_buffer = input.m_buffer;
-		m_numofVertex = input.m_numofVertex;
-		m_stride = input.m_stride;
-	}
-	VertexBuffer<T>& operator=(const VertexBuffer<T>& input)
-	{
-		m_buffer = input.m_buffer;
-		m_numofVertex = input.m_numofVertex;
-		m_stride = input.m_stride;
-		return *this;
 	}
 	ID3D11Buffer* Get() const
 	{
@@ -53,15 +44,15 @@ public:
 	{
 		return m_buffer.GetAddressOf();
 	}
-	UINT VertexCount() const
+	UINT GetNumofVertex() const
 	{
 		return m_numofVertex;
 	}
-	const UINT Stride() const
+	const UINT GetStride() const
 	{
 		return m_stride;
 	}
-	const UINT* StridePtr() const
+	const UINT* GetAddressOfStride() const
 	{
 		return &m_stride;
 	}
