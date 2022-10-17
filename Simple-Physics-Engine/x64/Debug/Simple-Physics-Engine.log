@@ -1,9 +1,5 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(DirectX11 Tutorial.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
-  Mesh.cpp
-  Model.cpp
-D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Objects\Components\Model\Mesh.cpp(6,68): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Objects\Components\Model\Mesh.cpp(7,65): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Objects\Components\Model\Model.cpp(173,100): warning C4244: '인수': 'ai_real'에서 'unsigned char'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Objects\Components\Model\Model.cpp(173,83): warning C4244: '인수': 'ai_real'에서 'unsigned char'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Objects\Components\Model\Model.cpp(173,66): warning C4244: '인수': 'ai_real'에서 'unsigned char'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\GitHubRepository\Simple-Physics-Engine\Simple-Physics-Engine\Graphics\Shaders\pixelshader.hlsl(19,12-84): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\pixelshader.cso
   Simple-Physics-Engine.vcxproj -> D:\GitHubRepository\Simple-Physics-Engine\x64\Debug\Simple-Physics-Engine.exe

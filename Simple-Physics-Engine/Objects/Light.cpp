@@ -14,3 +14,8 @@ void Light::SetStrength(float strength)
 {
 	m_strength = strength;
 }
+
+float Light::GetStrength()
+{
+	return m_strength;
+}

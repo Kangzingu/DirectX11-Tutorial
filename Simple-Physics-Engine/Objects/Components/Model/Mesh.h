@@ -21,9 +21,7 @@ public:
 	vector<Vertex> m_vertices;
 	vector<Vector3> m_worldSpaceVerticesPosition;
 	vector<UINT> m_indices;
-	std::vector<Texture> m_textures;
-
-private:
+	vector<Texture> m_textures;
 	ID3D11DeviceContext* m_deviceContext;
 	VertexBuffer<Vertex> m_vertexbuffer;
 	IndexBuffer m_indexbuffer;

@@ -78,7 +78,7 @@ void Scene::InitializeDirectX()
 	// 깊이 테스트
 	CD3D11_TEXTURE2D_DESC depthStencilTextureDescription(DXGI_FORMAT_D24_UNORM_S8_UINT, m_windowManager->m_window.GetWidth(), m_windowManager->m_window.GetHeight());
 	depthStencilTextureDescription.MipLevels = 1;
-	depthStencilTextureDescription.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+	depthStencilTextureDescription.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	ERROR_IF_FAILED(m_device->CreateTexture2D(&depthStencilTextureDescription, NULL, m_depthStencilBuffer.GetAddressOf()), "Depth Stencil 텍스쳐 생성에 실패했습니다");
 	ERROR_IF_FAILED(m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), NULL, m_depthStencilView.GetAddressOf()), "Depth Stencil 뷰 생성에 실패했습니다");
 	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
@@ -390,30 +390,67 @@ void Scene::UpdatePhysics()
 }
 void Scene::UpdateScene()
 {
+	// Clear
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), m_camera->GetBackgroundColor());
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	
+	// Input Assembler
 	m_deviceContext->IASetInputLayout(m_vertexShader.GetInputLayout());
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	// Vertex Shader
 	m_deviceContext->VSSetShader(m_vertexShader.GetShader(), NULL, 0);
+	
+	// Rasterizer
+	m_deviceContext->RSSetState(m_rasterizerState.Get());
+	
+	// Pixel Shader
 	m_deviceContext->PSSetShader(m_pixelShader.GetShader(), NULL, 0);
 	m_deviceContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 	m_light->SetContantBuffer(m_psConstantBuffer, m_camera->m_transform.GetPosition());
 	m_psConstantBuffer.ApplyChanges();
 	m_deviceContext->PSSetConstantBuffers(0, 1, m_psConstantBuffer.GetAddressOf());
-	m_deviceContext->RSSetState(m_rasterizerState.Get());
+	
+	// Output Merger
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 	m_deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);// 투명 쓸거면 첫번째 인자 "blendState.Get()"로
 
-	{// 오브젝트 그리기
+	// Draw Objects
+	{
 		for (int i = 0; i < m_actors.size(); i++)
 		{
+			m_deviceContext->VSSetConstantBuffers(0, 1, m_actors[i]->m_model.GetVSConstantBuffer()->GetAddressOf());
+			// 여기부터 Model에 있던 코드
+			for (int j = 0; j < m_actors[i]->m_model.m_meshes.size(); j++)
+			{
+				m_actors[i]->m_model.GetVSConstantBuffer()->data.wvpMatrix = m_camera->GetViewProjectionMatrix() * (m_actors[i]->m_transform.GetWorldMatrix() * m_actors[i]->m_model.m_meshes[j].m_worldMatrix);
+				m_actors[i]->m_model.GetVSConstantBuffer()->data.worldMatrix = (m_actors[i]->m_transform.GetWorldMatrix() * m_actors[i]->m_model.m_meshes[j].m_worldMatrix);
+				m_actors[i]->m_model.GetVSConstantBuffer()->ApplyChanges();
+				// 여기부터 Mesh에 있던 코드
+				{
+					UINT offset = 0;
+					for (int k = 0; k < m_actors[i]->m_model.m_meshes[j].m_textures.size(); k++)
+					{
+						if (m_actors[i]->m_model.m_meshes[j].m_textures[k].GetType() == aiTextureType::aiTextureType_DIFFUSE)
+						{
+							m_deviceContext->PSSetShaderResources(0, 1, m_actors[i]->m_model.m_meshes[j].m_textures[k].GetTextureResourceViewAddress());
+							break;
+						}
+					}
+					m_deviceContext->IASetVertexBuffers(0, 1, m_actors[i]->m_model.m_meshes[j].m_vertexbuffer.GetAddressOf(), m_actors[i]->m_model.m_meshes[j].m_vertexbuffer.GetAddressOfStride(), &offset);
+					m_deviceContext->IASetIndexBuffer(m_actors[i]->m_model.m_meshes[j].m_indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+					m_deviceContext->DrawIndexed(m_actors[i]->m_model.m_meshes[j].m_indexbuffer.GetNumofIndex(), 0, 0);
+
+				}
+				m_actors[i]->m_model.m_meshes[j].UpdateWorldSpaceVertices(m_actors[i]->m_model.GetVSConstantBuffer()->data.worldMatrix);
+			}
 			m_actors[i]->Draw(m_camera->GetViewProjectionMatrix());
 		}
 		m_deviceContext->PSSetShader(m_pixelShaderNoLight.GetShader(), NULL, 0);
 		m_light->Draw(m_camera->GetViewProjectionMatrix());
 	}
 	
-	{// 선 그리기
+	{// Draw Line
 		
 		m_basicEffect->SetMatrices(Matrix4x4::Identity().ToXMMATRIX(), m_camera->GetViewMatrix().ToXMMATRIX(), m_camera->GetProjectionMatrix().ToXMMATRIX());
 		m_basicEffect->Apply(m_deviceContext.Get());
@@ -746,13 +783,15 @@ void Scene::UpdateUI()
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(separatingVelocity).c_str(), XMFLOAT2(5, 1200), DirectX::Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));*/
 	m_spriteBatch->End();
 
-	/*
+	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &psConstantBuffer.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strength", &psConstantBuffer.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
+	float lightStrength = m_light->GetStrength() ;
+	ImGui::DragFloat("Ambient Light Strength", &lightStrength, 0.01f, 0.0f, 1.0f);
+	m_light->SetStrength(lightStrength);
+	/*ImGui::DragFloat3("Ambient Light Color", &psConstantBuffer.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	
 	ImGui::NewLine();
 	ImGui::DragFloat3("Dynamic Light Color", &light.dynamicColor.x, 0.01f, 0.0f, 1.0f);
@@ -760,7 +799,7 @@ void Scene::UpdateUI()
 	ImGui::DragFloat("Dynamic Light Strength", &light.dynamicStrength, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation A", &light.dynamicAttenA, 0.01f, 0.1f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation B", &light.dynamicAttenB, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &light.dynamicAttenC, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation C", &light.dynamicAttenC, 0.01f, 0.0f, 10.0f);*/
 	//ImGui::Text("This is example text");
 	//if (ImGui::Button("Click me"))
 	//	counter++;
@@ -771,7 +810,7 @@ void Scene::UpdateUI()
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	*/
+	
 }
 Scene::~Scene()
 {

@@ -31,10 +31,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     //if (dot(objectToLight, input.inNormal) > 0)
     //{
         float3 objectToCamera = normalize(cameraPosition - input.inWorldPosition);
-    float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inWorldNormal)) * 0.8f;
+        float specularStrength = max(0, dot(normalize(objectToLight + objectToCamera), input.inWorldNormal)) * 0.8f;
         specular = pow(specularStrength, 3);
     //}
 
-    float3 finalColor = sampleColor + ambient + diffuse + specular;
+    float3 finalColor = (sampleColor + ambient + diffuse + specular) * lightStrength;
     return float4(finalColor, 1.0f);
+    //return 1 - input.inPosition.z;
 }

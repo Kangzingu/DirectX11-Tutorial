@@ -21,6 +21,10 @@ void Model::Draw(Matrix4x4 worldMatrix, Matrix4x4& viewProjectionMatrix)
 		m_meshes[i].UpdateWorldSpaceVertices(m_vsConstantBuffer->data.worldMatrix);
 	}
 }
+ConstantBuffer<VSConstantBuffer>* Model::GetVSConstantBuffer()
+{
+	return m_vsConstantBuffer;
+}
 Vector3 Model::GetFarthestVertexOfDirectionWorldCoord(Vector3 direction)
 {
 	float dotResult;
